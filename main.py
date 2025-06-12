@@ -55,6 +55,7 @@ class Game(object):
         game_tags: list = None,
         platforms: list = None,
         publisher: str = None,
+        image_link: str = None,
         data: dict = None,
     ) -> None:
         if data:
@@ -64,6 +65,7 @@ class Game(object):
             self.developer = data["developer"]
             self.game_tags = data["game_tags"]
             self.platforms = data["platforms"]
+            self.image_link = data["image_link"]
 
             if "publisher" in data:
                 self.publisher = data["publisher"]
@@ -76,6 +78,7 @@ class Game(object):
             self.developer = developer
             self.game_tags = game_tags
             self.platforms = platforms
+            self.image_link = image_link
 
             if publisher:
                 self.publisher = publisher
@@ -106,6 +109,47 @@ def get_game_by_id(game_id: int) -> Game:
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
     return game
+
+
+def add_game(game: Game) -> None:
+    # CURRENTLY NOT WORKING!!!
+    db = get_database()
+    db.row_factory = make_dicts
+    cursor = db.cursor()
+    game_insert = "INSERT INTO Games (title, description, release_date, developer, publisher, image_link) VALUES (?,?,?,?,?,?)"
+    cursor.execute(
+        game_insert,
+        (
+            game.title,
+            game.description,
+            game.release_date,
+            game.developer,
+            game.publisher,
+            game.image_link,
+        ),
+    )
+    get_game_id = "SELECT game_id FROM Games WHERE title = ?"
+    game_id = cursor.execute(get_game_id, game.title).fetchone()["title"]
+    tag_insert = "INSERT INTO GamTagAssignment (game_id, game_tag_id) VALUES (?,?)"
+    platform_insert = (
+        "INSERT INTO PlatformAssignment (game_id, platform_id) VALUES (?,?)"
+    )
+    for game_tag in game.game_tags:
+        tag_id = get_game_tag_by_name(game_tag)["game_tag_id"]
+        cursor.execute(tag_insert, game_id, tag_id)
+    for platform in game.platforms:
+        platform_id = get_platform_by_name(platform)["platform_id"]
+        cursor.execute(platform_insert, game_id, platform_id)
+
+    db.commit()
+
+
+def get_game_tag_by_name(tag_name: str):
+    pass
+
+
+def get_platform_by_name(platform_name: str):
+    pass
 
 
 class User(object):
