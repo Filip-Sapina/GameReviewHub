@@ -178,6 +178,8 @@ def close_database_connection(exception):
 
 @app.route("/home")
 def home():
+    if not "user_id" in session.keys():
+        session["user_id"] = None
     if session["user_id"]:
         user = get_user_by_id(session["user_id"])
     else:
