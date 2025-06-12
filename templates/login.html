@@ -11,7 +11,18 @@
         <input type="text" name="username">
         <label for="password">Password</label>
         <input type="password" name="password">
-        <button type="submit">Login</button>
+        <button type="submit">Login</button>    
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                    <ul class=flashes>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+            {% endif %}
+        {% endwith %}
+        {% block body %}{% endblock %}
     </form>
     
 </body>

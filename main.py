@@ -37,7 +37,7 @@ def get_user_by_id(user_id: int):
 
     Returns:
         dict: A dictionary containing the user's details, including the
-            'date_joined' field converted to a datetime object. 
+            'date_joined' field converted to a datetime object.
             Returns None if user isn't found at user_id
 
     Raises:
@@ -82,7 +82,7 @@ def get_user_by_username(username: str):
         user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
     else:
         return None
-    
+
     return user
 
 
