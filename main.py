@@ -19,6 +19,9 @@ def make_dicts(cursor, row):
     """row factory for database to turn tuples into dicts"""
     return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
 
+def to_hash(password: str):
+    return sha256(password.encode()).hexdigest()
+
 
 def get_database():
     """returns a database connection"""
@@ -154,7 +157,7 @@ def add_user(username: str, password: str):
         None
     """
     date_joined = datetime.now().timestamp()
-    password_hash = sha256(password.encode()).hexdigest()
+    password_hash = to_hash(password)
 
     db = get_database()
     db.row_factory = make_dicts
@@ -207,7 +210,7 @@ def update_user(user_id: int, username: str = None, password: str = None):
     db.row_factory = make_dicts
     cursor = db.cursor()
 
-    password_hash = sha256(password.encode()).hexdigest()
+    password_hash = to_hash(password)
 
     if username and not password:
         update = "UPDATE Users SET username = ? WHERE user_id = ?"
@@ -258,7 +261,7 @@ def login_page():
 
         user = get_user_by_username(username)
         if user:
-            password_hash = sha256(password.encode()).hexdigest()
+            password_hash = to_hash(password)
             if password_hash == user.password_hash:
                 session["user_id"] = user.user_id
                 flash("Login Accepted")
