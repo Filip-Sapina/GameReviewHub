@@ -28,6 +28,44 @@ def get_database():
     return g.db
 
 
+class Game(object):
+    """
+    Represents a video game with relevant metadata, same as column in Game table.
+
+    Attributes:
+        title (str): The title of the game.
+        description (str): A brief description of the game.
+        release_date (int): The release year of the game.
+        developer (str): The developer or development studio of the game.
+        game_tags (list): A list of tags or genres describing the game.
+        platforms (list): A list of platforms on which the game is available.
+        publisher (str): The publisher of the game. Defaults to the developer if not provided.
+    """
+    def __init__(
+        self,
+        title: str,
+        description: str,
+        release_date: int,
+        developer: str,
+        game_tags: list,
+        platforms: list,
+        publisher: str = None,
+    ) -> None:
+        self.title = title
+        self.description = description
+        self.release_date = release_date
+        self.developer = developer
+        self.game_tags = game_tags
+        self.platforms = platforms
+
+        if publisher:
+            self.publisher = publisher
+        else:
+            self.publisher = self.developer
+
+
+
+
 def get_user_by_id(user_id: int):
     """
     Returns user data from database using user_id
