@@ -19,7 +19,7 @@ def generate_users(n):
     cursor = db.cursor()
 
     for _ in range(n):
-        username = fake.user_name()
+        username = fake.pystr(min_chars=5, max_chars=20)
         password = fake.password()
         date_joined = int(datetime.now().timestamp())
         password_hash = sha256(password.encode()).hexdigest()
@@ -38,6 +38,7 @@ def clear_users():
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     cursor.execute("DELETE FROM Users")
+    cursor.execute("UPDATE sqlite_sequence SET seq=0 WHERE name='Users'")
     db.commit()
     cursor.close()
     db.close()

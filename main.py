@@ -37,7 +37,8 @@ def get_user_by_id(user_id: int):
 
     Returns:
         dict: A dictionary containing the user's details, including the
-            'date_joined' field converted to a datetime object.
+            'date_joined' field converted to a datetime object. 
+            Returns None if user isn't found at user_id
 
     Raises:
         TypeError: If user_id is not an integer.
@@ -49,8 +50,9 @@ def get_user_by_id(user_id: int):
     query = "SELECT * FROM Users WHERE user_id = ?"
     cursor.execute(query, (user_id,))
     user = cursor.fetchone()
-    user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
     db.commit()
+    if user:
+        user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
     return user
 
 
@@ -75,8 +77,12 @@ def get_user_by_username(username: str):
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
     user = cursor.fetchone()
-    user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
     db.commit()
+    if user:
+        user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
+    else:
+        return None
+    
     return user
 
 
