@@ -46,20 +46,29 @@ class Game(object):
     """
     def __init__(
         self,
-        title: str,
-        description: str,
-        release_date: int,
-        developer: str,
-        game_tags: list,
-        platforms: list,
+        title: str = None,
+        description: str = None,
+        release_date: int = None, 
+        developer: str = None,
+        game_tags: list = None,
+        platforms: list = None,
         publisher: str = None,
+        data: dict = None
     ) -> None:
-        self.title = title
-        self.description = description
-        self.release_date = release_date
-        self.developer = developer
-        self.game_tags = game_tags
-        self.platforms = platforms
+        if data:
+            self.title = data["title"]
+            self.description = data["description"]
+            self.release_date = data["release_date"]
+            self.developer = data["developer"]
+            self.game_tags = data["game_tags"]
+            self.platforms = data["platforms"]
+        else:
+            self.title = title
+            self.description = description
+            self.release_date = release_date
+            self.developer = developer
+            self.game_tags = game_tags
+            self.platforms = platforms
 
         if publisher:
             self.publisher = publisher
