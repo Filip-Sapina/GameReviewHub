@@ -15,11 +15,12 @@ app.config["SECRET_KEY"] = "AVerySecretKeyThatNooneKnowsAbout"
 DATABASE = "database.db"
 
 
-def make_dicts(cursor, row):
+def make_dicts(cursor, row) -> dict:
     """row factory for database to turn tuples into dicts"""
     return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
 
-def to_hash(password: str):
+
+def to_hash(password: str) -> str:
     return sha256(password.encode()).hexdigest()
 
 
@@ -44,16 +45,17 @@ class Game(object):
         platforms (list): A list of platforms on which the game is available.
         publisher (str): The publisher of the game. Defaults to the developer if not provided.
     """
+
     def __init__(
         self,
         title: str = None,
         description: str = None,
-        release_date: int = None, 
+        release_date: int = None,
         developer: str = None,
         game_tags: list = None,
         platforms: list = None,
         publisher: str = None,
-        data: dict = None
+        data: dict = None,
     ) -> None:
         if data:
             self.title = data["title"]
@@ -62,6 +64,11 @@ class Game(object):
             self.developer = data["developer"]
             self.game_tags = data["game_tags"]
             self.platforms = data["platforms"]
+
+            if "publisher" in data:
+                self.publisher = data["publisher"]
+            else:
+                self.publisher = self.developer
         else:
             self.title = title
             self.description = description
@@ -70,10 +77,36 @@ class Game(object):
             self.game_tags = game_tags
             self.platforms = platforms
 
-        if publisher:
-            self.publisher = publisher
-        else:
-            self.publisher = self.developer
+            if publisher:
+                self.publisher = publisher
+            else:
+                self.publisher = self.developer
+
+
+def get_game_by_id(game_id: int) -> Game:
+    """
+    Returns Game object from database using game_id
+
+    Args:
+        game_id (int): The ID of the game to retrieve.
+
+    Returns:
+        game (Game): object containing each column of found row in database.
+    Raises:
+        TypeError: If game_id is not an integer.
+    """
+
+    db = get_database()
+    db.row_factory = make_dicts
+    cursor = db.cursor()
+    query = "SELECT * FROM Games WHERE game_id = ?"
+    cursor.execute(query, (game_id,))
+    game = Game(data=cursor.fetchone())
+    db.commit()
+    if game:
+        game.release_date = datetime.fromtimestamp(game.release_date)
+    return game
+
 
 class User(object):
     """
@@ -86,7 +119,15 @@ class User(object):
         date_joined (int): unix timestamp of when user joined
         data (dict): dict containing all variables above, overwrites if provided.
     """
-    def __init__(self, user_id = None, username = None, password_hash = None, date_joined = None, data: dict = None) -> None:
+
+    def __init__(
+        self,
+        user_id=None,
+        username=None,
+        password_hash=None,
+        date_joined=None,
+        data: dict = None,
+    ) -> None:
         if data:
             self.user_id = data["user_id"]
             self.username = data["username"]
@@ -99,7 +140,7 @@ class User(object):
             self.date_joined = date_joined
 
 
-def get_user_by_id(user_id: int):
+def get_user_by_id(user_id: int) -> User:
     """
     Returns user data from database using user_id
 
@@ -124,7 +165,7 @@ def get_user_by_id(user_id: int):
     return user
 
 
-def get_user_by_username(username: str):
+def get_user_by_username(username: str) -> User:
     """
     Returns user data from database using user_id
 
@@ -154,7 +195,7 @@ def get_user_by_username(username: str):
     return user
 
 
-def add_user(username: str, password: str):
+def add_user(username: str, password: str) -> None:
     """
     Add a new user to the database with hashed password and current time as join date.
 
@@ -176,7 +217,7 @@ def add_user(username: str, password: str):
     db.commit()
 
 
-def delete_user(user_id: int):
+def delete_user(user_id: int) -> None:
     """
     Removes a user from Users Table by user_id
 
@@ -194,7 +235,7 @@ def delete_user(user_id: int):
     cursor.execute(delete, user_id)
 
 
-def update_user(user_id: int, username: str = None, password: str = None):
+def update_user(user_id: int, username: str = None, password: str = None) -> None:
     """
     Updates an existing user's username and/or password in the database
 
