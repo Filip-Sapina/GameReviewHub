@@ -30,7 +30,7 @@ def get_database():
 
 class Game(object):
     """
-    Represents a video game with relevant metadata, same as column in Game table.
+    Represents a video game with relevant metadata, same as columns in Game table.
 
     Attributes:
         title (str): The title of the game.
@@ -63,7 +63,21 @@ class Game(object):
         else:
             self.publisher = self.developer
 
+class User(object):
+    """
+    Represents a user with relevant metadata, same as columns in Users table.
 
+    Attributes:
+        user_id (int): Id of user within database's Users table
+        username (str): Name of user.
+        password_hash (str): Hashed password using sha256.
+        date_joined (int): unix timestamp of when user joined
+    """
+    def __init__(self, user_id, username, password_hash, date_joined) -> None:
+        self.user_id = user_id
+        self.username = username
+        self.password_hash = password_hash
+        self.date_joined = date_joined
 
 
 def get_user_by_id(user_id: int):
