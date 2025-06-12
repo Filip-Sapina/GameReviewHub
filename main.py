@@ -72,12 +72,19 @@ class User(object):
         username (str): Name of user.
         password_hash (str): Hashed password using sha256.
         date_joined (int): unix timestamp of when user joined
+        data (dict): dict containing all variables above, overwrites if provided.
     """
-    def __init__(self, user_id, username, password_hash, date_joined) -> None:
-        self.user_id = user_id
-        self.username = username
-        self.password_hash = password_hash
-        self.date_joined = date_joined
+    def __init__(self, user_id = None, username = None, password_hash = None, date_joined = None, data: dict = None) -> None:
+        if data:
+            self.user_id = data["user_id"]
+            self.username = data["username"]
+            self.password_hash = data["password_hash"]
+            self.date_joined = data["date_joined"]
+        else:
+            self.user_id = user_id
+            self.username = username
+            self.password_hash = password_hash
+            self.date_joined = date_joined
 
 
 def get_user_by_id(user_id: int):
@@ -88,10 +95,7 @@ def get_user_by_id(user_id: int):
         user_id (int): The ID of the user to retrieve.
 
     Returns:
-        dict: A dictionary containing the user's details, including the
-            'date_joined' field converted to a datetime object.
-            Returns None if user isn't found at user_id
-
+        user (User): object containing each column of found row in database.
     Raises:
         TypeError: If user_id is not an integer.
     """
@@ -101,10 +105,10 @@ def get_user_by_id(user_id: int):
     cursor = db.cursor()
     query = "SELECT * FROM Users WHERE user_id = ?"
     cursor.execute(query, (user_id,))
-    user = cursor.fetchone()
+    user = User(data=cursor.fetchone())
     db.commit()
     if user:
-        user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
+        user.date_joined = datetime.fromtimestamp(user.date_joined)
     return user
 
 
@@ -128,10 +132,10 @@ def get_user_by_username(username: str):
     cursor = db.cursor()
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
-    user = cursor.fetchone()
+    user = User(data=cursor.fetchone())
     db.commit()
     if user:
-        user["date_joined"] = datetime.fromtimestamp(user["date_joined"])
+        user.date_joined = datetime.fromtimestamp(user.date_joined)
     else:
         return None
 
@@ -255,8 +259,8 @@ def login_page():
         user = get_user_by_username(username)
         if user:
             password_hash = sha256(password.encode()).hexdigest()
-            if password_hash == user["password_hash"]:
-                session["user_id"] = user["user_id"]
+            if password_hash == user.password_hash:
+                session["user_id"] = user.user_id
                 flash("Login Accepted")
                 return redirect(url_for("home"))
             else:
