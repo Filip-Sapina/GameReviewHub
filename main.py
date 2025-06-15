@@ -30,7 +30,7 @@ def get_database():
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = make_dicts
-    
+
     cursor = g.db.cursor()
     return g.db, cursor
 
@@ -88,10 +88,17 @@ class Game(object):
             else:
                 self.publisher = self.developer
 
+
 GameTag = namedtuple("GameTag", ["id", "name"])
 """
 Representation of a row of GameTags table in database.
 """
+
+Platform = namedtuple("Platform", ["id", "name"])
+"""
+Representation of a row of Platforms table in database.
+"""
+
 
 def get_game_by_id(game_id: int) -> Game:
     """
@@ -151,13 +158,13 @@ def add_game(game: Game) -> None:
         tag_id = get_game_tag_by_name(game_tag).id
         cursor.execute(tag_insert, game_id, tag_id)
     for platform in game.platforms:
-        platform_id = get_platform_by_name(platform)["platform_id"]
+        platform_id = get_platform_by_name(platform).id
         cursor.execute(platform_insert, game_id, platform_id)
 
     db.commit()
 
 
-def get_game_tag_by_name(tag_name: str):
+def get_game_tag_by_name(tag_name: str) -> GameTag:
     """
     Returns game tag row from database using name.
 
@@ -176,11 +183,27 @@ def get_game_tag_by_name(tag_name: str):
     game_tag = cursor.fetchone()
     db.commit()
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
-    
 
 
-def get_platform_by_name(platform_name: str):
-    pass
+def get_platform_by_name(platform_name: str) -> Platform:
+    """
+    Returns platform row from database using name.
+
+    Args:
+        platform_name (str): The name of the game tag to retrieve.
+
+    Returns:
+        GameTag (NameTuple): a tuple with id and name.
+
+    Raises:
+        TypeError: If platform_name is not an string.
+    """
+    db, cursor = get_database()
+    query = "SELECT * FROM Platforms WHERE platform_name = ?"
+    cursor.execute(query, platform_name)
+    platform = cursor.fetchone()
+    db.commit()
+    return Platform(platform["platform_id"], platform["platform_name"])
 
 
 class User(object):
