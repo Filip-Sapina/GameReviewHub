@@ -25,11 +25,13 @@ def to_hash(password: str) -> str:
 
 
 def get_database():
-    """returns a database connection"""
+    """returns a database connection and cursor object of connection"""
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = make_dicts
-    return g.db
+    
+    cursor = g.db.cursor()
+    return g.db, cursor
 
 
 class Game(object):
@@ -99,9 +101,7 @@ def get_game_by_id(game_id: int) -> Game:
         TypeError: If game_id is not an integer.
     """
 
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
     query = "SELECT * FROM Games WHERE game_id = ?"
     cursor.execute(query, (game_id,))
     game = Game(data=cursor.fetchone())
@@ -112,10 +112,18 @@ def get_game_by_id(game_id: int) -> Game:
 
 
 def add_game(game: Game) -> None:
+    """
+    Add a new game to the database and its associated platforms and game_tags.
+
+    Args:
+        game (Game): game object that contains all relevant information for adding a new game
+
+    Returns:
+        None
+    """
     # CURRENTLY NOT WORKING!!!
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
+
     game_insert = "INSERT INTO Games (title, description, release_date, developer, publisher, image_link) VALUES (?,?,?,?,?,?)"
     cursor.execute(
         game_insert,
@@ -197,9 +205,7 @@ def get_user_by_id(user_id: int) -> User:
         TypeError: If user_id is not an integer.
     """
 
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
     query = "SELECT * FROM Users WHERE user_id = ?"
     cursor.execute(query, (user_id,))
     user = User(data=cursor.fetchone())
@@ -224,9 +230,7 @@ def get_user_by_username(username: str) -> User:
         TypeError: If username is not an string.
     """
 
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
     user = User(data=cursor.fetchone())
@@ -253,9 +257,7 @@ def add_user(username: str, password: str) -> None:
     date_joined = datetime.now().timestamp()
     password_hash = to_hash(password)
 
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
     insert = "INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)"
     cursor.execute(insert, (username, password_hash, date_joined))
     db.commit()
@@ -272,11 +274,10 @@ def delete_user(user_id: int) -> None:
         None
 
     """
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
     delete = "DELETE FROM Users WHERE user_id = ?"
     cursor.execute(delete, user_id)
+    db.commit()
 
 
 def update_user(user_id: int, username: str = None, password: str = None) -> None:
@@ -300,9 +301,7 @@ def update_user(user_id: int, username: str = None, password: str = None) -> Non
             "update_user() requires either username or password, neither were provided"
         )
 
-    db = get_database()
-    db.row_factory = make_dicts
-    cursor = db.cursor()
+    db, cursor = get_database()
 
     password_hash = to_hash(password)
 
