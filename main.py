@@ -3,6 +3,7 @@ Main Application Program, starts flask site.
 """
 
 import sqlite3
+from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
 
@@ -87,6 +88,10 @@ class Game(object):
             else:
                 self.publisher = self.developer
 
+GameTag = namedtuple("GameTag", ["id", "name"])
+"""
+Representation of a row of GameTags table in database.
+"""
 
 def get_game_by_id(game_id: int) -> Game:
     """
@@ -143,7 +148,7 @@ def add_game(game: Game) -> None:
         "INSERT INTO PlatformAssignment (game_id, platform_id) VALUES (?,?)"
     )
     for game_tag in game.game_tags:
-        tag_id = get_game_tag_by_name(game_tag)["game_tag_id"]
+        tag_id = get_game_tag_by_name(game_tag).id
         cursor.execute(tag_insert, game_id, tag_id)
     for platform in game.platforms:
         platform_id = get_platform_by_name(platform)["platform_id"]
@@ -153,7 +158,25 @@ def add_game(game: Game) -> None:
 
 
 def get_game_tag_by_name(tag_name: str):
-    pass
+    """
+    Returns game tag row from database using name.
+
+    Args:
+        tag_name (str): The name of the game tag to retrieve.
+
+    Returns:
+        GameTag (NameTuple): a tuple with id and name.
+
+    Raises:
+        TypeError: If tag_name is not an string.
+    """
+    db, cursor = get_database()
+    query = "SELECT * FROM GameTags WHERE game_tag_name = ?"
+    cursor.execute(query, tag_name)
+    game_tag = cursor.fetchone()
+    db.commit()
+    return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
+    
 
 
 def get_platform_by_name(platform_name: str):
@@ -217,14 +240,13 @@ def get_user_by_id(user_id: int) -> User:
 
 def get_user_by_username(username: str) -> User:
     """
-    Returns user data from database using user_id
+    Returns user data from database using username
 
     Args:
         username (str): The name of the user to retrieve.
 
     Returns:
-        dict: A dictionary containing the user's details, including the
-            'date_joined' field converted to a datetime object.
+        user (User): object containing each column of found row in database.
 
     Raises:
         TypeError: If username is not an string.
