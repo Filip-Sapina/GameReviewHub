@@ -64,6 +64,20 @@ def create_user(username: str, password: str):
     cursor.close()
     db.close()
 
+def create_tag(name: str):
+    db = sqlite3.connect(DATABASE)
+    cursor = db.cursor()
+
+    cursor.execute(
+        "INSERT INTO GameTags (game_tag_name) VALUES (?)",
+        (name,),
+    )
+    print("added tag")
+    db.commit()
+    cursor.close()
+    db.close()
+
+
 
 def clear_users():
     db = sqlite3.connect(DATABASE)
@@ -80,5 +94,7 @@ if sys.argv[1].lower() == "generate_users":
     generate_users(int(sys.argv[2]))
 if sys.argv[1].lower() == "create_user":
     create_user(sys.argv[2], sys.argv[3])
+if sys.argv[1].lower() == "create_tag":
+    create_tag(sys.argv[2])
 if sys.argv[1].lower() == "clear_users":
     clear_users()
