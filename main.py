@@ -257,10 +257,13 @@ def get_user_by_id(user_id: int) -> User:
     db, cursor = get_database()
     query = "SELECT * FROM Users WHERE user_id = ?"
     cursor.execute(query, (user_id,))
-    user = User(data=cursor.fetchone())
+    data = cursor.fetchone()
+    if data:
+        data["date_joined"] = datetime.fromtimestamp(data["date_joined"])
+    else:
+        return None
+    user = User(data=data)
     db.commit()
-    if user:
-        user.date_joined = datetime.fromtimestamp(user.date_joined)
     return user
 
 
@@ -282,12 +285,13 @@ def get_user_by_username(username: str) -> User:
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
     user = User(data=cursor.fetchone())
-    db.commit()
-    if user:
-        user.date_joined = datetime.fromtimestamp(user.date_joined)
+    data = cursor.fetchone()
+    if data:
+        data["date_joined"] = datetime.fromtimestamp(data["date_joined"])
     else:
         return None
-
+    user = User(data=data)
+    db.commit()
     return user
 
 
@@ -380,7 +384,7 @@ def close_database_connection(exception):
 def home():
     if not "user_id" in session.keys():
         session["user_id"] = None
-    if session["user_id"]:
+    if not session["user_id"] == None:
         user = get_user_by_id(session["user_id"])
     else:
         user = {
