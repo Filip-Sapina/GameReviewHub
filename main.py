@@ -133,7 +133,7 @@ def add_game(game: Game) -> None:
     Returns:
         None
     """
-    # CURRENTLY NOT WORKING!!!
+    #NOT FUNCTIONAL
     db, cursor = get_database()
 
     game_insert = "INSERT INTO Games (title, description, release_date, developer, publisher, image_link) VALUES (?,?,?,?,?,?)"
@@ -148,18 +148,7 @@ def add_game(game: Game) -> None:
             game.image_link,
         ),
     )
-    get_game_id = "SELECT game_id FROM Games WHERE title = ?"
-    game_id = cursor.execute(get_game_id, game.title).fetchone()["title"]
-    tag_insert = "INSERT INTO GamTagAssignment (game_id, game_tag_id) VALUES (?,?)"
-    platform_insert = (
-        "INSERT INTO PlatformAssignment (game_id, platform_id) VALUES (?,?)"
-    )
-    for game_tag in game.game_tags:
-        tag_id = get_game_tag_by_name(game_tag).id
-        cursor.execute(tag_insert, game_id, tag_id)
-    for platform in game.platforms:
-        platform_id = get_platform_by_name(platform).id
-        cursor.execute(platform_insert, game_id, platform_id)
+
 
     db.commit()
 
@@ -183,6 +172,20 @@ def get_game_tag_by_name(tag_name: str) -> GameTag:
     game_tag = cursor.fetchone()
     db.commit()
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
+
+def link_game_tag(game_tag: GameTag) -> None:
+    db, cursor = get_database()
+    
+    cursor.execute("SELECT * FROM GameTags WHERE game_tag_id = ?", game_tag.id)
+    if not cursor.fetchone():
+        raise KeyError("game_tag.id doesn't exist in the database.")
+    
+    insert = "INSERT INTO GameTagAssignment (game_id, game_tag_id) VALUES (?,?)"
+    cursor.execute(insert, (int(game_tag.id), game_tag.name))
+    
+
+
+    db.commit()
 
 
 def get_platform_by_name(platform_name: str) -> Platform:
@@ -424,3 +427,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    
