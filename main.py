@@ -528,6 +528,23 @@ def login_page():
     return render_template("login.html")
 
 
+
+@app.route("/logout")
+def logout():
+    session["user_id"] = None
+    return redirect(url_for("home"))
+
+
+@app.route("/")
+def index():
+    return redirect(url_for("home"))
+
+# Admin Tools
+
+@app.route("/admin")
+def admin_page():
+    return render_template("admin.html")
+
 @app.route("/link_tag", methods=["GET", "POST"])    
 def link_tag():
     if request.method == "POST":
@@ -539,18 +556,7 @@ def link_tag():
 
         link_game_tag(game, tag)
     print(request.method)
-    return home()
-
-
-@app.route("/logout")
-def logout():
-    session["user_id"] = None
-    return redirect(url_for("home"))
-
-
-@app.route("/")
-def index():
-    return redirect(url_for("home"))
+    return redirect(url_for("admin"))
 
 
 if __name__ == "__main__":
