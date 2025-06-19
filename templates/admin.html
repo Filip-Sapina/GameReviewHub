@@ -29,6 +29,15 @@
         <button type="submit">Add</button>
     </form>
 
+    <h3>add specific user</h3>
+    <form action="/create_user", method="post">
+        <label for="username">username</label>
+        <input type="text" name="username">
+        <label for="password">password</label>
+        <input type="password" name="password">
+        <button type="submit">Add</button>
+    </form>
+
     <h2>Reviews</h2>
 
     <h2>Games</h2>
@@ -36,7 +45,6 @@
     <h2>Tags / Platforms</h2>
 
     <h3>Link Game</h3>
-
     <form action="/link_tag", method="post">
         <label for="game_name">game_name</label>
         <input type="text" name="game_name">

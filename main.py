@@ -572,6 +572,14 @@ def generate_user():
             flash("USER COUNT MUST BE INTERGER ONLY")
     return redirect(url_for("admin_page"))
 
+@app.route("/create_user", methods=["GET", "POST"])
+def create_user():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        add_user(username, password)
+    return redirect(url_for("admin_page"))
+            
 
 @app.route("/link_tag", methods=["GET", "POST"])    
 def link_tag():
@@ -584,7 +592,7 @@ def link_tag():
 
         link_game_tag(game, tag)
     print(request.method)
-    return redirect(url_for("admin"))
+    return redirect(url_for("admin_page"))
 
 
 if __name__ == "__main__":
