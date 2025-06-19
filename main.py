@@ -47,18 +47,20 @@ class Game(object):
         game_tags (list): A list of tags or genres describing the game.
         platforms (list): A list of platforms on which the game is available.
         publisher (str): The publisher of the game. Defaults to the developer if not provided.
+        data (Dict): Optional instead of other values, constructors still requires game_tags and platforms alongside this.
     """
 
     def __init__(
         self,
+        platforms: list,
+        game_tags: list,
         title: str = None,
         description: str = None,
         release_date: int = None,
         developer: str = None,
-        game_tags: list = None,
-        platforms: list = None,
         publisher: str = None,
         image_link: str = None,
+        game_id: int = None,
         data: dict = None,
     ) -> None:
         if data:
@@ -66,9 +68,8 @@ class Game(object):
             self.description = data["description"]
             self.release_date = data["release_date"]
             self.developer = data["developer"]
-            self.game_tags = data["game_tags"]
-            self.platforms = data["platforms"]
             self.image_link = data["image_link"]
+            self.id = data["game_id"]
 
             if "publisher" in data:
                 self.publisher = data["publisher"]
@@ -79,14 +80,17 @@ class Game(object):
             self.description = description
             self.release_date = release_date
             self.developer = developer
-            self.game_tags = game_tags
-            self.platforms = platforms
+
             self.image_link = image_link
+            self.id = game_id
 
             if publisher:
                 self.publisher = publisher
             else:
                 self.publisher = self.developer
+
+        self.game_tags = game_tags
+        self.platforms = platforms
 
 
 GameTag = namedtuple("GameTag", ["id", "name"])
@@ -94,10 +98,41 @@ GameTag = namedtuple("GameTag", ["id", "name"])
 Representation of a row of GameTags table in database.
 """
 
+
+def get_tags_by_game_name(game_name: str) -> list[GameTag]:
+    db, cursor = get_database()
+
+    query = "SELECT game_tag_id FROM Games g JOIN GameTagAssignment gt ON g.game_id = gt.game_id WHERE g.title = ?"
+    cursor.execute(query, (game_name,))
+    tag_ids = cursor.fetchall()
+
+    tags = []
+    for tag_dict in tag_ids:
+        tag = get_game_tag_by_id(tag_dict["game_tag_id"])
+        tags.append(tag)
+    db.commit()
+    return tags
+
+
 Platform = namedtuple("Platform", ["id", "name"])
 """
 Representation of a row of Platforms table in database.
 """
+
+
+def get_platforms_by_game_name(game_name: str) -> list[Platform]:
+    db, cursor = get_database()
+
+    query = "SELECT platform_id FROM Games g JOIN PlatformAssignment p ON g.game_id = p.game_id WHERE g.title = ?"
+    cursor.execute(query, (game_name,))
+    platform_ids = cursor.fetchall()
+
+    platforms = []
+    for platform_dict in platform_ids:
+        tag = get_game_tag_by_id(platform_dict["game_tag_id"])
+        platforms.append(tag)
+    db.commit()
+    return platforms
 
 
 def get_game_by_id(game_id: int) -> Game:
@@ -116,11 +151,16 @@ def get_game_by_id(game_id: int) -> Game:
     db, cursor = get_database()
     query = "SELECT * FROM Games WHERE game_id = ?"
     cursor.execute(query, (game_id,))
-    game = Game(data=cursor.fetchone())
+    data = cursor.fetchone()
+    tags = get_tags_by_game_name(data["title"])
+    platforms = get_platforms_by_game_name(data["title"])
+    game = Game(platforms, tags, data=data)
     db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
+
     return game
+
 
 def get_game_by_name(game_name: str) -> Game:
     """
@@ -138,7 +178,10 @@ def get_game_by_name(game_name: str) -> Game:
     db, cursor = get_database()
     query = "SELECT * FROM Games WHERE title = ?"
     cursor.execute(query, (game_name,))
-    game = Game(data=cursor.fetchone())
+    data = cursor.fetchone()
+    tags = get_tags_by_game_name(data["title"])
+    platforms = get_platforms_by_game_name(data["title"])
+    game = Game(platforms, tags, data=data)
     db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
@@ -155,7 +198,7 @@ def add_game(game: Game) -> None:
     Returns:
         None
     """
-    #NOT FUNCTIONAL
+    # NOT FUNCTIONAL
     db, cursor = get_database()
 
     game_insert = "INSERT INTO Games (title, description, release_date, developer, publisher, image_link) VALUES (?,?,?,?,?,?)"
@@ -170,7 +213,6 @@ def add_game(game: Game) -> None:
             game.image_link,
         ),
     )
-
 
     db.commit()
 
@@ -190,24 +232,45 @@ def get_game_tag_by_name(tag_name: str) -> GameTag:
     """
     db, cursor = get_database()
     query = "SELECT * FROM GameTags WHERE game_tag_name = ?"
-    cursor.execute(query, tag_name)
+    cursor.execute(query, (tag_name,))
     game_tag = cursor.fetchone()
     db.commit()
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
 
-def link_game_tag(game_tag: GameTag) -> None:
+
+def get_game_tag_by_id(id: int) -> GameTag:
+    """
+    Returns game tag row from database using id.
+
+    Args:
+        id (int): The id of the game tag to retrieve.
+
+    Returns:
+        GameTag (NameTuple): a tuple with name and id.
+
+    Raises:
+        TypeError: If tag_id is not an integer.
+    """
     db, cursor = get_database()
-    
-    cursor.execute("SELECT * FROM GameTags WHERE game_tag_id = ?", game_tag.id)
+    query = "SELECT * FROM GameTags WHERE game_tag_id = ?"
+    cursor.execute(query, (id,))
+    game_tag = cursor.fetchone()
+    db.commit()
+    return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
+
+
+def link_game_tag(game: Game, game_tag: GameTag) -> None:
+    db, cursor = get_database()
+
+    cursor.execute("SELECT * FROM GameTags WHERE game_tag_id = ?", (game_tag.id,))
     if not cursor.fetchone():
         raise KeyError("game_tag.id doesn't exist in the database.")
-    
-    insert = "INSERT INTO GameTagAssignment (game_id, game_tag_id) VALUES (?,?)"
-    cursor.execute(insert, (int(game_tag.id), game_tag.name))
-    
 
+    insert = "INSERT INTO GameTagAssignment (game_id, game_tag_id) VALUES (?,?)"
+    cursor.execute(insert, (game.id, game_tag.id))
 
     db.commit()
+    print("finished")
 
 
 def get_platform_by_name(platform_name: str) -> Platform:
@@ -436,6 +499,20 @@ def login_page():
     return render_template("login.html")
 
 
+@app.route("/link_tag", methods=["GET", "POST"])    
+def link_tag():
+    if request.method == "POST":
+        game_name = request.form["game_name"]
+        tag_name = request.form["tag_name"]
+
+        game = get_game_by_name(game_name)
+        tag = get_game_tag_by_name(tag_name)
+
+        link_game_tag(game, tag)
+    print(request.method)
+    return home()
+
+
 @app.route("/logout")
 def logout():
     session["user_id"] = None
@@ -449,4 +526,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
-    
