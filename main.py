@@ -122,6 +122,28 @@ def get_game_by_id(game_id: int) -> Game:
         game.release_date = datetime.fromtimestamp(game.release_date)
     return game
 
+def get_game_by_name(game_name: str) -> Game:
+    """
+    Returns Game object from database using game_name
+
+    Args:
+        game_name (str): The Name of the game to retrieve.
+
+    Returns:
+        game (Game): object containing each column of found row in database.
+    Raises:
+        TypeError: If game_name is not a string.
+    """
+
+    db, cursor = get_database()
+    query = "SELECT * FROM Games WHERE title = ?"
+    cursor.execute(query, (game_name,))
+    game = Game(data=cursor.fetchone())
+    db.commit()
+    if game:
+        game.release_date = datetime.fromtimestamp(game.release_date)
+    return game
+
 
 def add_game(game: Game) -> None:
     """
