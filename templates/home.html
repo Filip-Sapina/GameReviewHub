@@ -21,5 +21,15 @@
         {% endif %}
     {% endwith %}
     {% block body %}{% endblock %}
+
+    <h2>Link Game</h2>
+        <form action="/link_tag", method="post">
+            <label for="game_name">game_name</label>
+            <input type="text" name="game_name">
+            <label for="tag_name">tag_name</label>
+            <input type="tag_name" name="tag_name">
+            <button type="submit">Link</button>
+        </form>
+
 </body>
 </html>
