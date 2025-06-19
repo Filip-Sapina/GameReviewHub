@@ -6,7 +6,7 @@ import sqlite3
 from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
-
+from faker import Faker
 from flask import Flask, g, redirect, url_for, render_template, request, flash, session
 
 app = Flask(__name__)
@@ -541,9 +541,37 @@ def index():
 
 # Admin Tools
 
+
+fake = Faker()
+
 @app.route("/admin")
 def admin_page():
     return render_template("admin.html")
+
+@app.route("/generate_users", methods=["GET", "POST"])
+def generate_user():
+    if request.method == "POST":
+        if request.form["user_count"].strip().isdigit():
+            user_count = int(request.form["user_count"])
+
+            db, cursor = get_database()
+            
+            for _ in range(user_count):
+                username = fake.pystr(min_chars=5, max_chars=20)
+                password = fake.password()
+                date_joined = int(datetime.now().timestamp())
+
+                password_hash = sha256(password.encode()).hexdigest()
+                cursor.execute(
+                "INSERT INTO Users (username, password_hash, date_joined) VALUES (?, ?, ?)",
+                (username, password_hash, date_joined),
+            )
+            db.commit()
+            flash(f"Successfully added {user_count} users.")
+        else:
+            flash("USER COUNT MUST BE INTERGER ONLY")
+    return redirect(url_for("admin_page"))
+
 
 @app.route("/link_tag", methods=["GET", "POST"])    
 def link_tag():
