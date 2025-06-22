@@ -219,7 +219,7 @@ def add_game_tag(name: str) -> None:
         None
     """
     db, cursor = get_database()
-    insert = "INSERT INTO GameTags (game_tag_name) VALUES ?"
+    insert = "INSERT INTO GameTags (game_tag_name) VALUES (?)"
     cursor.execute(insert, (name,))
     db.commit()
 
@@ -580,6 +580,14 @@ fake = Faker()
 @app.route("/admin")
 def admin_page():
     return render_template("admin.html")
+
+@app.route("/add_game_tag", methods=["GET", "POST"])
+def add_tag():
+    if request.method == "POST":
+        tag_name = request.form["tag_name"].strip()
+        add_game_tag(tag_name)
+        flash(f"added tag: {tag_name}")
+    return redirect(url_for("admin_page"))
 
 @app.route("/generate_users", methods=["GET", "POST"])
 def generate_user():
