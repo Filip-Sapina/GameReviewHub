@@ -581,6 +581,33 @@ fake = Faker()
 def admin_page():
     return render_template("admin.html")
 
+@app.route("/set_game", methods=["GET", "POST"])
+def set_game():
+    if request.method == "POST":
+        title = request.form["title"]
+        description = request.form["description"]
+        release_date = int(request.form["release_date"])
+        developer = request.form["developer"]
+        publisher = request.form["publisher"]
+        image_link = request.form["image_link"]
+
+        if "platforms" in request.form:
+            platforms = request.form["platforms"]
+        else:
+            platforms = []
+
+        if "game_tags" in request.form:
+            game_tags = request.form["game_tags"]
+        else:
+            game_tags = []
+        
+        game = Game(platforms, game_tags, title, description, release_date, developer, publisher, image_link, game_id=None)
+        add_game(game)
+        flash(f"added game: {title}")
+    return redirect(url_for("admin_page"))
+        
+
+
 @app.route("/add_game_tag", methods=["GET", "POST"])
 def add_tag():
     if request.method == "POST":
