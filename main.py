@@ -329,7 +329,7 @@ def get_platform_by_name(platform_name: str) -> Platform:
 
 class Game(object):
     """
-    Represents a video game with relevant metadata, same as columns in Game table.
+    Represents a video game with relevant metadata, same as columns in Game table + game_tags and platforms.
 
     Attributes:
         title (str): The title of the game.
@@ -479,6 +479,26 @@ def link_game_tag(game: Game, game_tag: GameTag) -> None:
 
 #Review Logic
 
+AccessibilityOptions = namedtuple("AccessibilityOptions", ['has_colourblind_support', 'has_subtitles', 'has_difficulty_options']) 
+"""NamedTuple representing accessibilty options that a game can have."""
+
+class Review(object):
+    """
+    Represents a review with relevant metadata, same as columns in Reviews table.
+
+    Attributes:
+        review_id (int): id for the review (same as game_id + user_id)
+        user_id (int): id of the user that wrote the review.
+        game_id (int): id of the game the review is for.
+        rating (int): rating of the review that the user left.
+        review_text (text): text that the user has written, optional.
+        accessibility (AccessibilityOptions): NamedTuple representing accessibilty options that a game can have.
+        platform_id (int): the id of the platform the user played the game on.
+        data (Dict): Optional Dict instead of other values
+    """
+    def __init__(self, review_id: int = None, user_id: int = None, game_id: int = None, rating: int = None, review_text: str = None, accessibility: AccessibilityOptions = None, platform_id: int = None, data = None) -> None:
+        pass
+
 #Web App Logic
 @app.teardown_appcontext
 def close_database_connection(exception):
@@ -540,8 +560,6 @@ def index():
     return redirect(url_for("home"))
 
 # Admin Tools
-
-
 fake = Faker()
 
 @app.route("/admin")
@@ -578,6 +596,7 @@ def create_user():
         username = request.form["username"]
         password = request.form["password"]
         add_user(username, password)
+        flash(f"added user: {username} with password: {password}")
     return redirect(url_for("admin_page"))
             
 
