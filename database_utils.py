@@ -23,19 +23,5 @@ def create_tag(name: str):
     cursor.close()
     db.close()
 
-
-
-def clear_users():
-    db = sqlite3.connect(DATABASE)
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM Users")
-    cursor.execute("UPDATE sqlite_sequence SET seq=0 WHERE name='Users'")
-    db.commit()
-    cursor.close()
-    db.close()
-    print("cleared users")
-
 if sys.argv[1].lower() == "create_tag":
     create_tag(sys.argv[2])
-if sys.argv[1].lower() == "clear_users":
-    clear_users()

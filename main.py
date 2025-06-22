@@ -598,6 +598,16 @@ def create_user():
         add_user(username, password)
         flash(f"added user: {username} with password: {password}")
     return redirect(url_for("admin_page"))
+
+@app.route("/wipe_users", methods=["GET", "POST"])
+def wipe_users():
+    if request.method == "POST":
+        db, cursor = get_database()
+        cursor.execute("DELETE FROM Users")
+        cursor.execute("UPDATE sqlite_sequence SET seq=0 WHERE name='Users'")
+        db.commit()
+        flash("cleared Users Table")
+    return redirect(url_for("admin_page"))
             
 
 @app.route("/link_tag", methods=["GET", "POST"])    
