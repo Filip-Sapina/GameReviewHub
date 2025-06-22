@@ -208,6 +208,21 @@ GameTag = namedtuple("GameTag", ["id", "name"])
 Representation of a row of GameTags table in database.
 """
 
+def add_game_tag(name: str) -> None:
+    """
+    Adds a new game tag into the GameTags database
+
+    Args:
+        name (str): the name of the game tag 
+    
+    Returns:
+        None
+    """
+    db, cursor = get_database()
+    insert = "INSERT INTO GameTags (game_tag_name) VALUES ?"
+    cursor.execute(insert, (name,))
+    db.commit()
+
 def get_tags_by_game_name(game_name: str) -> list[GameTag]:
     """
     gets a list of game tags associated with the game
