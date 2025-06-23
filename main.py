@@ -98,10 +98,6 @@ def get_user_by_id(user_id: int) -> User:
     query = "SELECT * FROM Users WHERE user_id = ?"
     cursor.execute(query, (user_id,))
     data = cursor.fetchone()
-    if data:
-        data["date_joined"] = datetime.fromtimestamp(data["date_joined"])
-    else:
-        return None
     user = User(data=data)
     db.commit()
     return user
@@ -124,14 +120,13 @@ def get_user_by_username(username: str) -> User:
     db, cursor = get_database()
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
-    user = User(data=cursor.fetchone())
     data = cursor.fetchone()
-    if data:
-        data["date_joined"] = datetime.fromtimestamp(data["date_joined"])
-    else:
+    print(data)
+    if data is None:
         return None
     user = User(data=data)
     db.commit()
+    
     return user
 
 
@@ -627,6 +622,7 @@ def home():
         session["user_id"] = None
     if not session["user_id"] is None:
         user = get_user_by_id(session["user_id"])
+        user.date_joined = datetime.fromtimestamp(round(user.date_joined))
     else:
         user = {
             "user_id": "N/A",
@@ -646,6 +642,7 @@ def login_page():
         password = request.form["password"]
 
         user = get_user_by_username(username)
+        print(user)
         if user:
             password_hash = to_hash(password)
             if password_hash == user.password_hash:
