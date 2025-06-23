@@ -17,9 +17,11 @@ app.config["SECRET_KEY"] = "AVerySecretKeyThatNooneKnowsAbout"
 
 DATABASE = "database.db"
 
+
 def make_dicts(cursor, row) -> dict:
     """row factory for database to turn tuples into dicts"""
     return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
+
 
 def get_database():
     """returns a database connection and cursor object of connection"""
@@ -31,7 +33,8 @@ def get_database():
     return g.db, cursor
 
 
-#User Logic
+# User Logic
+
 
 def to_hash(password: str) -> str:
     """
@@ -39,11 +42,12 @@ def to_hash(password: str) -> str:
 
     Args:
         password (str): password for hashing
-    
+
     Returns:
         password_hash (str): hex string of password for better security
     """
     return sha256(password.encode()).hexdigest()
+
 
 class User(object):
     """
@@ -76,6 +80,7 @@ class User(object):
             self.password_hash = password_hash
             self.date_joined = date_joined
 
+
 def get_user_by_id(user_id: int) -> User:
     """
     Returns user data from database using user_id
@@ -100,6 +105,7 @@ def get_user_by_id(user_id: int) -> User:
     user = User(data=data)
     db.commit()
     return user
+
 
 def get_user_by_username(username: str) -> User:
     """
@@ -128,6 +134,7 @@ def get_user_by_username(username: str) -> User:
     db.commit()
     return user
 
+
 def add_user(username: str, password: str) -> None:
     """
     Add a new user to the database with hashed password and current time as join date.
@@ -147,6 +154,7 @@ def add_user(username: str, password: str) -> None:
     cursor.execute(insert, (username, password_hash, date_joined))
     db.commit()
 
+
 def delete_user(user_id: int) -> None:
     """
     Removes a user from Users Table by user_id
@@ -162,6 +170,7 @@ def delete_user(user_id: int) -> None:
     delete = "DELETE FROM Users WHERE user_id = ?"
     cursor.execute(delete, user_id)
     db.commit()
+
 
 def update_user(user_id: int, username: str = None, password: str = None) -> None:
     """
@@ -201,20 +210,21 @@ def update_user(user_id: int, username: str = None, password: str = None) -> Non
     db.commit()
 
 
-#Game Tag Logic
+# Game Tag Logic
 
 GameTag = namedtuple("GameTag", ["id", "name"])
 """
 Representation of a row of GameTags table in database.
 """
 
+
 def add_game_tag(name: str) -> None:
     """
     Adds a new game tag into the GameTags database
 
     Args:
-        name (str): the name of the game tag 
-    
+        name (str): the name of the game tag
+
     Returns:
         None
     """
@@ -222,6 +232,7 @@ def add_game_tag(name: str) -> None:
     insert = "INSERT INTO GameTags (game_tag_name) VALUES (?)"
     cursor.execute(insert, (name,))
     db.commit()
+
 
 def get_tags_by_game_name(game_name: str) -> list[GameTag]:
     """
@@ -247,6 +258,7 @@ def get_tags_by_game_name(game_name: str) -> list[GameTag]:
     db.commit()
     return tags
 
+
 def get_game_tag_by_name(tag_name: str) -> GameTag:
     """
     Returns game tag row from database using name.
@@ -266,6 +278,7 @@ def get_game_tag_by_name(tag_name: str) -> GameTag:
     game_tag = cursor.fetchone()
     db.commit()
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
+
 
 def get_game_tag_by_id(tag_id: int) -> GameTag:
     """
@@ -288,12 +301,13 @@ def get_game_tag_by_id(tag_id: int) -> GameTag:
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
 
 
-#Platform Logic
+# Platform Logic
 
 Platform = namedtuple("Platform", ["id", "name"])
 """
 Representation of a row of Platforms table in database.
 """
+
 
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
@@ -319,6 +333,7 @@ def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     db.commit()
     return platforms
 
+
 def get_platform_by_name(platform_name: str) -> Platform:
     """
     Returns platform row from database using name.
@@ -340,7 +355,8 @@ def get_platform_by_name(platform_name: str) -> Platform:
     return Platform(platform["platform_id"], platform["platform_name"])
 
 
-#Game Logic
+# Game Logic
+
 
 class Game(object):
     """
@@ -399,6 +415,7 @@ class Game(object):
         self.game_tags = game_tags
         self.platforms = platforms
 
+
 def get_game_by_id(game_id: int) -> Game:
     """
     Returns Game object from database using game_id
@@ -425,6 +442,7 @@ def get_game_by_id(game_id: int) -> Game:
 
     return game
 
+
 def get_game_by_name(game_name: str) -> Game:
     """
     Returns Game object from database using game_name
@@ -450,6 +468,7 @@ def get_game_by_name(game_name: str) -> Game:
         game.release_date = datetime.fromtimestamp(game.release_date)
     return game
 
+
 def add_game(game: Game) -> None:
     """
     Add a new game to the database and its associated platforms and game_tags.
@@ -460,7 +479,6 @@ def add_game(game: Game) -> None:
     Returns:
         None
     """
-    # NOT FUNCTIONAL
     db, cursor = get_database()
 
     game_insert = "INSERT INTO Games (title, description, release_date, developer, publisher, image_link) VALUES (?,?,?,?,?,?)"
@@ -478,6 +496,7 @@ def add_game(game: Game) -> None:
 
     db.commit()
 
+
 def link_game_tag(game: Game, game_tag: GameTag) -> None:
     db, cursor = get_database()
 
@@ -492,10 +511,14 @@ def link_game_tag(game: Game, game_tag: GameTag) -> None:
     print("finished")
 
 
-#Review Logic
+# Review Logic
 
-AccessibilityOptions = namedtuple("AccessibilityOptions", ['has_colourblind_support', 'has_subtitles', 'has_difficulty_options']) 
+AccessibilityOptions = namedtuple(
+    "AccessibilityOptions",
+    ["has_colourblind_support", "has_subtitles", "has_difficulty_options"],
+)
 """NamedTuple representing accessibilty options that a game can have."""
+
 
 class Review(object):
     """
@@ -507,14 +530,87 @@ class Review(object):
         game_id (int): id of the game the review is for.
         rating (int): rating of the review that the user left.
         review_text (text): text that the user has written, optional.
+        review_date (int): date the review was uploaded in unix timestamp format.
         accessibility (AccessibilityOptions): NamedTuple representing accessibilty options that a game can have.
         platform_id (int): the id of the platform the user played the game on.
         data (Dict): Optional Dict instead of other values
     """
-    def __init__(self, review_id: int = None, user_id: int = None, game_id: int = None, rating: int = None, review_text: str = None, accessibility: AccessibilityOptions = None, platform_id: int = None, data = None) -> None:
-        pass
 
-#Web App Logic
+    def __init__(
+        self,
+        review_id: int = None,
+        user_id: int = None,
+        game_id: int = None,
+        rating: int = None,
+        review_text: str = None,
+        review_date: int = None,
+        accessibility: AccessibilityOptions = None,
+        platform_id: int = None,
+        data=None,
+    ) -> None:
+        if data:
+            self.review_id = data["review_id"]
+            self.user_id = data["user_id"]
+            self.game_id = data["game_id"]
+            self.rating = data["rating"]
+            self.review_text = data["review_text"]
+            self.review_date = data["review_date"]
+            self.accessibility = AccessibilityOptions(
+                data["has_colourblind_support"],
+                data["has_subtitles"],
+                data["has_difficulty_options"],
+            )
+            self.platform_id = data["platform_id"]
+        else:
+            self.review_id = review_id
+            self.user_id = user_id
+            self.game_id = game_id
+            self.rating = rating
+            self.review_text = review_text
+            self.review_date = review_date
+            self.accessibility = accessibility
+            self.platform_id = platform_id
+
+
+def add_review(review: Review) -> None:
+    """
+    Adds a new row into Reviews Database. Doesn't need review_id in Review object.
+
+    Args:
+        review (Review): review object to use in creating row, review_id can = None.
+    Returns:
+        None
+    """
+
+    db, cursor = get_database()
+
+    insert = """INSERT INTO Reviews (
+        user_id, 
+        game_id, 
+        rating, 
+        review_text, 
+        review_date, 
+        has_colourblind_support, 
+        has_subtitles, 
+        has_difficulty_options
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """
+    cursor.execute(
+        insert,
+        (review.user_id,
+        review.game_id,
+        review.rating,
+        review.review_text,
+        review.review_date,
+        review.accessibility.has_colourblind_support,
+        review.accessibility.has_subtitles,
+        review.accessibility.has_difficulty_options,)
+    )
+    db.commit()
+
+
+# Web App Logic
 @app.teardown_appcontext
 def close_database_connection(exception):
     """closes database when app has been closed"""
@@ -522,14 +618,14 @@ def close_database_connection(exception):
     if db is not None:
         db.close()
     if exception is not None:
-        print("ERROR RAISED ON CLOSING APP")
+        print(f"ERROR: {exception} RAISED ON CLOSING APP")
 
 
 @app.route("/home")
 def home():
     if not "user_id" in session.keys():
         session["user_id"] = None
-    if not session["user_id"] == None:
+    if not session["user_id"] is None:
         user = get_user_by_id(session["user_id"])
     else:
         user = {
@@ -563,7 +659,6 @@ def login_page():
     return render_template("login.html")
 
 
-
 @app.route("/logout")
 def logout():
     session["user_id"] = None
@@ -574,12 +669,15 @@ def logout():
 def index():
     return redirect(url_for("home"))
 
+
 # Admin Tools
 fake = Faker()
+
 
 @app.route("/admin")
 def admin_page():
     return render_template("admin.html")
+
 
 @app.route("/set_game", methods=["GET", "POST"])
 def set_game():
@@ -600,12 +698,21 @@ def set_game():
             game_tags = request.form["game_tags"]
         else:
             game_tags = []
-        
-        game = Game(platforms, game_tags, title, description, release_date, developer, publisher, image_link, game_id=None)
+
+        game = Game(
+            platforms,
+            game_tags,
+            title,
+            description,
+            release_date,
+            developer,
+            publisher,
+            image_link,
+            game_id=None,
+        )
         add_game(game)
         flash(f"added game: {title}")
     return redirect(url_for("admin_page"))
-        
 
 
 @app.route("/add_game_tag", methods=["GET", "POST"])
@@ -616,6 +723,7 @@ def add_tag():
         flash(f"added tag: {tag_name}")
     return redirect(url_for("admin_page"))
 
+
 @app.route("/generate_users", methods=["GET", "POST"])
 def generate_user():
     if request.method == "POST":
@@ -623,7 +731,7 @@ def generate_user():
             user_count = int(request.form["user_count"])
 
             db, cursor = get_database()
-            
+
             for _ in range(user_count):
                 username = fake.pystr(min_chars=5, max_chars=20)
                 password = fake.password()
@@ -631,14 +739,15 @@ def generate_user():
 
                 password_hash = sha256(password.encode()).hexdigest()
                 cursor.execute(
-                "INSERT INTO Users (username, password_hash, date_joined) VALUES (?, ?, ?)",
-                (username, password_hash, date_joined),
-            )
+                    "INSERT INTO Users (username, password_hash, date_joined) VALUES (?, ?, ?)",
+                    (username, password_hash, date_joined),
+                )
             db.commit()
             flash(f"Successfully added {user_count} users.")
         else:
             flash("USER COUNT MUST BE INTERGER ONLY")
     return redirect(url_for("admin_page"))
+
 
 @app.route("/create_user", methods=["GET", "POST"])
 def create_user():
@@ -649,6 +758,7 @@ def create_user():
         flash(f"added user: {username} with password: {password}")
     return redirect(url_for("admin_page"))
 
+
 @app.route("/wipe_users", methods=["GET", "POST"])
 def wipe_users():
     if request.method == "POST":
@@ -658,9 +768,9 @@ def wipe_users():
         db.commit()
         flash("cleared Users Table")
     return redirect(url_for("admin_page"))
-            
 
-@app.route("/link_tag", methods=["GET", "POST"])    
+
+@app.route("/link_tag", methods=["GET", "POST"])
 def link_tag():
     if request.method == "POST":
         game_name = request.form["game_name"]
