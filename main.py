@@ -126,7 +126,7 @@ def get_user_by_username(username: str) -> User:
         return None
     user = User(data=data)
     db.commit()
-    
+
     return user
 
 
@@ -587,20 +587,24 @@ def add_review(review: Review) -> None:
         review_date, 
         has_colourblind_support, 
         has_subtitles, 
-        has_difficulty_options
+        has_difficulty_options,
+        platform_id
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
     cursor.execute(
         insert,
-        (review.user_id,
-        review.game_id,
-        review.rating,
-        review.review_text,
-        review.review_date,
-        review.accessibility.has_colourblind_support,
-        review.accessibility.has_subtitles,
-        review.accessibility.has_difficulty_options,)
+        (
+            review.user_id,
+            review.game_id,
+            review.rating,
+            review.review_text,
+            review.review_date,
+            review.accessibility.has_colourblind_support,
+            review.accessibility.has_subtitles,
+            review.accessibility.has_difficulty_options,
+            review.platform_id
+        ),
     )
     db.commit()
 
@@ -712,12 +716,34 @@ def set_game():
     return redirect(url_for("admin_page"))
 
 
+@app.route("/write_review", methods=["GET", "POST"])
+def write_review():
+    if request.method == "POST":
+        user_id = int(request.form["user_id"])
+        game_id = int(request.form["game_id"])
+        rating = int(request.form["rating"])
+        review_text = request.form["review_text"]
+        review_date = int(request.form["review_date"])
+        accessibility = AccessibilityOptions(
+            "has_colourblind_support" in request.form,
+            "has_subtitles" in request.form,
+            "has_difficulty_options" in request.form,
+        )
+        platform_id = int(request.form["platform_id"])
+        print(platform_id)
+        
+
+        review = Review(None, user_id, game_id, rating, review_text, review_date, accessibility, platform_id)
+        add_review(review)
+        flash(f"added review for {game_id} by {user_id}")
+
+    return redirect(url_for("admin_page"))
 @app.route("/add_game_tag", methods=["GET", "POST"])
 def add_tag():
     if request.method == "POST":
         tag_name = request.form["tag_name"].strip()
         add_game_tag(tag_name)
-        flash(f"added tag: {tag_name}")
+        flash(f"added tag: {tag_name}.")
     return redirect(url_for("admin_page"))
 
 

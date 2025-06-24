@@ -25,7 +25,7 @@
     <h3>Add Dummy Users</h3>
     <form action="/generate_users", method="post">
         <label for="user_count">amount</label>
-        <input type="text" name="user_count">
+        <input type="number" name="user_count">
         <button type="submit">Add</button>
     </form>
 
@@ -43,6 +43,28 @@
         <button type="submit">Wipe</button>
     </form>
     <h2>Reviews</h2>
+    <h3>Add Review</h3>
+    <form action="/write_review", method="post">
+        <label for="user_id">user_id</label>
+        <input type="number" name="user_id">
+        <label for="game_id">game_id</label>
+        <input type="number" name="game_id">
+        <label for="rating">rating</label>
+        <input type="number" name="rating">
+        <label for="review_text">review_text</label>
+        <input type="text" name="review_text">
+        <label for="review_date">review_date</label>
+        <input type="number" name="review_date">
+        <label for="has_colourblind_support">has_colourblind_support</label>
+        <input type="checkbox" name="has_colourblind_support">
+        <label for="has_subtitles">has_subtitles</label>
+        <input type="checkbox" name="has_subtitles">
+        <label for="has_difficulty_options">has_difficulty_options</label>
+        <input type="checkbox" name="has_difficulty_options">
+        <label for="platform_id">platform_id</label>
+        <input type="number" name="platform_id">
+        <button type="submit">Add</button>
+    </form>
 
     <h2>Games</h2>
     <h3>add game</h3>
@@ -52,13 +74,13 @@
         <label for="description">description</label>
         <input type="text" name="description">
         <label for="release_date">release_date</label>
-        <input type="text" name="release_date">
+        <input type="number" name="release_date">
         <label for="developer">developer</label>
         <input type="text" name="developer">
         <label for="publisher">publisher</label>
         <input type="text" name="publisher">
         <label for="image_link">image_link</label>  
-        <input type="text" name="image_link">
+        <input type="url" name="image_link">
         <button type="submit">Add</button>
     </form>
 
