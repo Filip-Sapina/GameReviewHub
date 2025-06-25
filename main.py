@@ -242,7 +242,11 @@ def get_tags_by_game_name(game_name: str) -> list[GameTag]:
     """
     db, cursor = get_database()
 
-    query = "SELECT game_tag_id FROM Games g JOIN GameTagAssignment gt ON g.game_id = gt.game_id WHERE g.title = ?"
+    query = """
+            SELECT game_tag_id FROM Games g
+            JOIN GameTagAssignment gt 
+            ON g.game_id = gt.game_id WHERE g.title = ?
+            """
     cursor.execute(query, (game_name,))
     tag_ids = cursor.fetchall()
 
@@ -317,7 +321,11 @@ def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
     db, cursor = get_database()
 
-    query = "SELECT platform_id FROM Games g JOIN PlatformAssignment p ON g.game_id = p.game_id WHERE g.title = ?"
+    query = """
+            SELECT platform_id FROM Games g 
+            JOIN PlatformAssignment p ON 
+            g.game_id = p.game_id WHERE g.title = ?
+            """
     cursor.execute(query, (game_name,))
     platform_ids = cursor.fetchall()
 
@@ -355,7 +363,8 @@ def get_platform_by_name(platform_name: str) -> Platform:
 
 class Game(object):
     """
-    Represents a video game with relevant metadata, same as columns in Game table + game_tags and platforms.
+    Represents a video game with relevant metadata,
+    same as columns in Game table + game_tags and platforms.
 
     Attributes:
         title (str): The title of the game.
@@ -476,7 +485,11 @@ def add_game(game: Game) -> None:
     """
     db, cursor = get_database()
 
-    game_insert = "INSERT INTO Games (title, description, release_date, developer, publisher, image_link) VALUES (?,?,?,?,?,?)"
+    game_insert = """
+    INSERT INTO Games 
+    (title, description, release_date, developer, publisher, image_link)
+    VALUES (?,?,?,?,?,?)
+    """
     cursor.execute(
         game_insert,
         (
@@ -493,6 +506,15 @@ def add_game(game: Game) -> None:
 
 
 def link_game_tag(game: Game, game_tag: GameTag) -> None:
+    """
+    Adds a new row in the GameTagAssingment table.
+
+    Args:
+        game (Game): game that should be linked to a game tag
+        game_tag (GameTag): game tag tuple whose id will be used to link to game.
+    Returns:
+        None
+    """
     db, cursor = get_database()
 
     cursor.execute("SELECT * FROM GameTags WHERE game_tag_id = ?", (game_tag.id,))
@@ -526,7 +548,7 @@ class Review(object):
         rating (int): rating of the review that the user left.
         review_text (text): text that the user has written, optional.
         review_date (int): date the review was uploaded in unix timestamp format.
-        accessibility (AccessibilityOptions): NamedTuple representing accessibilty options that a game can have.
+        accessibility (AccessibilityOptions): Tuple representing accessibilty options for game.
         platform_id (int): the id of the platform the user played the game on.
         data (Dict): Optional Dict instead of other values
     """
@@ -603,7 +625,7 @@ def add_review(review: Review) -> None:
             review.accessibility.has_colourblind_support,
             review.accessibility.has_subtitles,
             review.accessibility.has_difficulty_options,
-            review.platform_id
+            review.platform_id,
         ),
     )
     db.commit()
@@ -622,6 +644,9 @@ def close_database_connection(exception):
 
 @app.route("/home")
 def home():
+    """
+    returns a webpage from template "home.html", called when user goes to /home.
+    """
     if not "user_id" in session.keys():
         session["user_id"] = None
     if not session["user_id"] is None:
@@ -639,6 +664,10 @@ def home():
 
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
+    """
+    login page for site.
+    sets session's user id to user's user id if they login successfuly. 
+    """
 
     if request.method == "POST":
 
@@ -662,12 +691,14 @@ def login_page():
 
 @app.route("/logout")
 def logout():
+    """removes user's user_id in the session and sends to home"""
     session["user_id"] = None
     return redirect(url_for("home"))
 
 
 @app.route("/")
 def index():
+    """simple redirect from home, only called when first going to website."""
     return redirect(url_for("home"))
 
 
@@ -677,6 +708,8 @@ fake = Faker()
 
 @app.route("/admin")
 def admin_page():
+    """admin page contains debug tools for database. 
+    currently doesn't check if user is an admin."""
     return render_template("admin.html")
 
 
@@ -731,13 +764,23 @@ def write_review():
         )
         platform_id = int(request.form["platform_id"])
         print(platform_id)
-        
 
-        review = Review(None, user_id, game_id, rating, review_text, review_date, accessibility, platform_id)
+        review = Review(
+            None,
+            user_id,
+            game_id,
+            rating,
+            review_text,
+            review_date,
+            accessibility,
+            platform_id,
+        )
         add_review(review)
         flash(f"added review for {game_id} by {user_id}")
 
     return redirect(url_for("admin_page"))
+
+
 @app.route("/add_game_tag", methods=["GET", "POST"])
 def add_tag():
     if request.method == "POST":
