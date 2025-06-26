@@ -65,6 +65,7 @@ def in_database(table: str, column: str, value) -> bool:
 
 # User Logic
 
+
 class User(object):
     """
     Represents a user with relevant metadata, same as columns in Users table.
@@ -521,6 +522,18 @@ def add_game(game: Game) -> None:
     db.commit()
 
 
+def update_game(new_game: Game = None):
+    """
+    Updates Game in database with new values from objecy.
+    Args:
+        new_game (Game): new game data that will overwrite all current data except game_id
+    Returns:
+        None
+    """
+
+    update = "UPDATE Games SET title = ?, description = ?, release_date = ?, developer = ?, publisher = ?, image_link = ?"
+    pass
+
 def delete_game_by_id(game_id: int) -> None:
     """
     Removes a game from Games Table by game_id
@@ -726,7 +739,7 @@ def login_page():
         user = get_user_by_username(username)
         print(user)
         if user:
-            
+
             if security.check_password_hash(user.password_hash, password):
                 session["user_id"] = user.user_id
                 flash("Login Accepted")
