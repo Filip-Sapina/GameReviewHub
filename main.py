@@ -150,7 +150,7 @@ def add_user(username: str, password: str) -> None:
     db.commit()
 
 
-def delete_user(user_id: int) -> None:
+def delete_user_by_id(user_id: int) -> None:
     """
     Removes a user from Users Table by user_id
 
@@ -501,6 +501,24 @@ def add_game(game: Game) -> None:
             game.image_link,
         ),
     )
+
+    db.commit()
+
+def delete_game_by_id(game_id: int) -> None:
+    """
+    Removes a game from Games Table by game_id
+
+    Args:
+        game_id (int): The ID of the game to delete.
+
+    Returns:
+        None
+
+    """
+    db, cursor = get_database()
+
+    delete = "DELETE FROM Games WHERE game_id = ?"
+    cursor.execute(delete, (game_id, ))
 
     db.commit()
 
