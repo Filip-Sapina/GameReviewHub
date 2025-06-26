@@ -316,7 +316,25 @@ def get_game_tag_by_id(tag_id: int) -> GameTag:
     db.commit()
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
 
-def delete_game_tag_by_id(tag_id : int):
+
+def update_game_tag(new_tag: GameTag):
+    """
+    effectively changes the name of the gametag with the given id.
+
+    Args:
+        new_tag (GameTag): id of current tag and name to update
+    Returns:
+        None
+    """
+
+    db, cursor = get_database()
+
+    update = "UPDATE GameTags SET game_tag_name = ? WHERE game_tag_id = ?"
+    cursor.execute(update, (new_tag.name, new_tag.id))
+    db.commit()
+
+
+def delete_game_tag_by_id(tag_id: int):
     """
     Deletes game tag in the GameTags table and removes all connections
     in GameTagAssignment table.
