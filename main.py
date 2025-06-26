@@ -727,10 +727,11 @@ def add_review(review: Review) -> None:
     )
     db.commit()
 
-def get_review_by_id(review_id : int):
+
+def get_review_by_id(review_id: int):
     """
     Returns review with all data using review id to find.
-    
+
     Args:
         review_id (int): id of review to find.
     Returns:
@@ -745,6 +746,39 @@ def get_review_by_id(review_id : int):
     db.commit()
     review = Review(data=data)
     return review
+
+
+def get_reviews_by_game_name(game_name: str):
+    """
+    Returns a list of review objects whose game_id is tied to provided game_name.
+
+    Args:
+        game_name (str): name of the game to find reviews for.
+    Returns:
+        reviews (list[Review]): list of review objects with all data.
+    """
+
+    db, cursor = get_database()
+
+    query = """
+    SELECT 
+    r.review_id, r.user_id, r.game_id,
+    r.rating, r.review_text, r.review_date, 
+    r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, 
+    r.platform_id 
+    FROM Reviews r 
+    INNER JOIN Games g 
+    ON r.game_id = g.game_id
+    WHERE g.title = ?
+    """
+    cursor.execute(query, (game_name,))
+    data = cursor.fetchall()
+    db.commit()
+    reviews = []
+    for review_data in data:
+        reviews.append(Review(data=review_data))
+    return reviews
+
 
 def delete_review_by_id(review_id: int) -> None:
     """
