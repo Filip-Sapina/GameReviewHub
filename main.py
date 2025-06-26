@@ -7,6 +7,7 @@ from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
 from faker import Faker
+from werkzeug import security
 from flask import Flask, g, redirect, url_for, render_template, request, flash, session
 
 app = Flask(__name__)
@@ -33,21 +34,36 @@ def get_database():
     return g.db, cursor
 
 
-# User Logic
-
-
-def to_hash(password: str) -> str:
+def in_database(table: str, column: str, value) -> bool:
     """
-    Hashes a password and returns hex string
-
+    checks if a value is the database
     Args:
-        password (str): password for hashing
-
+        table (str): the table within the database.
+        column (str): the column in the table.
+        value: the value that should be checked for in the column.
     Returns:
-        password_hash (str): hex string of password for better security
+        bool: true if value is in column.
     """
-    return sha256(password.encode()).hexdigest()
+    db, cursor = get_database()
+    query = "SELECT ? FROM ? WHERE ? = ?"
+    cursor.execute(
+        query,
+        (
+            column,
+            table,
+            column,
+            value,
+        ),
+    )
+    data = cursor.fetchone()
+    db.commit()
+    if data:
+        return True
+    else:
+        return False
 
+
+# User Logic
 
 class User(object):
     """
@@ -142,7 +158,7 @@ def add_user(username: str, password: str) -> None:
         None
     """
     date_joined = datetime.now().timestamp()
-    password_hash = to_hash(password)
+    password_hash = security.generate_password_hash(password)
 
     db, cursor = get_database()
     insert = "INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)"
@@ -190,7 +206,7 @@ def update_user(user_id: int, username: str = None, password: str = None) -> Non
 
     db, cursor = get_database()
 
-    password_hash = to_hash(password)
+    password_hash = security.generate_password_hash(password)
 
     if username and not password:
         update = "UPDATE Users SET username = ? WHERE user_id = ?"
@@ -504,6 +520,7 @@ def add_game(game: Game) -> None:
 
     db.commit()
 
+
 def delete_game_by_id(game_id: int) -> None:
     """
     Removes a game from Games Table by game_id
@@ -518,7 +535,7 @@ def delete_game_by_id(game_id: int) -> None:
     db, cursor = get_database()
 
     delete = "DELETE FROM Games WHERE game_id = ?"
-    cursor.execute(delete, (game_id, ))
+    cursor.execute(delete, (game_id,))
 
     db.commit()
 
@@ -648,6 +665,7 @@ def add_review(review: Review) -> None:
     )
     db.commit()
 
+
 def delete_review_by_id(review_id: int) -> None:
     """
     Removes a review by using it's id.
@@ -697,7 +715,7 @@ def home():
 def login_page():
     """
     login page for site.
-    sets session's user id to user's user id if they login successfuly. 
+    sets session's user id to user's user id if they login successfuly.
     """
 
     if request.method == "POST":
@@ -708,8 +726,8 @@ def login_page():
         user = get_user_by_username(username)
         print(user)
         if user:
-            password_hash = to_hash(password)
-            if password_hash == user.password_hash:
+            
+            if security.check_password_hash(user.password_hash, password):
                 session["user_id"] = user.user_id
                 flash("Login Accepted")
                 return redirect(url_for("home"))
@@ -739,7 +757,7 @@ fake = Faker()
 
 @app.route("/admin")
 def admin_page():
-    """admin page contains debug tools for database. 
+    """admin page contains debug tools for database.
     currently doesn't check if user is an admin."""
     return render_template("admin.html")
 
