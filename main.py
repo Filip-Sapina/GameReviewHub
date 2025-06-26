@@ -648,6 +648,19 @@ def add_review(review: Review) -> None:
     )
     db.commit()
 
+def delete_review_by_id(review_id: int) -> None:
+    """
+    Removes a review by using it's id.
+    Args:
+        review_id (int): id of the review that should be deleted.
+    Returns:
+        None
+    """
+    db, cursor = get_database()
+    delete = "DELETE FROM Reviews WHERE review_id = ?"
+    cursor.execute(delete, review_id)
+    db.commit()
+
 
 # Web App Logic
 @app.teardown_appcontext
