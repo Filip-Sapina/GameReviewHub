@@ -524,15 +524,29 @@ def add_game(game: Game) -> None:
 
 def update_game(new_game: Game = None):
     """
-    Updates Game in database with new values from objecy.
+    Updates Game in database with new values from object.
+    Cannot set game tags and platforms, use link for that instead.
+
     Args:
         new_game (Game): new game data that will overwrite all current data except game_id
     Returns:
         None
     """
-
+    db, cursor = get_database()
     update = "UPDATE Games SET title = ?, description = ?, release_date = ?, developer = ?, publisher = ?, image_link = ?"
-    pass
+    cursor.execute(
+        update,
+        (
+            new_game.title,
+            new_game.description,
+            new_game.release_date,
+            new_game.developer,
+            new_game.publisher,
+            new_game.image_link,
+        ),
+    )
+    db.commit()
+
 
 def delete_game_by_id(game_id: int) -> None:
     """
