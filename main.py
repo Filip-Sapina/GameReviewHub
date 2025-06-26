@@ -316,6 +316,23 @@ def get_game_tag_by_id(tag_id: int) -> GameTag:
     db.commit()
     return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
 
+def delete_game_tag_by_id(tag_id : int):
+    """
+    Deletes game tag in the GameTags table and removes all connections
+    in GameTagAssignment table.
+
+    Args:
+        tag_id (int): id of the game_tag that will be deleted
+    Returns:
+        None
+    """
+    db, cursor = get_database()
+    delete_game_tag = "DELETE FROM GameTags WHERE game_tag_id = ?"
+    delete_links = "DELETE FROM GameTagAssignment WHERE game_tag_id = ?"
+    cursor.execute(delete_game_tag, tag_id)
+    cursor.execute(delete_links, tag_id)
+    db.commit()
+
 
 # Platform Logic
 
