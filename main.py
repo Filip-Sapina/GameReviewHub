@@ -727,6 +727,24 @@ def add_review(review: Review) -> None:
     )
     db.commit()
 
+def get_review_by_id(review_id : int):
+    """
+    Returns review with all data using review id to find.
+    
+    Args:
+        review_id (int): id of review to find.
+    Returns:
+        review (Review): a review object with relevant data.
+    """
+
+    db, cursor = get_database()
+
+    query = "SELECT * FROM Reviews WHERE review_id = ?"
+    cursor.execute(query, (review_id,))
+    data = cursor.fetchone()
+    db.commit()
+    review = Review(data=data)
+    return review
 
 def delete_review_by_id(review_id: int) -> None:
     """
