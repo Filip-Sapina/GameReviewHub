@@ -359,6 +359,48 @@ Platform = namedtuple("Platform", ["id", "name"])
 Representation of a row of Platforms table in database.
 """
 
+def add_platform(platform_name: str) -> None:
+    """
+    Adds a new platform row to Platforms table in database.
+    Args:
+        platform (str): platform's name.
+    Returns:
+        None
+    """
+
+    db, cursor = get_database()
+    insert = "INSERT INTO Platforms (platform_name) VALUES (?)"
+    cursor.execute(insert, platform_name)
+    db.commit()
+
+def delete_platform_by_id(platform_id : int):
+    """
+    Deletes a platform row in database using id.
+    Args:
+        platform_id (int): id of platform to delete
+    Returns:
+        None
+    """
+    db, cursor = get_database()
+    delete = "DELETE FROM Platforms WHERE platform_id = ?"
+    cursor.execute(delete, platform_id)
+    db.commit()
+
+def update_platform(new_platform: Platform):
+    """
+    effectively changes the name of the platform with the given id.
+
+    Args:
+         (Platform): id of current platform and name to update
+    Returns:
+        None
+    """
+
+    db, cursor = get_database()
+
+    update = "UPDATE Platforms SET platform_name = ? WHERE platform_id = ?"
+    cursor.execute(update, (new_platform.name, new_platform.id))
+    db.commit()
 
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
@@ -397,7 +439,7 @@ def get_platform_by_name(platform_name: str) -> Platform:
         platform_name (str): The name of the game tag to retrieve.
 
     Returns:
-        GameTag (NameTuple): a tuple with id and name.
+        Platform (NameTuple): a tuple with id and name.
 
     Raises:
         TypeError: If platform_name is not an string.
@@ -409,6 +451,23 @@ def get_platform_by_name(platform_name: str) -> Platform:
     db.commit()
     return Platform(platform["platform_id"], platform["platform_name"])
 
+def get_platform_by_id(platform_id : int) -> Platform:
+    """
+    Returns platform row from database using id.
+
+    Args:
+        platform_id (str): The id of the game tag to retrieve.
+
+    Returns:
+        Platform (NamedTuple): a tuple with id and name.
+
+    """
+    db, cursor = get_database()
+    query = "SELECT * FROM Platforms WHERE platform_id = ?"
+    cursor.execute(query, platform_id)
+    data = cursor.fetchone()
+    db.commit()
+    return Platform(data["platform_id"], data["platform_name"])
 
 # Game Logic
 
@@ -568,7 +627,11 @@ def update_game(new_game: Game = None):
         None
     """
     db, cursor = get_database()
-    update = "UPDATE Games SET title = ?, description = ?, release_date = ?, developer = ?, publisher = ?, image_link = ?"
+    update = """
+    UPDATE Games 
+    SET title = ?, description = ?, release_date = ?, 
+    developer = ?, publisher = ?, image_link = ?
+    """
     cursor.execute(
         update,
         (
