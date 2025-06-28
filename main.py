@@ -810,6 +810,23 @@ def get_review_by_id(review_id: int):
     review = Review(data=data)
     return review
 
+def get_review_by_game_and_user(game_id: int, user_id: int):
+    """
+    Returns review with all data using user id and game id to find.
+
+    Args:
+        game_id (int): id of game to for review.
+        user_id (int): id of user that wrote review.
+    Returns:
+        review (Review): a review object with relevant data.
+    """
+    db, cursor = get_database()
+    query = "SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?"
+    cursor.execute(query, (game_id, user_id))
+    data = cursor.fetchone()
+    db.commit()
+    review = Review(data=data)
+    return review
 
 def get_reviews_by_game_name(game_name: str):
     """
