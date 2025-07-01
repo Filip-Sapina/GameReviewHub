@@ -830,6 +830,37 @@ def get_reviews_by_game_name(game_name: str):
         reviews.append(Review(data=review_data))
     return reviews
 
+def get_reviews_by_username(user_name: str):
+    """
+    Returns a list of review objects whose user_id is linked to provided user_name.
+
+    Args:
+        user_name (str): name of the user to find reviews for.
+    Returns:
+        reviews (list[Review]): list of review objects with all data.
+    """
+
+    db, cursor = get_database()
+
+    query = """
+    SELECT 
+    r.review_id, r.user_id, r.user_id,
+    r.rating, r.review_text, r.review_date, 
+    r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, 
+    r.platform_id 
+    FROM Reviews r 
+    INNER JOIN Users u 
+    ON r.game_id = u.game_id
+    WHERE u.username = ?
+    """
+    cursor.execute(query, (user_name,))
+    data = cursor.fetchall()
+    db.commit()
+    reviews = []
+    for review_data in data:
+        reviews.append(Review(data=review_data))
+    return reviews
+
 
 def delete_review_by_id(review_id: int) -> None:
     """
