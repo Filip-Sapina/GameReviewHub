@@ -34,35 +34,6 @@ def get_database():
     return g.db, cursor
 
 
-def in_database(table: str, column: str, value) -> bool:
-    """
-    checks if a value is the database
-    Args:
-        table (str): the table within the database.
-        column (str): the column in the table.
-        value: the value that should be checked for in the column.
-    Returns:
-        bool: true if value is in column.
-    """
-    db, cursor = get_database()
-    query = "SELECT ? FROM ? WHERE ? = ?"
-    cursor.execute(
-        query,
-        (
-            column,
-            table,
-            column,
-            value,
-        ),
-    )
-    data = cursor.fetchone()
-    db.commit()
-    if data:
-        return True
-    else:
-        return False
-
-
 # User Logic
 
 
