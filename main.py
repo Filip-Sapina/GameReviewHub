@@ -3,6 +3,7 @@ Main Application Program, starts flask site.
 """
 
 import sqlite3
+import difflib
 from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
@@ -32,6 +33,36 @@ def get_database():
 
     cursor = g.db.cursor()
     return g.db, cursor
+
+
+def levenshtein_distance(a: str, b: str) -> int:
+    """
+    compares two strings and returns a number based on how many edits it takes to reach each other.
+    https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_full_matrix
+    """
+    a = a.lower()
+    b = b.lower()
+
+    if a == "" or b == "":
+        return max(len(a), len(b))
+    if a == b:
+        return 0
+
+    m, n = len(a), len(b)
+    matrix = []
+    for _ in range(m + 1):
+        matrix.append([0] * (n + 1))
+    for i in range(m + 1):
+        matrix[i][0] = i
+    for j in range(n + 1):
+        matrix[0][j] = j
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            cost = 0 if a[i - 1] == b[j - 1] else 1
+            matrix[i][j] = min(
+                matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost
+            )
+    return matrix[m][n]
 
 
 # User Logic
@@ -330,6 +361,7 @@ Platform = namedtuple("Platform", ["id", "name"])
 Representation of a row of Platforms table in database.
 """
 
+
 def add_platform(platform_name: str) -> None:
     """
     Adds a new platform row to Platforms table in database.
@@ -344,7 +376,8 @@ def add_platform(platform_name: str) -> None:
     cursor.execute(insert, platform_name)
     db.commit()
 
-def delete_platform_by_id(platform_id : int):
+
+def delete_platform_by_id(platform_id: int):
     """
     Deletes a platform row in database using id.
     Args:
@@ -356,6 +389,7 @@ def delete_platform_by_id(platform_id : int):
     delete = "DELETE FROM Platforms WHERE platform_id = ?"
     cursor.execute(delete, platform_id)
     db.commit()
+
 
 def update_platform(new_platform: Platform):
     """
@@ -372,6 +406,7 @@ def update_platform(new_platform: Platform):
     update = "UPDATE Platforms SET platform_name = ? WHERE platform_id = ?"
     cursor.execute(update, (new_platform.name, new_platform.id))
     db.commit()
+
 
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
@@ -422,7 +457,8 @@ def get_platform_by_name(platform_name: str) -> Platform:
     db.commit()
     return Platform(platform["platform_id"], platform["platform_name"])
 
-def get_platform_by_id(platform_id : int) -> Platform:
+
+def get_platform_by_id(platform_id: int) -> Platform:
     """
     Returns platform row from database using id.
 
@@ -439,6 +475,7 @@ def get_platform_by_id(platform_id : int) -> Platform:
     data = cursor.fetchone()
     db.commit()
     return Platform(data["platform_id"], data["platform_name"])
+
 
 # Game Logic
 
@@ -555,6 +592,17 @@ def get_game_by_name(game_name: str) -> Game:
     return game
 
 
+def get_games_by_closest_match(matching_text: str) -> list[Game]:
+    """
+    returns a list of all games in database ordered by how closely the match the given string.
+
+    Args:
+        matching_text (str): the text that will be compared to each game
+    Returns
+        games (List[Game]): a list of games ordered by how closely they match the given text.
+    """
+
+
 def add_game(game: Game) -> None:
     """
     Add a new game to the database and its associated platforms and game_tags.
@@ -658,6 +706,7 @@ def link_game_tag(game: Game, game_tag: GameTag) -> None:
 
     db.commit()
 
+
 def link_platform(game: Game, platform: Platform) -> None:
     """
     Adds new row into PlatformAssingment table based on input ids.
@@ -682,7 +731,6 @@ def link_platform(game: Game, platform: Platform) -> None:
     cursor.execute(insert, (game.id, platform.id))
 
     db.commit()
-
 
 
 # Review Logic
@@ -807,6 +855,7 @@ def get_review_by_id(review_id: int):
     review = Review(data=data)
     return review
 
+
 def get_review_by_game_and_user(game_id: int, user_id: int):
     """
     Returns review with all data using user id and game id to find.
@@ -824,6 +873,7 @@ def get_review_by_game_and_user(game_id: int, user_id: int):
     db.commit()
     review = Review(data=data)
     return review
+
 
 def get_reviews_by_game_name(game_name: str):
     """
@@ -855,6 +905,7 @@ def get_reviews_by_game_name(game_name: str):
     for review_data in data:
         reviews.append(Review(data=review_data))
     return reviews
+
 
 def get_reviews_by_username(user_name: str):
     """
