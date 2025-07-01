@@ -638,7 +638,7 @@ def delete_game_by_id(game_id: int) -> None:
 
 def link_game_tag(game: Game, game_tag: GameTag) -> None:
     """
-    Adds a new row in the GameTagAssingment table.
+    Adds a new row in the GameTagAssingnment table.
 
     Args:
         game (Game): game that should be linked to a game tag
@@ -648,7 +648,8 @@ def link_game_tag(game: Game, game_tag: GameTag) -> None:
     """
     db, cursor = get_database()
 
-    cursor.execute("SELECT * FROM GameTags WHERE game_tag_id = ?", (game_tag.id,))
+    insert = "SELECT * FROM GameTags WHERE game_tag_id = ?"
+    cursor.execute(insert, (game_tag.id,))
     if not cursor.fetchone():
         raise KeyError("game_tag.id doesn't exist in the database.")
 
@@ -656,7 +657,32 @@ def link_game_tag(game: Game, game_tag: GameTag) -> None:
     cursor.execute(insert, (game.id, game_tag.id))
 
     db.commit()
-    print("finished")
+
+def link_platform(game: Game, platform: Platform) -> None:
+    """
+    Adds new row into PlatformAssingment table based on input ids.
+
+    Args:
+        game (Game): game that is playable on platform
+        platform (platform): platform the game is playable on.
+    Returns:
+        None
+    Raises:
+        KeyError: if platform_id is not in database.
+    """
+
+    db, cursor = get_database()
+
+    insert = "SELECT * FROM Platforms WHERE platform_id = ?"
+    cursor.execute(insert, (platform.id,))
+    if not cursor.fetchone():
+        raise KeyError("platform.id doesn't exist in the database.")
+
+    insert = "INSERT INTO PlatformAssignment (game_id, platform_id) VALUES (?,?)"
+    cursor.execute(insert, (game.id, platform.id))
+
+    db.commit()
+
 
 
 # Review Logic
