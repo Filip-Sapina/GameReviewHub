@@ -84,31 +84,15 @@ class User(object):
     Represents a user with relevant metadata, same as columns in Users table.
 
     Attributes:
-        user_id (int): Id of user within database's Users table
-        username (str): Name of user.
-        password_hash (str): Hashed password using sha256.
-        date_joined (int): unix timestamp of when user joined
-        data (dict): dict containing all variables above, overwrites if provided.
+        data (dict): dict containing all variables.
     """
 
-    def __init__(
-        self,
-        user_id=None,
-        username=None,
-        password_hash=None,
-        date_joined=None,
-        data: dict = None,
-    ) -> None:
-        if data:
-            self.user_id = data["user_id"]
-            self.username = data["username"]
-            self.password_hash = data["password_hash"]
-            self.date_joined = data["date_joined"]
-        else:
-            self.user_id = user_id
-            self.username = username
-            self.password_hash = password_hash
-            self.date_joined = date_joined
+    def __init__(self, **data):
+        self.username = data.get("username")
+        self.password_hash = data.get("password_hash")
+        self.date_joined = data.get("date_joined")
+        self.user_id = data.get("user_id")
+        
 
 
 def get_user_by_id(user_id: int) -> User:
@@ -128,7 +112,7 @@ def get_user_by_id(user_id: int) -> User:
     query = "SELECT * FROM Users WHERE user_id = ?"
     cursor.execute(query, (user_id,))
     data = cursor.fetchone()
-    user = User(data=data)
+    user = User(**data)
     db.commit()
     return user
 
@@ -151,10 +135,12 @@ def get_user_by_username(username: str) -> User:
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
     data = cursor.fetchone()
-    print(data)
+    print(data["username"])
     if data is None:
+        print("no user found")
         return None
-    user = User(data=data)
+    user = User(**data)
+    print(user.username)
     db.commit()
 
     return user
@@ -510,7 +496,6 @@ class Game(object):
         self.publisher = data.get("publisher", self.developer)
 
 
-
 def get_game_by_id(game_id: int) -> Game:
     """
     Returns Game object from database using game_id
@@ -528,7 +513,7 @@ def get_game_by_id(game_id: int) -> Game:
     query = "SELECT * FROM Games WHERE game_id = ?"
     cursor.execute(query, (game_id,))
     data = cursor.fetchone()
-    game = Game(data=data)
+    game = Game(**data)
     db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
@@ -553,7 +538,7 @@ def get_game_by_name(game_name: str) -> Game:
     query = "SELECT * FROM Games WHERE title = ?"
     cursor.execute(query, (game_name,))
     data = cursor.fetchone()
-    game = Game(data=data)
+    game = Game(**data)
     db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
