@@ -3,7 +3,6 @@ Main Application Program, starts flask site.
 """
 
 import sqlite3
-import difflib
 from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
@@ -66,6 +65,7 @@ def levenshtein_distance(a: str, b: str) -> int:
     # fills in the rest of the matrix with minimum edit distance
     for i in range(1, m + 1):
         for j in range(1, n + 1):
+            # cost to substitue letter
             cost = 0 if a[i - 1] == b[j - 1] else 1
             # fills in cell based on minimum required changes.
             matrix[i][j] = min(
@@ -80,7 +80,6 @@ def levenshtein_distance(a: str, b: str) -> int:
 
 
 class User(object):
-
     """
     Represents a user with relevant metadata, same as columns in Users table.
 
@@ -613,6 +612,23 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     Returns
         games (List[Game]): a list of games ordered by how closely they match the given text.
     """
+
+    db, cursor = get_database()
+
+    cursor.execute("SELECT * FROM Games")
+    data = cursor.fetchall()
+    db.commit()
+
+    if not data:
+        raise KeyError("No Games Found in Database?!")
+
+    games = []
+    for row in data:
+        distance = levenshtein_distance(matching_text, row["title"])
+        games.append((distance, row))
+
+    games.sort(key=lambda pair: pair[0])
+    return games
 
 
 def add_game(game: Game) -> None:
