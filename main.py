@@ -494,60 +494,21 @@ def get_platform_by_id(platform_id: int) -> Platform:
 class Game(object):
     """
     Represents a video game with relevant metadata,
-    same as columns in Game table + game_tags and platforms.
+    same as columns in Game table
 
     Attributes:
-        title (str): The title of the game.
-        description (str): A brief description of the game.
-        release_date (int): The release year of the game.
-        developer (str): The developer or development studio of the game.
-        game_tags (list): A list of tags or genres describing the game.
-        platforms (list): A list of platforms on which the game is available.
-        publisher (str): The publisher of the game. Defaults to the developer if not provided.
-        data (Dict): Optional instead of other values, constructors still requires game_tags and platforms alongside this.
+        data (Dict): dict of required values.
     """
 
-    def __init__(
-        self,
-        platforms: list,
-        game_tags: list,
-        title: str = None,
-        description: str = None,
-        release_date: int = None,
-        developer: str = None,
-        publisher: str = None,
-        image_link: str = None,
-        game_id: int = None,
-        data: dict = None,
-    ) -> None:
-        if data:
-            self.title = data["title"]
-            self.description = data["description"]
-            self.release_date = data["release_date"]
-            self.developer = data["developer"]
-            self.image_link = data["image_link"]
-            self.id = data["game_id"]
+    def __init__(self, **data):
+        self.title = data.get("title")
+        self.description = data.get("description")
+        self.release_date = data.get("release_date")
+        self.developer = data.get("developer")
+        self.image_link = data.get("image_link")
+        self.id = data.get("game_id")
+        self.publisher = data.get("publisher", self.developer)
 
-            if "publisher" in data:
-                self.publisher = data["publisher"]
-            else:
-                self.publisher = self.developer
-        else:
-            self.title = title
-            self.description = description
-            self.release_date = release_date
-            self.developer = developer
-
-            self.image_link = image_link
-            self.id = game_id
-
-            if publisher:
-                self.publisher = publisher
-            else:
-                self.publisher = self.developer
-
-        self.game_tags = game_tags
-        self.platforms = platforms
 
 
 def get_game_by_id(game_id: int) -> Game:
@@ -567,9 +528,7 @@ def get_game_by_id(game_id: int) -> Game:
     query = "SELECT * FROM Games WHERE game_id = ?"
     cursor.execute(query, (game_id,))
     data = cursor.fetchone()
-    tags = get_tags_by_game_name(data["title"])
-    platforms = get_platforms_by_game_name(data["title"])
-    game = Game(platforms, tags, data=data)
+    game = Game(data=data)
     db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
@@ -594,9 +553,7 @@ def get_game_by_name(game_name: str) -> Game:
     query = "SELECT * FROM Games WHERE title = ?"
     cursor.execute(query, (game_name,))
     data = cursor.fetchone()
-    tags = get_tags_by_game_name(data["title"])
-    platforms = get_platforms_by_game_name(data["title"])
-    game = Game(platforms, tags, data=data)
+    game = Game(data=data)
     db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
@@ -1066,36 +1023,9 @@ def admin_page():
 @app.route("/set_game", methods=["GET", "POST"])
 def set_game():
     if request.method == "POST":
-        title = request.form["title"]
-        description = request.form["description"]
-        release_date = int(request.form["release_date"])
-        developer = request.form["developer"]
-        publisher = request.form["publisher"]
-        image_link = request.form["image_link"]
-
-        if "platforms" in request.form:
-            platforms = request.form["platforms"]
-        else:
-            platforms = []
-
-        if "game_tags" in request.form:
-            game_tags = request.form["game_tags"]
-        else:
-            game_tags = []
-
-        game = Game(
-            platforms,
-            game_tags,
-            title,
-            description,
-            release_date,
-            developer,
-            publisher,
-            image_link,
-            game_id=None,
-        )
+        game = Game(**request.form.to_dict(flat=True))
         add_game(game)
-        flash(f"added game: {title}")
+        flash(f"added game: {game.title}")
     return redirect(url_for("admin_page"))
 
 
