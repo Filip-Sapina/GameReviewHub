@@ -84,6 +84,10 @@ class User(object):
     Represents a user with relevant metadata, same as columns in Users table.
 
     Attributes:
+        username (str): name of the user.
+        user_id (int): id of the user in Users table.
+        pasword_hash (str): hashed version of user's password
+        date_joined (int): unix timestamp format of when user made account.
         data (dict): dict containing all variables.
     """
 
@@ -483,6 +487,13 @@ class Game(object):
     same as columns in Game table
 
     Attributes:
+        title (str): title of the game
+        description (str): short description of the game
+        release_date (int): unix timestamp of when game was released.
+        developer (str): developers of the game
+        publisher (str): optional publisher of game, defaults to developer.
+        game_id (int): id of game
+        image_link (str): link to media image of game from igdb.com
         data (Dict): dict of required values.
     """
 
@@ -725,43 +736,23 @@ class Review(object):
         review_date (int): date the review was uploaded in unix timestamp format.
         accessibility (AccessibilityOptions): Tuple representing accessibilty options for game.
         platform_id (int): the id of the platform the user played the game on.
-        data (Dict): Optional Dict instead of other values
+        data (Dict): Required dict with review values.
     """
 
-    def __init__(
-        self,
-        review_id: int = None,
-        user_id: int = None,
-        game_id: int = None,
-        rating: int = None,
-        review_text: str = None,
-        review_date: int = None,
-        accessibility: AccessibilityOptions = None,
-        platform_id: int = None,
-        data=None,
-    ) -> None:
-        if data:
-            self.review_id = data["review_id"]
-            self.user_id = data["user_id"]
-            self.game_id = data["game_id"]
-            self.rating = data["rating"]
-            self.review_text = data["review_text"]
-            self.review_date = data["review_date"]
-            self.accessibility = AccessibilityOptions(
-                data["has_colourblind_support"],
-                data["has_subtitles"],
-                data["has_difficulty_options"],
-            )
-            self.platform_id = data["platform_id"]
-        else:
-            self.review_id = review_id
-            self.user_id = user_id
-            self.game_id = game_id
-            self.rating = rating
-            self.review_text = review_text
-            self.review_date = review_date
-            self.accessibility = accessibility
-            self.platform_id = platform_id
+    def __init__(self, **data) -> None:
+        self.review_id = data["review_id"]
+        self.user_id = data["user_id"]
+        self.game_id = data["game_id"]
+        self.rating = data["rating"]
+        self.review_text = data.get("review_text")
+        self.review_date = data["review_date"]
+        self.accessibility = AccessibilityOptions(
+            data["has_colourblind_support"],
+            data["has_subtitles"],
+            data["has_difficulty_options"],
+        )
+        self.platform_id = data["platform_id"]
+
 
 
 def add_review(review: Review) -> None:
@@ -909,6 +900,8 @@ def get_reviews_by_username(user_name: str):
     return reviews
 
 
+
+
 def delete_review_by_id(review_id: int) -> None:
     """
     Removes a review by using it's id.
@@ -1017,31 +1010,9 @@ def set_game():
 @app.route("/write_review", methods=["GET", "POST"])
 def write_review():
     if request.method == "POST":
-        user_id = int(request.form["user_id"])
-        game_id = int(request.form["game_id"])
-        rating = int(request.form["rating"])
-        review_text = request.form["review_text"]
-        review_date = int(request.form["review_date"])
-        accessibility = AccessibilityOptions(
-            "has_colourblind_support" in request.form,
-            "has_subtitles" in request.form,
-            "has_difficulty_options" in request.form,
-        )
-        platform_id = int(request.form["platform_id"])
-        print(platform_id)
-
-        review = Review(
-            None,
-            user_id,
-            game_id,
-            rating,
-            review_text,
-            review_date,
-            accessibility,
-            platform_id,
-        )
+        review = Review(**request.form.to_dict(flat=True))
         add_review(review)
-        flash(f"added review for {game_id} by {user_id}")
+        flash(f"added review for {review.game_id} by {review.user_id}")
 
     return redirect(url_for("admin_page"))
 
