@@ -899,6 +899,26 @@ def get_reviews_by_username(user_name: str):
         reviews.append(Review(data=review_data))
     return reviews
 
+def get_reviews_by_game_and_platform(game_id: int, platform_id: int):
+    """
+    Returns list of all reviews for a game played on a certain platform.
+    Args:
+        game_id (int): id of the game the reviews were written for.
+        platform_id (int): id of the platform the reviews were written for.
+    Returns:
+        reviews (List[Review]): list of reviews with relevant metadata.
+    """
+    db, cursor = get_database()
+    query = "SELECT * FROM Reviews WHERE game_id = ? and platform_id = ?"
+    cursor.execute(query, game_id, platform_id)
+    data = cursor.fetchall()
+    db.commit()
+    reviews = []
+    for row in data:
+        review = Review(**row)
+        reviews.append(review)
+    return reviews
+
 
 
 
