@@ -919,9 +919,6 @@ def get_reviews_by_game_and_platform(game_id: int, platform_id: int):
         reviews.append(review)
     return reviews
 
-
-
-
 def delete_review_by_id(review_id: int) -> None:
     """
     Removes a review by using it's id.
@@ -933,6 +930,36 @@ def delete_review_by_id(review_id: int) -> None:
     db, cursor = get_database()
     delete = "DELETE FROM Reviews WHERE review_id = ?"
     cursor.execute(delete, review_id)
+    db.commit()
+
+def update_review(new_review: Review):
+    """
+    Updates an existing review in the Reviews database table.
+
+    This function edits the rating, review text, and accessibility options
+    (colourblind support, subtitles, difficulty options) found by review_id
+
+    Args:
+        new_review (Review): A Review object containing the updated review data.
+                    Must include a valid review_id corresponding to an existing review.
+    """
+    db, cursor = get_database()
+    update = """
+    UPDATE Reviews
+    SET rating = ?, 
+    review_text = ?   
+    has_colourblind_support = ?, 
+    has_subtitles = ? ,
+    has_difficulty_options = ?
+    WHERE review_id = ?
+    """
+    cursor.execute(update, (new_review.rating,
+                            new_review.review_text,
+                            new_review.accessibility.has_colourblind_support,
+                            new_review.accessibility.has_subtitles,
+                            new_review.accessibility.has_difficulty_options,
+                            new_review.review_id
+                            ))
     db.commit()
 
 
