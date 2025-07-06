@@ -583,6 +583,83 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     games.sort(key=lambda pair: pair[0])
     return games
 
+def get_games_by_platform_ids(platform_ids: list[int]):
+    """
+    Returns a list of Game objects ordered by how many of the input platform_ids they are assigned.
+    
+    Args:
+        platform_ids (List[int]): List of platform IDs to match.
+
+    Returns:
+        List[Game]: List of Game objects, ordered by match count descending.
+    """
+
+    if not platform_ids:
+        return []
+    db, cursor = get_database()
+
+    placeholders = ','.join(['?'] * len(platform_ids))
+
+    query = f"""
+        SELECT 
+            Games.*, 
+            COUNT(PlatformAssignment.game_tag_id) as tag_match_count
+        FROM Games
+        JOIN PlatformAssignment ON Games.game_id = PLatformAssignment.game_id
+        WHERE PLatformAssignment.game_tag_id IN ({placeholders})
+        GROUP BY Games.game_id
+        HAVING tag_match_count > 0
+        ORDER BY tag_match_count DESC
+    """
+
+    cursor.execute(query, platform_ids)
+    data = cursor.fetchall()
+    db.commit()
+    games = []
+    for row in data:
+        game = Game(**row)
+        games.append(game)
+    return games
+
+def get_games_by_game_tag_ids(game_tag_ids: list[int]):
+    """
+    Returns a list of Game objects ordered by how many of the input game_ids they are assigned.
+    
+    Args:
+        game_ids (List[int]): List of game IDs to match.
+
+    Returns:
+        List[Game]: List of Game objects, ordered by match count descending.
+    """
+
+    if not game_tag_ids:
+        return []
+    db, cursor = get_database()
+
+    placeholders = ','.join(['?'] * len(game_tag_ids))
+
+    query = f"""
+        SELECT 
+            Games.*, 
+            COUNT(GameTagAssignment.game_tag_id) as tag_match_count
+        FROM Games
+        JOIN GameTagAssignment ON Games.game_id = GameTagAssignment.game_id
+        WHERE GameTagAssignment.game_tag_id IN ({placeholders})
+        GROUP BY Games.game_id
+        HAVING tag_match_count > 0
+        ORDER BY tag_match_count DESC
+    """
+
+    cursor.execute(query, game_tag_ids)
+    data = cursor.fetchall()
+    db.commit()
+    games = []
+    for row in data:
+        game = Game(**row)
+        games.append(game)
+    return games
+
+
 
 def add_game(game: Game) -> None:
     """
