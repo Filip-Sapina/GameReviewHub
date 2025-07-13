@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="static/css/pico.blue.min.css">
 </head>
 
 <body>
-    <form action="/login" method="post">
-        <label for="username">Username</label>
-        <input type="text" name="username">
-        <label for="password">Password</label>
-        <input type="password" name="password">
-        <button type="submit">Login</button>
-    </form>
+    <div class="container">
+        <form action="/login" method="post">
+            <label for="username">Username</label>
+            <input type="text" name="username">
+            <label for="password">Password</label>
+            <input type="password" name="password">
+            <button type="submit">Login</button>
+        </form>
+    </div>
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     <ul class=flashes>
