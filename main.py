@@ -139,14 +139,31 @@ def get_user_by_username(username: str) -> User:
     query = "SELECT * FROM Users WHERE username = ?"
     cursor.execute(query, (username,))
     data = cursor.fetchone()
-    print(data["username"])
+
     if data is None:
-        print("no user found")
         return None
     user = User(**data)
-    print(user.username)
+
     db.commit()
 
+    return user
+
+def get_user_session():
+    """
+    returns the user if logged into user session, other returns default message.
+    """
+    if not "user_id" in session.keys():
+        session["user_id"] = None
+    if not session["user_id"] is None:
+        user = get_user_by_id(session["user_id"])
+        user.date_joined = datetime.fromtimestamp(round(user.date_joined))
+    else:
+        user = {
+            "user_id": "n/a",
+            "username": "Not Logged In.",
+            "password_hash": "n/a",
+            "date_joined": "n/a",
+        }
     return user
 
 
@@ -1056,19 +1073,8 @@ def home():
     """
     returns a webpage from template "home.html", called when user goes to /home.
     """
-    if not "user_id" in session.keys():
-        session["user_id"] = None
-    if not session["user_id"] is None:
-        user = get_user_by_id(session["user_id"])
-        user.date_joined = datetime.fromtimestamp(round(user.date_joined))
-    else:
-        user = {
-            "user_id": "N/A",
-            "username": "NOT LOGGED IN",
-            "password_hash": "NOT LOGGED IN",
-            "date_joined": "N/A",
-        }
-    return render_template("home.html", user=user)
+
+    return render_template("home.html", user=get_user_session())
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -1084,7 +1090,7 @@ def login_page():
         password = request.form["password"]
 
         user = get_user_by_username(username)
-        print(user)
+
         if user:
 
             if security.check_password_hash(user.password_hash, password):
@@ -1095,7 +1101,7 @@ def login_page():
                 flash("Password incorrect")
         else:
             flash("USER NOT FOUND")
-    return render_template("login.html")
+    return render_template("login.html", user=get_user_session())
 
 
 @app.route("/logout")
@@ -1206,7 +1212,7 @@ def link_tag():
         tag = get_game_tag_by_name(tag_name)
 
         link_game_tag(game, tag)
-    print(request.method)
+
     return redirect(url_for("admin_page"))
 
 

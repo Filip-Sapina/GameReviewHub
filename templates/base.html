@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}My Flask App{% endblock %}</title>
+    <link rel="stylesheet" href="static/css/pico.blue.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="./static/css/style.css">
+</head>
+
+
+<body>
+    <header>
+        <nav class="container">
+            <ul>
+                <li><strong>Games Review Hub</strong></li>
+            </ul>
+            <ul>
+                <li>
+                    <form method="get" role="search">
+                        <input type="search" placeholder="Search...">
+                        <button type="submit" class="material-symbols-outlined">arrow_forward</button>
+                    </form>
+                </li>
+            </ul>
+            <ul>
+                <li><a class="contrast" href="{{ url_for('home') }}">Home</a></li>
+                <li><a class="contrast" href="{{ url_for('admin_page') }}">Admin</a></li>
+
+            </ul>
+            <ul>
+                <li>
+                    <details class="dropdown">
+                        <summary class="material-symbols-outlined">account_circle</summary>
+                        <ul>
+                            <li>{{user.username}}</li>
+                            <li><a href="/logout">Logout <span class="material-symbols-outlined">logout</span></a></li>
+                        </ul>
+                    </details>
+                </li>
+                <li>
+                    <button id="theme-toggle" type="button" class="material-symbols-outlined">light_mode</button>
+                </li>
+            </ul>
+
+        </nav>
+        <div class="container">
+            <details>
+                <summary>Notices</summary>
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="container">
+                    {% for message in messages %}
+                    <article class="notice">{{ message }}</article>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </details>
+        </div>
+    </header>
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+
+    </footer>
+
+</body>
+
+<script>
+    const themeToggle = document.getElementById("theme-toggle");
+    const html = document.documentElement;
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        html.setAttribute("data-theme", savedTheme);
+    }
+
+    themeToggle.addEventListener("click", change_color_mode);
+
+    function change_color_mode() {
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        themeToggle.innerHTML = newTheme === "dark" ? "dark_mode" : "light_mode"
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+    }
+
+    let currentTheme = html.getAttribute("data-theme");
+    themeToggle.innerHTML = currentTheme === "dark" ? "dark_mode" : "light_mode"
+</script>
+
+</html>
