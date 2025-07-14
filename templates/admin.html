@@ -6,35 +6,42 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Tools</title>
-    <link rel="stylesheet" href="static/css/pico.blue.min.css">
+    <link rel="stylesheet" href="./static/css/pico.blue.min.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="./static/css/style.css">
 </head>
 
 <body>
-    <nav>
-        <ul>
-            <li><a href="#" class="material-symbols-outlined">home</a></li>
-            <li>
-                <details class="dropdown">
-                    <summary>
-                        Account
-                    </summary>
-                    <ul dir="rtl">
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Settings</a></li>
-                        <li><a href="#">Security</a></li>
-                        <li><a href="#">Logout</a></li>
-                    </ul>
-                </details>
-            </li>
-            <li>
-                <form action="POST">
-                    <input type="text" name="game_search" id="game_search">
-                </form>
-            </li>
-        </ul>
-    </nav>
+
+    <header>
+        <nav class="container grid">
+            <h1 class="brand">Games Review Hub</h1>
+            <div class="container">
+                <ul>
+                    <li>
+                        <form method="post" role="search">
+                            <input type="text" name="game_search" id="game_search" placeholder="Search">
+                            <button type="submit" class="material-symbols-outlined">arrow_forward</button>
+                        </form>
+                    </li>
+                    <li>
+                        <details class="dropdown">
+                            <summary class="material-symbols-outlined">
+                                account_circle
+                            </summary>
+                            <ul dir="rtl">
+                                <li><a href="#">Profile</a></li>
+                                <li><a href="#">Settings</a></li>
+                                <li><a href="#">Security</a></li>
+                                <li><a href="#">Logout</a></li>
+                            </ul>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
     <div class="container">
         <h1>Scary Tools</h1>
         <h2>Flashes</h2>
