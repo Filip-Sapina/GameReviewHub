@@ -12,53 +12,6 @@
 </head>
 
 <body>
-    <header>
-        <nav class="container grid">
-            <h1 class="brand">Games Review Hub</h1>
-            <div class="container">
-                <ul>
-                    <li>
-                        <form method="post" role="search">
-                            <input type="text" name="game_search" id="game_search" placeholder="Search">
-                            <button type="submit" class="material-symbols-outlined">arrow_forward</button>
-                        </form>
-                    </li>
-                    <li>
-                        <details class="dropdown">
-                            <summary class="material-symbols-outlined">
-                                account_circle
-                            </summary>
-                            <ul dir="rtl">
-                                <li><a href="#">Profile</a></li>
-                                <li><a href="#">Settings</a></li>
-                                <li><a href="#">Security</a></li>
-                                <li><a href="#">Logout</a></li>
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <form action="/login" method="post">
-            <label for="username">Username</label>
-            <input type="text" name="username">
-            <label for="password">Password</label>
-            <input type="password" name="password">
-            <button type="submit">Login</button>
-        </form>
-    </div>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul class=flashes>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
-    {% block body %}{% endblock %}
 </body>
 
 </html>

@@ -13,52 +13,6 @@
 
 <body>
 
-    <header>
-        <nav class="container grid">
-            <h1 class="brand">Games Review Hub</h1>
-            <div class="container">
-                <ul>
-                    <li>
-                        <form method="post" role="search">
-                            <input type="text" name="game_search" id="game_search" placeholder="Search">
-                            <button type="submit" class="material-symbols-outlined">arrow_forward</button>
-                        </form>
-                    </li>
-                    <li>
-                        <details class="dropdown">
-                            <summary class="material-symbols-outlined">
-                                account_circle
-                            </summary>
-                            <ul dir="rtl">
-                                <li><a href="#">Profile</a></li>
-                                <li><a href="#">Settings</a></li>
-                                <li><a href="#">Security</a></li>
-                                <li><a href="#">Logout</a></li>
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-
-    <div class="container">
-        <p>Welocme {{user.username}}! <br>
-            user_id: {{user.user_id}} <br>
-            password_hash: {{user.password_hash}} <br>
-            date_joined: {{user.date_joined}} <br>
-        </p>
-    </div>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul class=flashes>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
-    {% block body %}{% endblock %}
 
 
 
