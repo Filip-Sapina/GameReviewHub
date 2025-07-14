@@ -15,7 +15,7 @@
     <header>
         <nav class="container">
             <ul>
-                <li><strong>Games Review Hub</strong></li>
+                <li><a href="/home" style="text-decoration: none;" class="contrast"><h1>Games Review Hub</h1></a></li>
             </ul>
             <ul>
                 <li>
@@ -26,16 +26,12 @@
                 </li>
             </ul>
             <ul>
-                <li><a class="contrast" href="{{ url_for('home') }}">Home</a></li>
-                <li><a class="contrast" href="{{ url_for('admin_page') }}">Admin</a></li>
-
-            </ul>
-            <ul>
                 <li>
                     <details class="dropdown">
                         <summary class="material-symbols-outlined">account_circle</summary>
                         <ul>
                             <li>{{user.username}}</li>
+                            <li><a href="/login">Login <span class="material-symbols-outlined">login</span></a></li>
                             <li><a href="/logout">Logout <span class="material-symbols-outlined">logout</span></a></li>
                         </ul>
                     </details>
@@ -47,7 +43,7 @@
 
         </nav>
         <div class="container">
-            <details>
+            <details {% if get_flashed_messages() %}open{% endif %}>
                 <summary>Notices</summary>
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}

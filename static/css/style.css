@@ -5,6 +5,7 @@ nav {
     top: 0;
     position: sticky;
     background-color: var(--pico-background-color);
+    z-index: 100;
 }
 
 .notice {
