@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
     <title>{% block title %}My Flask App{% endblock %}</title>
     <link rel="stylesheet" href="static/css/pico.blue.min.css">
     <link rel="stylesheet"
@@ -15,7 +15,9 @@
     <header>
         <nav class="container">
             <ul>
-                <li><a href="/home" style="text-decoration: none;" class="contrast"><h1>Games Review Hub</h1></a></li>
+                <li><a href="/home" style="text-decoration: none;" class="contrast">
+                        <h1>Games Review Hub</h1>
+                    </a></li>
             </ul>
             <ul>
                 <li>
@@ -31,8 +33,11 @@
                         <summary class="material-symbols-outlined">account_circle</summary>
                         <ul>
                             <li>{{user.username}}</li>
+                            {% if not user.user_id is number %}
                             <li><a href="/login">Login <span class="material-symbols-outlined">login</span></a></li>
+                            {% else %}
                             <li><a href="/logout">Logout <span class="material-symbols-outlined">logout</span></a></li>
+                            {% endif %}
                         </ul>
                     </details>
                 </li>

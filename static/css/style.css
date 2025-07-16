@@ -1,9 +1,8 @@
 nav {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #cccccc;
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
     top: 0;
-    position: sticky;
     background-color: var(--pico-background-color);
     z-index: 100;
 }
@@ -12,4 +11,91 @@ nav {
     padding: 1rem;
     margin-bottom: 1rem;
     border-radius: 0.5rem;
+}
+
+
+
+.game {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    width: fit-content;
+    background: var(--pico-background-color);
+    border: 0.1rem solid var(--pico-color);
+    padding: 1rem;
+    border-radius: 1rem;
+
+}
+
+.game-title {
+    text-align: center;
+    margin-bottom: 1rem;
+    background: var(--pico-background-color);
+    border: 0.1rem solid var(--pico-color);
+    padding: 0.05rem;
+}
+
+.game img {
+    border-radius: 2rem;
+    margin: auto;
+    box-shadow: var(--pico-box-shadow);
+    transition: 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.game img:hover {
+    transform: scale(1.05);
+}
+
+.value {
+    width: 5rem;
+    height: 4rem;
+    padding: 1rem;
+    margin: 1rem 1rem 1rem 1rem;
+    aspect-ratio: 1 / 1;
+    background: var(--pico-background-color);
+    border: 0.1rem solid var(--pico-color);
+    cursor: default;
+    text-align: center;
+}
+
+@media (max-width: 1200px) {
+    .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 785px) {
+    nav h1 {
+        font-size: 1rem;
+    }
+
+    .value {
+        margin: auto;
+    }
+
+    .grid {
+        grid-column-gap: var(--pico-grid-column-gap);
+        grid-row-gap: var(--pico-grid-row-gap);
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+.value span {
+    font-size: 1.33rem;
+    text-align: center;
+    margin: auto;
+    padding-top: 0.3rem;
+}
+
+.date {
+    margin: 1rem 0rem 0rem 1rem;
+}
+
+.date p {
+    background: var(--pico-background-color);
+    border: 0.1rem solid var(--pico-color);
+    padding: 0.5rem;
 }
