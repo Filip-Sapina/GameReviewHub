@@ -1093,7 +1093,7 @@ def logout():
 def search_page():
 
     if request.method == "POST":
-        search_term = request.form["search_term"]
+        search_term = request.form.get("search_term", "")
     
         games = get_games_by_closest_match(search_term)
         for game in games:
@@ -1107,6 +1107,15 @@ def search_page():
 
     return render_template("search.html", user=get_user_session(), search=search_term, games=games)
 
+@app.route("/game<int:game_id>")
+def game_page(game_id: int):
+    game = get_game_by_id(game_id)
+
+    if game is None:
+        flash("Game Not Found")
+        return redirect(url_for("home"))
+
+    return render_template("game.html", game=game, user=get_user_session())
 
 @app.route("/")
 def index():

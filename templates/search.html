@@ -25,7 +25,7 @@
     <div class="game">
         <div>
             <div class="game-title"><strong>{{game.title}}</strong></div>
-            <img src="{{ game.image_link }}" alt="game">
+            <a href="{{url_for('game_page', game_id=game.id)}}"><img src="{{ game.image_link }}" alt="game"></a>
         </div>
         <div>
             <div class="value">10<span class="material-symbols-outlined">star</span></div>

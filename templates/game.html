@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{game.title}} - Games Review Hub{% endblock %}
+
+{% block content %}
+
+<article>
+    <h1>{{game.title}}</h1> 
+    <img src="{{game.image_link}}" alt="{{game.title}} cover image.">
+</article>
+
+{% endblock %}
