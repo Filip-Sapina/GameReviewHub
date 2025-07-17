@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Games Review Hub{% endblock %}
+
+{% block content %}
+<h1>Showing results for "{{search}}".</h1>
+<div class="grid game-container">
+    {% for game in games %}
+    <div class="game">
+        <div>
+            <div class="game-title"><strong>{{game.title}}</strong></div>
+            <img src="{{ game.image_link }}" alt="game">
+        </div>
+        <div>
+            <div class="value">10<span class="material-symbols-outlined">star</span></div>
+            <div class="value"><span class="material-symbols-outlined">subtitles</span></div>
+            <div class="value"><span class="material-symbols-outlined">visibility</span></div>
+            <div class="value"><span class="material-symbols-outlined">swords</span></div>
+        </div>
+        <div class="date">
+            <p>{{game.release_date}}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock%}

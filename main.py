@@ -588,16 +588,19 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     cursor.execute("SELECT * FROM Games")
     data = cursor.fetchall()
     db.commit()
-
+    
     if not data:
         raise KeyError("No Games Found in Database?!")
 
     games = []
     for row in data:
-        distance = levenshtein_distance(matching_text, row["title"])
-        games.append((distance, row))
+        game = Game(**row)
+        distance = levenshtein_distance(matching_text, game.title)
+        games.append((distance, game))
+
 
     games.sort(key=lambda pair: pair[0])
+    games = [pair[1] for pair in games]
     return games
 
 def get_games_by_platform_ids(platform_ids: list[int]):
@@ -1109,6 +1112,18 @@ def logout():
     """removes user's user_id in the session and sends to home"""
     session["user_id"] = None
     return redirect(url_for("home"))
+
+@app.route("/search", methods=["GET", "POST"])
+def search_page():
+
+    if request.method == "POST":
+        search_term = request.form["search_term"]
+    
+        games = get_games_by_closest_match(search_term)
+        for game in games:
+            game.release_date = datetime.fromtimestamp(game.release_date).date()
+
+    return render_template("search.html", user=get_user_session(), search=search_term, games=games)
 
 
 @app.route("/")
