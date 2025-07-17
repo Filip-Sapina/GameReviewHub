@@ -7,6 +7,7 @@ from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
 from faker import Faker
+from thefuzz import fuzz
 from werkzeug import security
 from flask import Flask, g, redirect, url_for, render_template, request, flash, session
 
@@ -33,47 +34,6 @@ def get_database():
     cursor = g.db.cursor()
     return g.db, cursor
 
-
-def levenshtein_distance(a: str, b: str) -> int:
-    """
-    compares two strings and returns a number based on how many edits it takes to reach each other.
-    https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_full_matrix
-    """
-    a = a.lower()
-    b = b.lower()
-
-    # if either string is empty, the other strings length will equal the distance.
-    if a == "" or b == "":
-        return max(len(a), len(b))
-    # if the strings are the same, there is no edit distance.
-    if a == b:
-        return 0
-
-    m, n = len(a), len(b)
-
-    # creates a matrix where on side is string a and the other is string b
-    matrix = []
-    for _ in range(m + 1):
-        matrix.append([0] * (n + 1))
-
-    # sets first row and column to 1, 2, 3...
-    for i in range(m + 1):
-        matrix[i][0] = i
-    for j in range(n + 1):
-        matrix[0][j] = j
-
-    # fills in the rest of the matrix with minimum edit distance
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            # cost to substitue letter
-            cost = 0 if a[i - 1] == b[j - 1] else 1
-            # fills in cell based on minimum required changes.
-            matrix[i][j] = min(
-                matrix[i - 1][j] + 1,  # cost to delete
-                matrix[i][j - 1] + 1,  # cost to insert
-                matrix[i - 1][j - 1] + cost,  # cost to substitute
-            )
-    return matrix[m][n]
 
 
 # User Logic
@@ -595,11 +555,11 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     games = []
     for row in data:
         game = Game(**row)
-        distance = levenshtein_distance(matching_text, game.title)
+        distance = fuzz.ratio(matching_text, game.title)
         games.append((distance, game))
 
 
-    games.sort(key=lambda pair: pair[0])
+    games.sort(key=lambda pair: pair[0], reverse=True)
     games = [pair[1] for pair in games]
     return games
 

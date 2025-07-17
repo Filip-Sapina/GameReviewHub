@@ -53,9 +53,8 @@
 .value {
     width: 5rem;
     height: 4rem;
-    padding: 1rem;
+    padding-top: 1rem;
     margin: 1rem 1rem 1rem 1rem;
-    aspect-ratio: 1 / 1;
     background: var(--pico-background-color);
     border: 0.1rem solid var(--pico-color);
     cursor: default;
@@ -64,9 +63,6 @@
 
 .value span {
     font-size: 1.33rem;
-    text-align: center;
-    margin: auto;
-    padding-top: 0.3rem;
 }
 
 .date {
