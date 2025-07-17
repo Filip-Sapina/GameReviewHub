@@ -1,9 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Games Review Hub{% endblock %}
+{% block title %}Search "{{search}}" - Games Review Hub{% endblock %}
 
 {% block content %}
-<h1>Showing results for "{{search}}".</h1>
+
+
+<section>
+    <h1>Showing results for "{{search}}".</h1>
+    <button class="material-symbols-outlined" id="filter-button" onclick="toggle_filters()">filter_list</button>
+    <article id="filter-container">
+        <main></main>
+        
+        <footer>
+            <form action="/set_filters" method="post">
+                <button type="submit" class="secondary">Apply Filters</button>
+            </form>
+        </footer>
+
+    </article>
+
+</section>
 <div class="grid game-container">
     {% for game in games %}
     <div class="game">
@@ -24,4 +40,14 @@
     {% endfor %}
 </div>
 
+<script>
+    const filterButton = document.getElementById("filter-button");
+    const filterContainer = document.getElementById("filter-container");
+
+    function toggle_filters() {
+        filterContainer.style.display = filterContainer.style.display === "none" ? "block" : "none"
+
+    }
+
+</script>
 {% endblock%}
