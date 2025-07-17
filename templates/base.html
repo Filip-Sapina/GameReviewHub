@@ -13,15 +13,20 @@
 
 <body>
     <header>
-        <nav class="container">
+        <nav class="navbar">
             <ul>
-                <li><a href="/home" style="text-decoration: none;" class="contrast">
+                <li>
+                    <a href="/home" style="text-decoration: none;" class="contrast">
                         <h1>Games Review Hub</h1>
-                    </a></li>
+                    </a>
+                </li>
+                <form action="/search" id="search-button">
+                    <button type="submit" class="material-symbols-outlined">search</button>
+                </form>
             </ul>
             <ul>
                 <li>
-                    <form method="get" role="search">
+                    <form method="get" role="search" id="search-bar">
                         <input type="search" placeholder="Search...">
                         <button type="submit" class="material-symbols-outlined">arrow_forward</button>
                     </form>
