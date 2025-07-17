@@ -1066,12 +1066,28 @@ def login_page():
             flash("USER NOT FOUND")
     return render_template("login.html", user=get_user_session())
 
+@app.route("/register", methods=["GET", "POST"])
+def register_page():
+    """Regisar Page for new users to create account."""
+    if request.method == "POST":
+        
 
+        username = request.form["username"]
+
+        if get_user_by_username(username):
+            flash("Username is Already Taken!")
+            return render_template("register.html", user=get_user_session())
+        password = request.form["password"]
+        add_user(username, password)
+        session["user_id"] = get_user_by_username(username).user_id
+        return redirect(url_for("home"))
+    return render_template("register.html", user=get_user_session())
+    
 @app.route("/logout")
 def logout():
     """removes user's user_id in the session and sends to home"""
     session["user_id"] = None
-    return redirect(url_for("home"))
+    return redirect(url_for("login_page"))
 
 @app.route("/search", methods=["GET", "POST"])
 def search_page():
@@ -1081,7 +1097,13 @@ def search_page():
     
         games = get_games_by_closest_match(search_term)
         for game in games:
-            game.release_date = datetime.fromtimestamp(game.release_date).date()
+            release_date = datetime.fromtimestamp(game.release_date)
+            date = release_date.date().strftime("%d/%m/%Y")
+            time_passed = datetime.now() - release_date
+            years_passed = time_passed.days /365.25
+                
+
+            game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
 
     return render_template("search.html", user=get_user_session(), search=search_term, games=games)
 
