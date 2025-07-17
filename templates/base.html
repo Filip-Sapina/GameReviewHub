@@ -13,18 +13,16 @@
 
 <body>
     <header>
-        <nav class="navbar">
-            <ul>
+        <nav class="navbar container grid">
+            <ul id="nav-left">
                 <li>
                     <a href="/home" style="text-decoration: none;" class="contrast">
                         <h1>Games Review Hub</h1>
                     </a>
                 </li>
-                <form action="/search" id="search-button">
-                    <button type="submit" class="material-symbols-outlined">search</button>
-                </form>
+
             </ul>
-            <ul>
+            <ul id="nav-middle">
                 <li>
                     <form method="get" role="search" id="search-bar">
                         <input type="search" placeholder="Search...">
@@ -32,7 +30,7 @@
                     </form>
                 </li>
             </ul>
-            <ul>
+            <ul id="nav-right">
                 <li>
                     <details class="dropdown">
                         <summary class="material-symbols-outlined">account_circle</summary>

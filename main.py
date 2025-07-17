@@ -1125,7 +1125,7 @@ fake = Faker()
 def admin_page():
     """admin page contains debug tools for database.
     currently doesn't check if user is an admin."""
-    return render_template("admin.html")
+    return render_template("admin.html", user=get_user_session())
 
 
 @app.route("/set_game", methods=["GET", "POST"])
