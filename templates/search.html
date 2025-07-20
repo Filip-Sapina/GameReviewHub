@@ -7,17 +7,22 @@
 
 <section>
     <h1>Showing results for "{{search}}".</h1>
-    <button class="material-symbols-outlined" id="filter-button" onclick="toggle_filters()">filter_list</button>
-    <article id="filter-container">
-        <main></main>
-        
-        <footer>
-            <form action="/set_filters" method="post">
-                <button type="submit" class="secondary">Apply Filters</button>
-            </form>
-        </footer>
 
-    </article>
+    <details name="filters">
+        <summary>filters</summary>
+        <form action="/set_filter" method="post">
+            <div class="container grid">
+                {% for game_tag in game_tags %}
+                <div class="game_tag">
+                    <label for="{{game_tag.name}}">{{game_tag.name}}</label>
+                    <input type="checkbox" name="{{game_tag.name}}" id="{{game_tag.name}}_tag">
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Apply Filters</button>
+        </form>
+    </details>
 
 </section>
 <div class="grid game-container">
@@ -40,14 +45,4 @@
     {% endfor %}
 </div>
 
-<script>
-    const filterButton = document.getElementById("filter-button");
-    const filterContainer = document.getElementById("filter-container");
-
-    function toggle_filters() {
-        filterContainer.style.display = filterContainer.style.display === "none" ? "block" : "none"
-
-    }
-
-</script>
 {% endblock%}

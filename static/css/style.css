@@ -77,3 +77,17 @@
     border: 0.1rem solid var(--pico-color);
     padding: 0.5rem;
 }
+
+/* search.html */
+
+.game_tag {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    width: fit-content;
+    background: var(--pico-background-color);
+    border: none;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    text-align: center;
+
+}

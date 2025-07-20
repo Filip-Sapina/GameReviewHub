@@ -35,7 +35,6 @@ def get_database():
     return g.db, cursor
 
 
-
 # User Logic
 
 
@@ -56,7 +55,6 @@ class User(object):
         self.password_hash = data.get("password_hash")
         self.date_joined = data.get("date_joined")
         self.user_id = data.get("user_id")
-        
 
 
 def get_user_by_id(user_id: int) -> User:
@@ -107,6 +105,7 @@ def get_user_by_username(username: str) -> User:
     db.commit()
 
     return user
+
 
 def get_user_session():
     """
@@ -224,6 +223,19 @@ def add_game_tag(name: str) -> None:
     insert = "INSERT INTO GameTags (game_tag_name) VALUES (?)"
     cursor.execute(insert, (name,))
     db.commit()
+
+
+def get_game_tags() -> list[GameTag]:
+    db, cursor = get_database()
+    query = "SELECT * FROM GameTags"
+    cursor.execute(query)
+    data = cursor.fetchall()    
+    db.commit()
+    game_tags = []
+    for tag in data:
+        game_tags.append(GameTag(tag["game_tag_id"], tag["game_tag_name"]))
+    print(game_tags)
+    return game_tags
 
 
 def get_tags_by_game_name(game_name: str) -> list[GameTag]:
@@ -548,7 +560,7 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     cursor.execute("SELECT * FROM Games")
     data = cursor.fetchall()
     db.commit()
-    
+
     if not data:
         raise KeyError("No Games Found in Database?!")
 
@@ -558,15 +570,15 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
         distance = fuzz.ratio(matching_text, game.title)
         games.append((distance, game))
 
-
     games.sort(key=lambda pair: pair[0], reverse=True)
     games = [pair[1] for pair in games]
     return games
 
+
 def get_games_by_platform_ids(platform_ids: list[int]):
     """
     Returns a list of Game objects ordered by how many of the input platform_ids they are assigned.
-    
+
     Args:
         platform_ids (List[int]): List of platform IDs to match.
 
@@ -578,7 +590,7 @@ def get_games_by_platform_ids(platform_ids: list[int]):
         return []
     db, cursor = get_database()
 
-    placeholders = ','.join(['?'] * len(platform_ids))
+    placeholders = ",".join(["?"] * len(platform_ids))
 
     query = f"""
         SELECT 
@@ -601,10 +613,11 @@ def get_games_by_platform_ids(platform_ids: list[int]):
         games.append(game)
     return games
 
+
 def get_games_by_game_tag_ids(game_tag_ids: list[int]):
     """
     Returns a list of Game objects ordered by how many of the input game_ids they are assigned.
-    
+
     Args:
         game_ids (List[int]): List of game IDs to match.
 
@@ -616,7 +629,7 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
         return []
     db, cursor = get_database()
 
-    placeholders = ','.join(['?'] * len(game_tag_ids))
+    placeholders = ",".join(["?"] * len(game_tag_ids))
 
     query = f"""
         SELECT 
@@ -638,7 +651,6 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
         game = Game(**row)
         games.append(game)
     return games
-
 
 
 def add_game(game: Game) -> None:
@@ -811,7 +823,6 @@ class Review(object):
         self.platform_id = data["platform_id"]
 
 
-
 def add_review(review: Review) -> None:
     """
     Adds a new row into Reviews Database. Doesn't need review_id in Review object.
@@ -956,6 +967,7 @@ def get_reviews_by_username(user_name: str):
         reviews.append(Review(data=review_data))
     return reviews
 
+
 def get_reviews_by_game_and_platform(game_id: int, platform_id: int):
     """
     Returns list of all reviews for a game played on a certain platform.
@@ -976,6 +988,7 @@ def get_reviews_by_game_and_platform(game_id: int, platform_id: int):
         reviews.append(review)
     return reviews
 
+
 def delete_review_by_id(review_id: int) -> None:
     """
     Removes a review by using it's id.
@@ -988,6 +1001,7 @@ def delete_review_by_id(review_id: int) -> None:
     delete = "DELETE FROM Reviews WHERE review_id = ?"
     cursor.execute(delete, review_id)
     db.commit()
+
 
 def update_review(new_review: Review):
     """
@@ -1010,13 +1024,17 @@ def update_review(new_review: Review):
     has_difficulty_options = ?
     WHERE review_id = ?
     """
-    cursor.execute(update, (new_review.rating,
-                            new_review.review_text,
-                            new_review.accessibility.has_colourblind_support,
-                            new_review.accessibility.has_subtitles,
-                            new_review.accessibility.has_difficulty_options,
-                            new_review.review_id
-                            ))
+    cursor.execute(
+        update,
+        (
+            new_review.rating,
+            new_review.review_text,
+            new_review.accessibility.has_colourblind_support,
+            new_review.accessibility.has_subtitles,
+            new_review.accessibility.has_difficulty_options,
+            new_review.review_id,
+        ),
+    )
     db.commit()
 
 
@@ -1066,11 +1084,11 @@ def login_page():
             flash("USER NOT FOUND")
     return render_template("login.html", user=get_user_session())
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register_page():
     """Regisar Page for new users to create account."""
     if request.method == "POST":
-        
 
         username = request.form["username"]
 
@@ -1082,30 +1100,35 @@ def register_page():
         session["user_id"] = get_user_by_username(username).user_id
         return redirect(url_for("home"))
     return render_template("register.html", user=get_user_session())
-    
+
+
 @app.route("/logout")
 def logout():
     """removes user's user_id in the session and sends to home"""
     session["user_id"] = None
     return redirect(url_for("login_page"))
 
+
 @app.route("/search", methods=["GET", "POST"])
 def search_page():
 
     if request.method == "POST":
         search_term = request.form.get("search_term", "")
-    
+
         games = get_games_by_closest_match(search_term)
         for game in games:
             release_date = datetime.fromtimestamp(game.release_date)
             date = release_date.date().strftime("%d/%m/%Y")
             time_passed = datetime.now() - release_date
-            years_passed = time_passed.days /365.25
-                
+            years_passed = time_passed.days / 365.25
 
             game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
 
-    return render_template("search.html", user=get_user_session(), search=search_term, games=games)
+    return render_template(
+        "search.html", user=get_user_session(), search=search_term, games=games,
+        game_tags = get_game_tags()
+    )
+
 
 @app.route("/game<int:game_id>")
 def game_page(game_id: int):
@@ -1116,6 +1139,7 @@ def game_page(game_id: int):
         return redirect(url_for("home"))
 
     return render_template("game.html", game=game, user=get_user_session())
+
 
 @app.route("/")
 def index():
