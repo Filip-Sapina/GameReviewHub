@@ -3,10 +3,16 @@
 {% block title %}{{game.title}} - Games Review Hub{% endblock %}
 
 {% block content %}
-
-<article>
-    <h1>{{game.title}}</h1> 
+<article class="main-game-container grid">
     <img src="{{game.image_link}}" alt="{{game.title}} cover image.">
+    <div>
+        <h1 style="text-align: center;">{{game.title}}</h1>
+        <div class="container-fluid" style="display: flex; align-items: center; gap: 10px;">
+            <span>0</span>
+            <progress value="71" max="100" style="flex-grow: 1; margin-bottom: 0;"></progress>
+            <span>100</span>
+        </div>
+    </div>
 </article>
 
 {% endblock %}
