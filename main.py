@@ -229,7 +229,7 @@ def get_game_tags() -> list[GameTag]:
     db, cursor = get_database()
     query = "SELECT * FROM GameTags"
     cursor.execute(query)
-    data = cursor.fetchall()    
+    data = cursor.fetchall()
     db.commit()
     game_tags = []
     for tag in data:
@@ -398,6 +398,19 @@ def update_platform(new_platform: Platform):
     db.commit()
 
 
+def get_platforms():
+    db, cursor = get_database()
+    query = "SELECT * FROM Platforms"
+    cursor.execute(query)
+    data = cursor.fetchall()
+
+    platforms = []
+    for platform in data:
+        platforms.append(Platform(platform["platform_id"], platform["platform_name"]))
+
+    return platforms
+
+
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
     gets a list of platforms that a game is playable on.
@@ -421,7 +434,7 @@ def get_platforms_by_game_name(game_name: str) -> list[Platform]:
 
     platforms = []
     for platform_dict in platform_ids:
-        tag = get_game_tag_by_id(platform_dict["game_tag_id"])
+        tag = get_platform_by_id(platform_dict["platform_id"])
         platforms.append(tag)
     db.commit()
     return platforms
@@ -461,7 +474,7 @@ def get_platform_by_id(platform_id: int) -> Platform:
     """
     db, cursor = get_database()
     query = "SELECT * FROM Platforms WHERE platform_id = ?"
-    cursor.execute(query, platform_id)
+    cursor.execute(query, (platform_id,))
     data = cursor.fetchone()
     db.commit()
     return Platform(data["platform_id"], data["platform_name"])
@@ -1125,8 +1138,11 @@ def search_page():
             game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
 
     return render_template(
-        "search.html", user=get_user_session(), search=search_term, games=games,
-        game_tags = get_game_tags()
+        "search.html",
+        user=get_user_session(),
+        search=search_term,
+        games=games,
+        game_tags=get_game_tags(),
     )
 
 
@@ -1138,7 +1154,12 @@ def game_page(game_id: int):
         flash("Game Not Found")
         return redirect(url_for("home"))
 
-    return render_template("game.html", game=game, user=get_user_session())
+    return render_template(
+        "game.html",
+        game=game,
+        user=get_user_session(),
+        platforms=get_platforms_by_game_name(game.title),
+    )
 
 
 @app.route("/")

@@ -8,9 +8,32 @@
     <div>
         <h1 style="text-align: center;">{{game.title}}</h1>
         <div class="container-fluid" style="display: flex; align-items: center; gap: 10px;">
-            <span>0</span>
-            <progress value="71" max="100" style="flex-grow: 1; margin-bottom: 0;"></progress>
-            <span>100</span>
+            <span>1</span>
+            <progress value="8" max="10" style="flex-grow: 1; margin-bottom: 0;"></progress>
+            <span>10</span>
+        </div>
+
+        <div class="grid">
+            <div class="platforms">
+                {% for platform in platforms %}
+                <span class="platform">{{platform.name}}</span>
+                {% endfor %}
+            </div>
+            <div class="accessibility container">
+                <span class="material-symbols-outlined">subtitles</span>
+                <input type="checkbox" disabled>
+                <span class="material-symbols-outlined">visibility</span>
+                <input type="checkbox" disabled checked>
+                <span class="material-symbols-outlined">swords</span>
+                <input type="checkbox" disabled>
+            </div>
+        </div>
+        <div class="description">
+            <details>
+                <summary>Description</summary>
+                <p>{{game.description}}</p>
+            </details>
+
         </div>
     </div>
 </article>
