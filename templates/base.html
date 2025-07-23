@@ -2,12 +2,17 @@
 <html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+    <!-- Settings -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}My Flask App{% endblock %}</title>
-    <link rel="stylesheet" href="static/css/pico.blue.min.css">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="stylesheet" href="./static/css/style.css">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="/static/css/pico.blue.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/style.css" />
 </head>
 
 
@@ -69,34 +74,29 @@
         {% block content %}
         {% endblock %}
     </main>
-
-    <footer>
-
-    </footer>
-
 </body>
 
 <script>
     const themeToggle = document.getElementById("theme-toggle");
     const html = document.documentElement;
 
+    // Load saved theme.
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
         html.setAttribute("data-theme", savedTheme);
     }
 
-    themeToggle.addEventListener("click", change_color_mode);
+    // set button icon on load.
+    const currentTheme = html.getAttribute("data-theme") || "light";
+    themeToggle.textContent = currentTheme === "dark" ? "dark_mode" : "light_mode";
 
-    function change_color_mode() {
-        const currentTheme = html.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        themeToggle.innerHTML = newTheme === "dark" ? "dark_mode" : "light_mode"
+    // theme swap function.
+    themeToggle.addEventListener("click", () => {
+        const newTheme = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
         html.setAttribute("data-theme", newTheme);
+        themeToggle.textContent = newTheme === "dark" ? "dark_mode" : "light_mode";
         localStorage.setItem("theme", newTheme);
-    }
-
-    let currentTheme = html.getAttribute("data-theme");
-    themeToggle.innerHTML = currentTheme === "dark" ? "dark_mode" : "light_mode"
+    });
 </script>
 
 </html>

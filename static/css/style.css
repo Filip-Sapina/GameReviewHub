@@ -92,6 +92,12 @@
     padding: 0.5rem;
 }
 
+/* login.html */
+
+.login-title {
+    text-align: center;
+}
+
 /* search.html */
 
 .game_tag {
