@@ -1,9 +1,18 @@
 :root {
-    --nav-border : #cccccc;
+    /* Border */
+    --nav-border: #cccccc;
+
+    /* Reviews */
+    --positive-color: var(--pico-ins-color, #62af9a);
+    --positive-darker-color: #4e9784;
+    --negative-color: var(--pico-del-color, #CD7E7B);
+    --negative-darker-color: #c05c59;
+    --mixed-color: #d9c35f;
+    --mixed-darker-color: #cfb230;
 }
 
 .material-symbols-outlined {
-  vertical-align: middle;
+    vertical-align: middle;
 }
 
 /* Nav Bar Style */
@@ -13,7 +22,7 @@
     border-bottom: 1px solid var(--nav-border)
 }
 
-#nav-right {
+.nav-right {
     padding-left: 6rem;
 }
 
@@ -26,7 +35,7 @@
 /* Game Styles */
 
 .game-container {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 1rem;
 }
 
@@ -35,7 +44,7 @@
     grid-template-columns: 2fr 1fr;
     width: fit-content;
     background: var(--pico-background-color);
-    border: 0.1rem solid var(--pico-color);
+    border: 1px solid var(--pico-color);
     padding: 1rem;
     border-radius: 1rem;
 
@@ -45,7 +54,7 @@
     text-align: center;
     margin-bottom: 1rem;
     background: var(--pico-background-color);
-    border: 0.1rem solid var(--pico-color);
+    border: 1px solid var(--pico-color);
     padding: 0.05rem;
 }
 
@@ -67,7 +76,7 @@
     padding-top: 1rem;
     margin: 1rem 1rem 1rem 1rem;
     background: var(--pico-background-color);
-    border: 0.1rem solid var(--pico-color);
+    border: 1px solid var(--pico-color);
     cursor: default;
     text-align: center;
 }
@@ -78,11 +87,8 @@
 
 .date {
     margin: 1rem 0rem 0rem 1rem;
-}
-
-.date p {
     background: var(--pico-background-color);
-    border: 0.1rem solid var(--pico-color);
+    border: 1px solid var(--pico-color);
     padding: 0.5rem;
 }
 
@@ -102,16 +108,22 @@
 
 /* game.html */
 
+.rating-container {
+    margin-bottom: 1rem;
+    cursor: default;
+}
+
 .platforms {
-   border: 1px solid var(--nav-border);
-   padding: 0.5rem;
+    border: 1px solid var(--nav-border);
+    padding: 0.5rem;
+    cursor: default;
 }
 
 .platform {
     display: block;
     border-radius: 1rem;
-    background-color: var(--pico-contrast-background);
-    color: var(--pico-h6-color);
+    background-color: var(--pico-background-color);
+    color: var(--pico-color);
     padding: 0.5rem;
     margin-top: 0.1rem;
     white-space: nowrap;
@@ -120,18 +132,53 @@
 .accessibility {
     border: 1px solid var(--nav-border);
     padding: 0.5rem;
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    width: 100%; 
-    height: 100%;
-}
-
-.accessibility> * {
-    flex: 1 1 0; 
+    text-align: center;
+    cursor: default;
 }
 
 .description {
     border: 1px solid var(--nav-border);
     padding: 1rem;
+}
+
+.review-filter {
+    width: 50%;
+    display: flex;
+}
+
+.review-filter button {
+    flex: 1;
+    margin: 0 0.25rem;
+}
+
+.review-filter button:focus {
+    outline: 2px solid var(--pico-color);
+}
+
+
+#positive-reviews {
+    background-color: var(--positive-color);
+    border-color: var(--pico-contrast-color);
+}
+
+#positive-reviews:hover {
+    background-color: var(--positive-darker-color);
+}
+
+#mixed-reviews {
+    background-color: var(--mixed-color);
+    border-color: var(--pico-contrast-color);
+}
+
+#mixed-reviews:hover {
+    background-color: var(--mixed-darker-color);
+}
+
+#negative-reviews {
+    background-color: var(--negative-color);
+    border-color: var(--pico-contrast-color);
+}
+
+#negative-reviews:hover {
+    background-color: var(--negative-darker-color);
 }

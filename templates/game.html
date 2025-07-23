@@ -4,10 +4,15 @@
 
 {% block content %}
 <article class="main-game-container grid">
-    <img src="{{game.image_link}}" alt="{{game.title}} cover image.">
+
+    <div>
+        <img src="{{game.image_link}}" alt="{{game.title}} cover image.">
+    </div>
+
+
     <div>
         <h1 style="text-align: center;">{{game.title}}</h1>
-        <div class="container-fluid" style="display: flex; align-items: center; gap: 10px;">
+        <div class="container-fluid rating-container" style="display: flex; align-items: center; gap: 10px;">
             <span>1</span>
             <progress value="8" max="10" style="flex-grow: 1; margin-bottom: 0;"></progress>
             <span>10</span>
@@ -21,15 +26,15 @@
             </div>
             <div class="accessibility container">
                 <span class="material-symbols-outlined">subtitles</span>
-                <input type="checkbox" disabled>
+                <input type="checkbox" name="subtitles" disabled>
                 <span class="material-symbols-outlined">visibility</span>
-                <input type="checkbox" disabled checked>
+                <input type="checkbox" name="colourblind_options" disabled checked>
                 <span class="material-symbols-outlined">swords</span>
-                <input type="checkbox" disabled>
+                <input type="checkbox" name="diffculty_options" disabled>
             </div>
         </div>
         <div class="description">
-            <details>
+            <details open>
                 <summary>Description</summary>
                 <p>{{game.description}}</p>
             </details>
@@ -37,5 +42,12 @@
         </div>
     </div>
 </article>
+
+<div class="review-filter container grid">
+
+    <button class="material-symbols-outlined" id="positive-reviews">thumb_up</button>
+    <button class="material-symbols-outlined" id="mixed-reviews">~</button>
+    <button class="material-symbols-outlined" id="negative-reviews">thumb_down</button>
+</div>
 
 {% endblock %}
