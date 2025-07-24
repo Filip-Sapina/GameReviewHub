@@ -93,13 +93,8 @@ def get_user_by_id(user_id: int) -> User:
     Raises:
         TypeError: If user_id is not an integer.
     """
-
-    db, cursor = get_database()
-    query = "SELECT * FROM Users WHERE user_id = ?"
-    cursor.execute(query, (user_id,))
-    data = cursor.fetchone()
+    data = query_db("SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True)
     user = User(**data)
-    db.commit()
     return user
 
 
@@ -116,24 +111,14 @@ def get_user_by_username(username: str) -> User:
     Raises:
         TypeError: If username is not an string.
     """
-
-    db, cursor = get_database()
-    query = "SELECT * FROM Users WHERE username = ?"
-    cursor.execute(query, (username,))
-    data = cursor.fetchone()
-
-    if data is None:
-        return None
+    data = query_db("SELECT * FROM Users WHERE username = ?", username)
     user = User(**data)
-
-    db.commit()
-
     return user
 
 
 def get_user_session():
     """
-    returns the user if logged into user session, other returns default message.
+    returns the user if logged into user session, other returns default n/a user.
     """
     if not "user_id" in session.keys():
         session["user_id"] = None
@@ -163,12 +148,7 @@ def add_user(username: str, password: str) -> None:
     """
     date_joined = datetime.now().timestamp()
     password_hash = security.generate_password_hash(password)
-
-    db, cursor = get_database()
-    insert = "INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)"
-    cursor.execute(insert, (username, password_hash, date_joined))
-    db.commit()
-
+    query_db("INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)", (username, password_hash, date_joined), fetch=False)
 
 def delete_user_by_id(user_id: int) -> None:
     """
@@ -181,11 +161,7 @@ def delete_user_by_id(user_id: int) -> None:
         None
 
     """
-    db, cursor = get_database()
-    delete = "DELETE FROM Users WHERE user_id = ?"
-    cursor.execute(delete, user_id)
-    db.commit()
-
+    query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
 
 def update_user(user_id: int, username: str = None, password: str = None) -> None:
     """
@@ -208,21 +184,19 @@ def update_user(user_id: int, username: str = None, password: str = None) -> Non
             "update_user() requires either username or password, neither were provided"
         )
 
-    db, cursor = get_database()
-
-    password_hash = security.generate_password_hash(password)
-
-    if username and not password:
-        update = "UPDATE Users SET username = ? WHERE user_id = ?"
-        cursor.execute(update, (username, user_id))
-    elif not username and password:
-        update = "UPDATE Users SET password_hash = ? WHERE user_id = ?"
-        cursor.execute(update, (password_hash, user_id))
-    else:
-        update = "UPDATE Users SET username = ?, password_hash = ?  WHERE user_id = ?"
-        cursor.execute(update, (username, password_hash, user_id))
-
-    db.commit()
+    
+    query = "UPDATE Users SET "
+    values = ()
+    if username:
+        query = query + username
+        values = (*values, username)
+    if password:
+        password_hash = security.generate_password_hash(password)
+        query = query + password_hash
+        values = (*values, password_hash)
+    query = query + "WHERE user_id = ?"
+    values = (*values, user_id)
+    query_db(query, values, fetch=False)
 
 
 # Game Tag Logic
@@ -243,22 +217,17 @@ def add_game_tag(name: str) -> None:
     Returns:
         None
     """
-    db, cursor = get_database()
-    insert = "INSERT INTO GameTags (game_tag_name) VALUES (?)"
-    cursor.execute(insert, (name,))
-    db.commit()
+    query_db("INSERT INTO GameTags (game_tag_name) VALUES (?)", (name, ), fetch=False)
 
 
 def get_game_tags() -> list[GameTag]:
-    db, cursor = get_database()
-    query = "SELECT * FROM GameTags"
-    cursor.execute(query)
-    data = cursor.fetchall()
-    db.commit()
+    """
+    Returns a list of all game tags.
+    """
+    data = query_db("SELECT * FROM GameTags")
     game_tags = []
     for tag in data:
         game_tags.append(GameTag(tag["game_tag_id"], tag["game_tag_name"]))
-    print(game_tags)
     return game_tags
 
 
@@ -273,23 +242,17 @@ def get_tags_by_game_name(game_name: str) -> list[GameTag]:
     Raises:
         TypeError: if game_name is not a string.
     """
-    db, cursor = get_database()
-
     query = """
             SELECT game_tag_id FROM Games g
             JOIN GameTagAssignment gt 
             ON g.game_id = gt.game_id WHERE g.title = ?
             """
-    cursor.execute(query, (game_name,))
-    tag_ids = cursor.fetchall()
-
+    data = query_db(query, (game_name,))
     tags = []
-    for tag_dict in tag_ids:
+    for tag_dict in data:
         tag = get_game_tag_by_id(tag_dict["game_tag_id"])
         tags.append(tag)
-    db.commit()
     return tags
-
 
 def get_game_tag_by_name(tag_name: str) -> GameTag:
     """
@@ -304,12 +267,8 @@ def get_game_tag_by_name(tag_name: str) -> GameTag:
     Raises:
         TypeError: If tag_name is not an string.
     """
-    db, cursor = get_database()
-    query = "SELECT * FROM GameTags WHERE game_tag_name = ?"
-    cursor.execute(query, (tag_name,))
-    game_tag = cursor.fetchone()
-    db.commit()
-    return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
+    data = query_db("SELECT * FROM GameTags WHERE game_tag_name = ?", (tag_name,), fetch=True, one=True)
+    return GameTag(data["game_tag_id"], data["game_tag_name"])
 
 
 def get_game_tag_by_id(tag_id: int) -> GameTag:
@@ -325,12 +284,8 @@ def get_game_tag_by_id(tag_id: int) -> GameTag:
     Raises:
         TypeError: If tag_id is not an integer.
     """
-    db, cursor = get_database()
-    query = "SELECT * FROM GameTags WHERE game_tag_id = ?"
-    cursor.execute(query, (tag_id,))
-    game_tag = cursor.fetchone()
-    db.commit()
-    return GameTag(game_tag["game_tag_id"], game_tag["game_tag_name"])
+    data = query_db("SELECT * FROM GameTags WHERE game_tag_id = ?", (tag_id,), fetch=True, one=True)
+    return GameTag(data["game_tag_id"], data["game_tag_name"])
 
 
 def update_game_tag(new_tag: GameTag):
@@ -420,20 +375,6 @@ def update_platform(new_platform: Platform):
     update = "UPDATE Platforms SET platform_name = ? WHERE platform_id = ?"
     cursor.execute(update, (new_platform.name, new_platform.id))
     db.commit()
-
-
-def get_platforms():
-    db, cursor = get_database()
-    query = "SELECT * FROM Platforms"
-    cursor.execute(query)
-    data = cursor.fetchall()
-
-    platforms = []
-    for platform in data:
-        platforms.append(Platform(platform["platform_id"], platform["platform_name"]))
-
-    return platforms
-
 
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
