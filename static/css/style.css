@@ -1,3 +1,4 @@
+/* standard unit rem was used because it can scale better than other units.*/
 :root {
     /* Border */
     --nav-border: #cccccc;
@@ -11,6 +12,7 @@
     --mixed-darker-color: #cfb230;
 }
 
+/* Google Symbols Fix to make icons have correct vertical alignment with text. */
 .material-symbols-outlined {
     vertical-align: middle;
 }
@@ -26,6 +28,8 @@
     padding-left: 6rem;
 }
 
+/* Flash Message Styling */
+
 .notice {
     padding: 1rem;
     margin-bottom: 1rem;
@@ -39,6 +43,7 @@
     gap: 1rem;
 }
 
+/* Main container for each game, used units fr unit so insides fits in a 2:1 ratio. */
 .game {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -70,6 +75,7 @@
     transform: scale(1.05);
 }
 
+/* Rating / Acessibility in Game Container */
 .value {
     width: 5rem;
     height: 4rem;
@@ -147,6 +153,8 @@
     padding: 1rem;
 }
 
+/* Review filter */
+
 .review-filter {
     width: 50%;
     display: flex;
@@ -157,18 +165,14 @@
     margin: 0 0.25rem;
 }
 
+/* When Button is focused, its  */
 .review-filter button:focus {
     outline: 2px solid var(--pico-color);
 }
 
-
 #positive-reviews {
     background-color: var(--positive-color);
     border-color: var(--pico-contrast-color);
-}
-
-#positive-reviews:hover {
-    background-color: var(--positive-darker-color);
 }
 
 #mixed-reviews {
@@ -176,15 +180,24 @@
     border-color: var(--pico-contrast-color);
 }
 
-#mixed-reviews:hover {
-    background-color: var(--mixed-darker-color);
-}
 
 #negative-reviews {
     background-color: var(--negative-color);
     border-color: var(--pico-contrast-color);
 }
 
+/* Make Review Filter Buttons darker on hover. */
+
+#positive-reviews:hover {
+    background-color: var(--positive-darker-color);
+}
+
+#mixed-reviews:hover {
+    background-color: var(--mixed-darker-color);
+}
+
 #negative-reviews:hover {
     background-color: var(--negative-darker-color);
 }
+
+/* Reviews */
