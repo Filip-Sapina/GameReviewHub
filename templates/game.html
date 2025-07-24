@@ -32,7 +32,7 @@
                 <span class="material-symbols-outlined">visibility</span>
                 <input type="checkbox" name="colourblind_options" disabled checked>
                 <span class="material-symbols-outlined">swords</span>
-                <input type="checkbox" name="diffculty_options" disabled>
+                <input type="checkbox" name="difficulty_options" disabled>
             </div>
         </div>
         <!-- Description -->
@@ -54,7 +54,48 @@
     <button class="material-symbols-outlined" id="negative-reviews">thumb_down</button>
 </div>
 
-<!-- Write Your Own Review -->
 
-<!-- Other Peoples Reviews -->
+
+<div class="reviews">
+    <!-- Write Your Own Review -->
+    <div class="container user-review">
+
+
+        <form action="/write_review" method="post" aria-label="Write Review">
+            <div class="user-review-top">
+                <h4>Review</h4>
+                <!-- Accessibility -->
+                <div class="form-group user-accessibility">
+                    <label for="has_subtitles" class="material-symbols-outlined">subtitles</label>
+                    <input type="checkbox" name="has_subtitles" id="user-subtitles">
+                    <label for="has_colourblind_support" class="material-symbols-outlined">visibility</label>
+                    <input type="checkbox" name="has_colourblind_support" id="user-colourblind">
+                    <label for="has_difficulty_options" class="material-symbols-outlined">swords</label>
+                    <input type="checkbox" name="has_difficulty_options" id="user-difficulty-options">
+                </div>
+            </div>
+            <div class="form-group user-rating-container">
+                0
+                <input type="range" name="rating" id="rating" min="0" max="10" value="0">
+                10
+            </div>
+            <div class="form-group">
+                <textarea name="review-text" id="review-text" cols="30" rows="5"
+                    placeholder="Write Your Review Here!"></textarea>
+            </div>
+
+            <div class="form-group user-review-post-button">
+                <button type="submit">Post</button>
+            </div>
+
+            <input type="hidden" name="source_url" value="{{ request.url }}">
+
+        </form>
+
+
+    </div>
+    <!-- Other Peoples Reviews -->
+</div>
+
+
 {% endblock %}

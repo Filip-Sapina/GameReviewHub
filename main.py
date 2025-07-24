@@ -93,7 +93,9 @@ def get_user_by_id(user_id: int) -> User:
     Raises:
         TypeError: If user_id is not an integer.
     """
-    data = query_db("SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True)
+    data = query_db(
+        "SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True
+    )
     user = User(**data)
     return user
 
@@ -148,7 +150,12 @@ def add_user(username: str, password: str) -> None:
     """
     date_joined = datetime.now().timestamp()
     password_hash = security.generate_password_hash(password)
-    query_db("INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)", (username, password_hash, date_joined), fetch=False)
+    query_db(
+        "INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)",
+        (username, password_hash, date_joined),
+        fetch=False,
+    )
+
 
 def delete_user_by_id(user_id: int) -> None:
     """
@@ -162,6 +169,7 @@ def delete_user_by_id(user_id: int) -> None:
 
     """
     query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
+
 
 def update_user(user_id: int, username: str = None, password: str = None) -> None:
     """
@@ -184,7 +192,6 @@ def update_user(user_id: int, username: str = None, password: str = None) -> Non
             "update_user() requires either username or password, neither were provided"
         )
 
-    
     query = "UPDATE Users SET "
     values = ()
     if username:
@@ -217,7 +224,7 @@ def add_game_tag(name: str) -> None:
     Returns:
         None
     """
-    query_db("INSERT INTO GameTags (game_tag_name) VALUES (?)", (name, ), fetch=False)
+    query_db("INSERT INTO GameTags (game_tag_name) VALUES (?)", (name,), fetch=False)
 
 
 def get_game_tags() -> list[GameTag]:
@@ -254,6 +261,7 @@ def get_tags_by_game_name(game_name: str) -> list[GameTag]:
         tags.append(tag)
     return tags
 
+
 def get_game_tag_by_name(tag_name: str) -> GameTag:
     """
     Returns game tag row from database using name.
@@ -267,7 +275,12 @@ def get_game_tag_by_name(tag_name: str) -> GameTag:
     Raises:
         TypeError: If tag_name is not an string.
     """
-    data = query_db("SELECT * FROM GameTags WHERE game_tag_name = ?", (tag_name,), fetch=True, one=True)
+    data = query_db(
+        "SELECT * FROM GameTags WHERE game_tag_name = ?",
+        (tag_name,),
+        fetch=True,
+        one=True,
+    )
     return GameTag(data["game_tag_id"], data["game_tag_name"])
 
 
@@ -284,7 +297,9 @@ def get_game_tag_by_id(tag_id: int) -> GameTag:
     Raises:
         TypeError: If tag_id is not an integer.
     """
-    data = query_db("SELECT * FROM GameTags WHERE game_tag_id = ?", (tag_id,), fetch=True, one=True)
+    data = query_db(
+        "SELECT * FROM GameTags WHERE game_tag_id = ?", (tag_id,), fetch=True, one=True
+    )
     return GameTag(data["game_tag_id"], data["game_tag_name"])
 
 
@@ -375,6 +390,7 @@ def update_platform(new_platform: Platform):
     update = "UPDATE Platforms SET platform_name = ? WHERE platform_id = ?"
     cursor.execute(update, (new_platform.name, new_platform.id))
     db.commit()
+
 
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
@@ -787,7 +803,7 @@ class Review(object):
     """
 
     def __init__(self, **data) -> None:
-        self.review_id = data["review_id"]
+        self.review_id = data.get("review_id")
         self.user_id = data["user_id"]
         self.game_id = data["game_id"]
         self.rating = data["rating"]
@@ -1111,7 +1127,7 @@ def search_page():
     )
 
 
-@app.route("/game<int:game_id>")
+@app.route("/game/<int:game_id>")
 def game_page(game_id: int):
     game = get_game_by_id(game_id)
 
@@ -1125,6 +1141,35 @@ def game_page(game_id: int):
         user=get_user_session(),
         platforms=get_platforms_by_game_name(game.title),
     )
+
+
+@app.route("/write_review", methods=["GET", "POST"])
+def write_review():
+    if request.method == "POST":
+        data = request.form.to_dict(flat=True)
+        if data.get("has_colourblind_support", False):
+            data["has_colourblind_support"] = True
+        if data.get("has_difficulty_options", False):
+            data["has_difficulty_options"] = True
+        if data.get("has_subtitles", False):
+            data["has_subtitles"] = True
+
+        data["user_id"] = get_user_session()
+
+        data["source_url"] = data["source_url"].split('/')
+        data["source_url"].reverse()
+
+        data["game_id"] = data["source_url"][0]
+
+        data["review_date"] = datetime.now().timestamp()
+        for key,value in data.items():
+            print(f"{key}: {value}")
+        review = Review(**data)
+
+        
+
+
+    
 
 
 @app.route("/")
@@ -1150,16 +1195,6 @@ def set_game():
         game = Game(**request.form.to_dict(flat=True))
         add_game(game)
         flash(f"added game: {game.title}")
-    return redirect(url_for("admin_page"))
-
-
-@app.route("/write_review", methods=["GET", "POST"])
-def write_review():
-    if request.method == "POST":
-        review = Review(**request.form.to_dict(flat=True))
-        add_review(review)
-        flash(f"added review for {review.game_id} by {review.user_id}")
-
     return redirect(url_for("admin_page"))
 
 

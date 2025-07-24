@@ -163,6 +163,7 @@
 .review-filter button {
     flex: 1;
     margin: 0 0.25rem;
+    padding: 0.5rem 0rem 0.5rem 0rem;
 }
 
 /* When Button is focused, its  */
@@ -201,3 +202,52 @@
 }
 
 /* Reviews */
+.reviews {
+    display: flex;
+}
+
+.user-review {
+    border: 1px solid var(--nav-border);
+    flex: 0.5;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem 0rem 1rem;
+}
+
+.user-review-top {
+    display: flex;
+}
+
+.user-review h4 {
+    padding-right: 1rem;
+}
+
+.user-accessibility {
+    display: flex;
+    padding-top: 0.5rem;
+    padding-right: 0.25rem;
+    flex-direction: row-reverse;
+    flex: 3;
+}
+
+.user-accessibility input {
+    margin: 0;
+}
+
+.user-accessibility .material-symbols-outlined {
+    margin-inline-end: 1rem;
+    margin-inline-start: 1rem;
+}
+
+.user-rating-container {
+    display: flex;
+}
+
+#user-rating {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.user-review-post-button {
+    width: 4rem;
+    margin-left: auto;  
+}
