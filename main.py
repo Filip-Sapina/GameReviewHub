@@ -35,6 +35,30 @@ def get_database():
     return g.db, cursor
 
 
+def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
+    """
+    Completes a database SQL query on Database.db
+    Args:
+        query (str): the SQL query that the should be used on database.
+        args (tuple): tuple of any arguments the query needs in order as they appear in the query.
+        fetch (bool): if true function will return value from query, should be false for something like INSERT.
+        one (bool): if true function will only fetch first value of query, does nothing if fetch = false.
+    """
+    db, cursor = get_database()
+    cursor.execute(query, args)
+
+    if fetch:
+        if one:
+            data = cursor.fetchone()
+        else:
+            data = cursor.fetchall()
+
+        return data
+
+    cursor.close()
+    db.commit()
+
+
 # User Logic
 
 
