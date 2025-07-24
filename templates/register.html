@@ -3,26 +3,32 @@
 {% block title %}Register - Games Review Hub{% endblock %}
 
 {% block content %}
-  <article>
-    <div class="container login-container">
+<article>
+	<div class="container login-container">
+		<!-- Title -->
 		<h1 class="login-title">Login</h1>
 		<form action="/register" method="post" aria-label="Register Account form">
+			<!-- Username -->
 			<div class="form-group">
 				<label for="username">Username</label>
 				<input type="text" name="username" id="username" placeholder="Enter Your Username" required
 					autocomplete="username" aria-required="true">
 			</div>
+			<!-- Password -->
 			<div class="form-group">
 				<label for="password">Password</label>
 				<input type="password" name="password" id="password" placeholder="Enter Your Password" required
 					autocomplete="new-password" aria-required="true">
 			</div>
+			<!-- Login Link -->
 			<p class="register-text">
 				Already Have an Account? <a href="/login">Login</a>
 			</p>
-			<button class="btn btn-primary material-symbols-outlined" type="submit" aria-label="Submit login form">person_add</button>
+			<!-- Submit -->
+			<button class="btn btn-primary material-symbols-outlined" type="submit"
+				aria-label="Submit login form">person_add</button>
 		</form>
 	</div>
-  </article>
-  
+</article>
+
 {% endblock %}

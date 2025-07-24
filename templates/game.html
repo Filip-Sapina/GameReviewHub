@@ -4,20 +4,22 @@
 
 {% block content %}
 <article class="main-game-container grid">
-
+    <!-- Image -->
     <div>
         <img src="{{game.image_link}}" alt="{{game.title}} cover image.">
     </div>
 
-
     <div>
+
+        <!-- Title -->
         <h1 style="text-align: center;">{{game.title}}</h1>
+        <!-- Rating -->
         <div class="container-fluid rating-container" style="display: flex; align-items: center; gap: 10px;">
             <span>1</span>
             <progress value="8" max="10" style="flex-grow: 1; margin-bottom: 0;"></progress>
             <span>10</span>
         </div>
-
+        <!-- Platforms and Accessibility -->
         <div class="grid">
             <div class="platforms">
                 {% for platform in platforms %}
@@ -33,21 +35,26 @@
                 <input type="checkbox" name="diffculty_options" disabled>
             </div>
         </div>
+        <!-- Description -->
         <div class="description">
             <details open>
                 <summary>Description</summary>
                 <p>{{game.description}}</p>
             </details>
-
         </div>
     </div>
 </article>
 
-<div class="review-filter container grid">
 
+
+<div class="review-filter container grid">
+    <!-- Review Filters -->
     <button class="material-symbols-outlined" id="positive-reviews">thumb_up</button>
     <button class="material-symbols-outlined" id="mixed-reviews">~</button>
     <button class="material-symbols-outlined" id="negative-reviews">thumb_down</button>
 </div>
 
+<!-- Write Your Own Review -->
+
+<!-- Other Peoples Reviews -->
 {% endblock %}

@@ -18,7 +18,9 @@
 
 <body>
     <header>
+        <!-- Navigation -->
         <nav class="navbar container grid">
+            <!-- Logo -->
             <ul class="nav-left">
                 <li>
                     <a href="/home" style="text-decoration: none;" class="contrast">
@@ -27,6 +29,7 @@
                 </li>
 
             </ul>
+            <!-- Search Bar -->
             <ul id="nav-middle">
                 <li>
                     <form action="/search" method="post" role="search" id="search-bar">
@@ -35,6 +38,7 @@
                     </form>
                 </li>
             </ul>
+            <!-- Account and Theme Toggle -->
             <ul class="nav-right">
                 <li>
                     <details class="dropdown">
@@ -55,6 +59,7 @@
             </ul>
 
         </nav>
+        <!-- Flash Messages -->
         <div class="container">
             <details {% if get_flashed_messages() %}open{% endif %}>
                 <summary>Notices</summary>

@@ -4,10 +4,11 @@
 
 {% block content %}
 
-
 <section>
+    <!-- Title -->
     <h1>Showing results for "{{search}}".</h1>
 
+    <!-- Game Tag / Platform Filters -->
     <details name="filters">
         <summary>filters</summary>
         <form action="/set_filter" method="post">
@@ -25,19 +26,26 @@
     </details>
 
 </section>
+<!-- Games -->
 <div class="grid game-container">
     {% for game in games %}
+    <!-- Game Template -->
     <div class="game">
         <div>
+            <!-- Title -->
             <div class="game-title"><strong>{{game.title}}</strong></div>
+            <!-- Image -->
             <a href="{{url_for('game_page', game_id=game.id)}}"><img src="{{ game.image_link }}" alt="game"></a>
         </div>
         <div>
+            <!-- Rating -->
             <div class="value">10<span class="material-symbols-outlined">star</span></div>
+            <!-- Accessibility -->
             <div class="value"><span class="material-symbols-outlined">subtitles</span></div>
             <div class="value"><span class="material-symbols-outlined">visibility</span></div>
             <div class="value"><span class="material-symbols-outlined">swords</span></div>
         </div>
+        <!-- Release Date -->
         <div class="date">
             <p>{{game.date_str}}</p>
         </div>
