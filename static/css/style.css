@@ -121,8 +121,16 @@
 /* game.html */
 
 .rating-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 1rem;
     cursor: default;
+}
+
+#rating {
+    flex-grow: 1;
+    margin-bottom: 0;
 }
 
 .platforms {
@@ -217,6 +225,10 @@
     display: flex;
 }
 
+.user-review-bottom {
+    display: flex;
+}
+
 .user-review h4 {
     padding-right: 1rem;
 }
@@ -249,5 +261,6 @@
 
 .user-review-post-button {
     width: 4rem;
-    margin-left: auto;  
+    margin-left: auto;
+    margin-top: auto;
 }

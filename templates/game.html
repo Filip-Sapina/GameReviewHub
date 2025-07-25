@@ -14,9 +14,9 @@
         <!-- Title -->
         <h1 style="text-align: center;">{{game.title}}</h1>
         <!-- Rating -->
-        <div class="container-fluid rating-container" style="display: flex; align-items: center; gap: 10px;">
+        <div class="container-fluid rating-container" >
             <span>1</span>
-            <progress value="8" max="10" style="flex-grow: 1; margin-bottom: 0;"></progress>
+            <progress value="8" max="10" id="rating"></progress>
             <span>10</span>
         </div>
         <!-- Platforms and Accessibility -->
@@ -64,7 +64,7 @@
         <form action="/write_review" method="post" aria-label="Write Review">
             <div class="user-review-top">
                 <h4>Review</h4>
-                <!-- Accessibility -->
+                <!-- Accessibility Options -->
                 <div class="form-group user-accessibility">
                     <label for="has_subtitles" class="material-symbols-outlined">subtitles</label>
                     <input type="checkbox" name="has_subtitles" id="user-subtitles">
@@ -75,17 +75,33 @@
                 </div>
             </div>
             <div class="form-group user-rating-container">
+                <!-- Ratings Slider -->
                 0
                 <input type="range" name="rating" id="rating" min="0" max="10" value="0">
                 10
             </div>
             <div class="form-group">
+                <!-- Place to write Text for Review -->
                 <textarea name="review_text" id="review_text" cols="30" rows="5"
                     placeholder="Write Your Review Here!"></textarea>
             </div>
 
-            <div class="form-group user-review-post-button">
-                <button type="submit">Post</button>
+            <div class="user-review-bottom">
+                <div class="form-group">
+                    <fieldset>
+                        <legend>Platform</legend>
+                        {% for platform in platforms %}
+                        <li>
+                            <input type="radio" name="user_platform" id="user-platform-{{platform.name}}">
+                            <label for="user-platform-{{platform.name}}">{{platform.name}}</label>
+                        </li>
+                        {% endfor %}
+                    </fieldset>
+                </div>
+                <div class="form-group user-review-post-button">
+                    <!-- Post Review -->
+                    <button type="submit">Post</button>
+                </div>
             </div>
 
             <input type="hidden" name="source_url" value="{{ request.url }}">
