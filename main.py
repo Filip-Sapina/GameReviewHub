@@ -92,7 +92,7 @@ def get_user_by_id(user_id: int) -> User:
         user (User): object containing each column of found row in database.
     Raises:
         TypeError: If user_id is not an integer.
-    """
+    """     
     data = query_db(
         "SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True
     )
@@ -113,7 +113,12 @@ def get_user_by_username(username: str) -> User:
     Raises:
         TypeError: If username is not an string.
     """
-    data = query_db("SELECT * FROM Users WHERE username = ?", username)
+    data = query_db("SELECT * FROM Users WHERE username = ?", (username,),fetch=True , one=True)
+    
+    # Check to prevent making a User with None data which causes an error.
+    if data is None:
+        return None
+    
     user = User(**data)
     return user
 
@@ -810,9 +815,9 @@ class Review(object):
         self.review_text = data.get("review_text")
         self.review_date = data["review_date"]
         self.accessibility = AccessibilityOptions(
-            data["has_colourblind_support"],
-            data["has_subtitles"],
-            data["has_difficulty_options"],
+            "has_colourblind_support" in data,
+            "has_subtitles" in data,
+            "has_difficulty_options" in data,
         )
         self.platform_id = data["platform_id"]
 
@@ -1147,24 +1152,20 @@ def game_page(game_id: int):
 def write_review():
     if request.method == "POST":
         data = request.form.to_dict(flat=True)
-        if data.get("has_colourblind_support", False):
-            data["has_colourblind_support"] = True
-        if data.get("has_difficulty_options", False):
-            data["has_difficulty_options"] = True
-        if data.get("has_subtitles", False):
-            data["has_subtitles"] = True
 
-        data["user_id"] = get_user_session()
+        data["user_id"] = get_user_session().user_id
 
         data["source_url"] = data["source_url"].split('/')
         data["source_url"].reverse()
 
         data["game_id"] = data["source_url"][0]
-
+        data["platform_id"] = 1
         data["review_date"] = datetime.now().timestamp()
         for key,value in data.items():
             print(f"{key}: {value}")
         review = Review(**data)
+        add_review(review)
+        return redirect(url_for("game_page", game_id=data["game_id"]))
 
         
 
