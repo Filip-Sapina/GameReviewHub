@@ -19,9 +19,14 @@
 
 /* Nav Bar Style */
 .navbar {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--nav-border)
+    border-bottom: 1px solid var(--nav-border);
+}
+
+.sticky-nav {
+    top: 0;
+    position: sticky;
+    background-color: var(--pico-background-color);
+    z-index: 1000;
 }
 
 .nav-right {

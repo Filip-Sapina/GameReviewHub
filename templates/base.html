@@ -17,7 +17,7 @@
 
 
 <body>
-    <header>
+    <header class="sticky-nav">
         <!-- Navigation -->
         <nav class="navbar container grid">
             <!-- Logo -->
@@ -38,7 +38,7 @@
                     </form>
                 </li>
             </ul>
-            <!-- Account and Theme Toggle -->
+            <!-- Account -->
             <ul class="nav-right">
                 <li>
                     <details class="dropdown">
@@ -53,12 +53,16 @@
                         </ul>
                     </details>
                 </li>
+                <!-- Light Mode / Dark Mode toggle -->
                 <li>
                     <button id="theme-toggle" type="button" class="material-symbols-outlined">light_mode</button>
                 </li>
             </ul>
 
         </nav>
+
+    </header>
+    <main class="container">
         <!-- Flash Messages -->
         <div class="container">
             <details {% if get_flashed_messages() %}open{% endif %}>
@@ -74,8 +78,8 @@
                 {% endwith %}
             </details>
         </div>
-    </header>
-    <main class="container">
+
+        <!-- Main Pages Content -->
         {% block content %}
         {% endblock %}
     </main>
