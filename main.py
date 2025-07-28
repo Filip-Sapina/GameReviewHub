@@ -92,7 +92,7 @@ def get_user_by_id(user_id: int) -> User:
         user (User): object containing each column of found row in database.
     Raises:
         TypeError: If user_id is not an integer.
-    """     
+    """
     data = query_db(
         "SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True
     )
@@ -113,12 +113,14 @@ def get_user_by_username(username: str) -> User:
     Raises:
         TypeError: If username is not an string.
     """
-    data = query_db("SELECT * FROM Users WHERE username = ?", (username,),fetch=True , one=True)
-    
+    data = query_db(
+        "SELECT * FROM Users WHERE username = ?", (username,), fetch=True, one=True
+    )
+
     # Check to prevent making a User with None data which causes an error.
     if data is None:
         return None
-    
+
     user = User(**data)
     return user
 
@@ -317,30 +319,34 @@ def update_game_tag(new_tag: GameTag):
     Returns:
         None
     """
-
-    db, cursor = get_database()
-
-    update = "UPDATE GameTags SET game_tag_name = ? WHERE game_tag_id = ?"
-    cursor.execute(update, (new_tag.name, new_tag.id))
-    db.commit()
+    query_db(
+        "UPDATE GameTags SET game_tag_name = ? WHERE game_tag_id = ?",
+        (new_tag,),
+        fetch=False,
+    )
 
 
 def delete_game_tag_by_id(tag_id: int):
     """
     Deletes game tag in the GameTags table and removes all connections
-    in GameTagAssignment table.
+    to game tag in GameTagAssignment table.
 
     Args:
         tag_id (int): id of the game_tag that will be deleted
     Returns:
         None
     """
-    db, cursor = get_database()
-    delete_game_tag = "DELETE FROM GameTags WHERE game_tag_id = ?"
-    delete_links = "DELETE FROM GameTagAssignment WHERE game_tag_id = ?"
-    cursor.execute(delete_game_tag, tag_id)
-    cursor.execute(delete_links, tag_id)
-    db.commit()
+    query_db(
+        "DELETE FROM GameTags WHERE game_tag_id = ?", (tag_id,), fetch=False, one=False
+    )
+
+    # Removes any links to now removed game tag to avoid ghost game tags.
+    query_db(
+        "DELETE FROM GameTagAssignment WHERE game_tag_id = ?",
+        (tag_id,),
+        fetch=False,
+        one=False,
+    )
 
 
 # Platform Logic
@@ -359,11 +365,12 @@ def add_platform(platform_name: str) -> None:
     Returns:
         None
     """
-
-    db, cursor = get_database()
-    insert = "INSERT INTO Platforms (platform_name) VALUES (?)"
-    cursor.execute(insert, platform_name)
-    db.commit()
+    query_db(
+        "INSERT INTO Platforms (platform_name) VALUES (?)",
+        (platform_name,),
+        fetch=False,
+        one=False,
+    )
 
 
 def delete_platform_by_id(platform_id: int):
@@ -374,10 +381,12 @@ def delete_platform_by_id(platform_id: int):
     Returns:
         None
     """
-    db, cursor = get_database()
-    delete = "DELETE FROM Platforms WHERE platform_id = ?"
-    cursor.execute(delete, platform_id)
-    db.commit()
+    query_db(
+        "DELETE FROM Platforms WHERE platform_id = ?",
+        (platform_id,),
+        fetch=False,
+        one=False,
+    )
 
 
 def update_platform(new_platform: Platform):
@@ -389,12 +398,12 @@ def update_platform(new_platform: Platform):
     Returns:
         None
     """
-
-    db, cursor = get_database()
-
-    update = "UPDATE Platforms SET platform_name = ? WHERE platform_id = ?"
-    cursor.execute(update, (new_platform.name, new_platform.id))
-    db.commit()
+    query_db(
+        "UPDATE Platforms SET platform_name = ? WHERE platform_id = ?",
+        (new_platform.name, new_platform.id),
+        fetch=False,
+        one=False,
+    )
 
 
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
@@ -408,21 +417,22 @@ def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     Raises:
         TypeError: if game_name is not a string.
     """
-    db, cursor = get_database()
 
-    query = """
+    platform_ids = query_db(
+        """
             SELECT platform_id FROM Games g 
             JOIN PlatformAssignment p ON 
             g.game_id = p.game_id WHERE g.title = ?
-            """
-    cursor.execute(query, (game_name,))
-    platform_ids = cursor.fetchall()
+            """,
+        (game_name,),
+        fetch=True,
+        one=False,
+    )
 
     platforms = []
     for platform_dict in platform_ids:
         tag = get_platform_by_id(platform_dict["platform_id"])
         platforms.append(tag)
-    db.commit()
     return platforms
 
 
@@ -439,12 +449,13 @@ def get_platform_by_name(platform_name: str) -> Platform:
     Raises:
         TypeError: If platform_name is not an string.
     """
-    db, cursor = get_database()
-    query = "SELECT * FROM Platforms WHERE platform_name = ?"
-    cursor.execute(query, platform_name)
-    platform = cursor.fetchone()
-    db.commit()
-    return Platform(platform["platform_id"], platform["platform_name"])
+    data = query_db(
+        "SELECT * FROM Platforms WHERE platform_name = ?",
+        (platform_name,),
+        fetch=True,
+        one=True,
+    )
+    return Platform(data["platform_id"], data["platform_name"])
 
 
 def get_platform_by_id(platform_id: int) -> Platform:
@@ -458,11 +469,12 @@ def get_platform_by_id(platform_id: int) -> Platform:
         Platform (NamedTuple): a tuple with id and name.
 
     """
-    db, cursor = get_database()
-    query = "SELECT * FROM Platforms WHERE platform_id = ?"
-    cursor.execute(query, (platform_id,))
-    data = cursor.fetchone()
-    db.commit()
+    data = query_db(
+        "SELECT * FROM Platforms WHERE platform_id = ?",
+        (platform_id,),
+        fetch=True,
+        one=False,
+    )
     return Platform(data["platform_id"], data["platform_name"])
 
 
@@ -883,7 +895,8 @@ def get_review_by_id(review_id: int):
     review = Review(data=data)
     return review
 
-def get_reviews_by_game_id(game_id : int):
+
+def get_reviews_by_game_id(game_id: int):
     """
     Returns review with all data using user id and game id to find.
 
@@ -893,15 +906,15 @@ def get_reviews_by_game_id(game_id : int):
         review (Review): a review object with relevant data.
     """
     query = "SELECT * FROM Reviews WHERE game_id = ?"
-    data = query_db(query, (game_id, ), fetch=True, one=False)
+    data = query_db(query, (game_id,), fetch=True, one=False)
 
     reviews = []
     for row in data:
         review = Review(**row)
         reviews.append(review)
-    
+
     return reviews
-    
+
 
 def get_review_by_game_and_user(game_id: int, user_id: int):
     """
@@ -1072,7 +1085,7 @@ def home():
     """
     returns a webpage from template "home.html", called when user goes to /home.
     """
-    
+
     return render_template("home.html", user=get_user_session())
 
 
@@ -1169,7 +1182,7 @@ def game_page(game_id: int):
         game=game,
         user=get_user_session(),
         platforms=get_platforms_by_game_name(game.title),
-        reviews = reviews
+        reviews=reviews,
     )
 
 
@@ -1180,24 +1193,18 @@ def write_review():
 
         data["user_id"] = get_user_session().user_id
 
-        data["source_url"] = data["source_url"].split('/')
+        data["source_url"] = data["source_url"].split("/")
         data["source_url"].reverse()
 
         data["game_id"] = data["source_url"][0]
         data["platform_id"] = 1
         data["review_date"] = datetime.now().timestamp()
-        for key,value in data.items():
+        for key, value in data.items():
             print(f"{key}: {value}")
         review = Review(**data)
         add_review(review)
         flash("Review Submitted!")
         return redirect(url_for("game_page", game_id=data["game_id"]))
-        
-
-        
-
-
-    
 
 
 @app.route("/")
