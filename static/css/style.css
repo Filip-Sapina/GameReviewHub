@@ -176,11 +176,12 @@
 .review-filter button {
     flex: 1;
     margin-top: 1rem;
+    margin-bottom: 1rem;
     margin-right: 0.25rem;
     padding: 0.5rem 0rem 0.5rem 0rem;
 }
 
-/* When Button is focused, its  */
+/* When Button is focused, outline becomes larger. */
 .review-filter button:focus {
     outline: 2px solid var(--pico-color);
 }
@@ -217,9 +218,18 @@
 
 /* Reviews */
 .reviews {
-    display: flex;
+    border: 1px solid var(--nav-border);
 }
 
+/* Other People's reviews */
+.review {
+    border: 1px solid var(--nav-border);
+    margin: 1rem;
+    padding: 1rem;
+    background-color: var(--pico-card-background-color);
+}
+
+/* User's Reivew */
 .user-review {
     border: 1px solid var(--nav-border);
     flex: 0.5;

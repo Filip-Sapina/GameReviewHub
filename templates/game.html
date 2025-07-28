@@ -113,8 +113,18 @@
     <button class="material-symbols-outlined" id="mixed-reviews">~</button>
     <button class="material-symbols-outlined" id="negative-reviews">thumb_down</button>
 </div>
-<div class="reviews">
+<div class="reviews grid">
     <!-- Other Peoples Reviews -->
+
+    {% for review in reviews %}
+
+    <div class="review">
+        <h3 class="review-username">{{review.user.username}}</h3>
+
+        {{review.review_text}}
+    </div>
+
+    {% endfor %}
 </div>
 
 

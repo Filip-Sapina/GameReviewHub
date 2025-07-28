@@ -883,13 +883,32 @@ def get_review_by_id(review_id: int):
     review = Review(data=data)
     return review
 
+def get_reviews_by_game_id(game_id : int):
+    """
+    Returns review with all data using user id and game id to find.
+
+    Args:
+        game_id (int): id of game that has review.
+    Returns:
+        review (Review): a review object with relevant data.
+    """
+    query = "SELECT * FROM Reviews WHERE game_id = ?"
+    data = query_db(query, (game_id, ), fetch=True, one=False)
+
+    reviews = []
+    for row in data:
+        review = Review(**row)
+        reviews.append(review)
+    
+    return reviews
+    
 
 def get_review_by_game_and_user(game_id: int, user_id: int):
     """
     Returns review with all data using user id and game id to find.
 
     Args:
-        game_id (int): id of game to for review.
+        game_id (int): id of game that has review.
         user_id (int): id of user that wrote review.
     Returns:
         review (Review): a review object with relevant data.
@@ -1053,7 +1072,7 @@ def home():
     """
     returns a webpage from template "home.html", called when user goes to /home.
     """
-
+    
     return render_template("home.html", user=get_user_session())
 
 
@@ -1140,11 +1159,17 @@ def game_page(game_id: int):
         flash("Game Not Found")
         return redirect(url_for("home"))
 
+    # adding users tied to reviews to pass into html page.
+    reviews = get_reviews_by_game_id(game_id)
+    for review in reviews:
+        review.user = get_user_by_id(review.user_id)
+
     return render_template(
         "game.html",
         game=game,
         user=get_user_session(),
         platforms=get_platforms_by_game_name(game.title),
+        reviews = reviews
     )
 
 
@@ -1165,7 +1190,9 @@ def write_review():
             print(f"{key}: {value}")
         review = Review(**data)
         add_review(review)
+        flash("Review Submitted!")
         return redirect(url_for("game_page", game_id=data["game_id"]))
+        
 
         
 
