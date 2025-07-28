@@ -3,6 +3,7 @@ Main Application Program, starts flask site.
 """
 
 import sqlite3
+import secrets
 from collections import namedtuple
 from datetime import datetime
 from hashlib import sha256
@@ -13,7 +14,7 @@ from flask import Flask, g, redirect, url_for, render_template, request, flash, 
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "AVerySecretKeyThatNooneKnowsAbout"
+app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
 
 # Generic Database Logic
 
