@@ -45,7 +45,8 @@
                         <summary class="material-symbols-outlined">account_circle</summary>
                         <ul>
                             <li>{{user.username}}</li>
-                            {% if not user.user_id is number %}
+                            <!-- If User is not logged in, display login button otherwise display Logout button. -->
+                            {% if user.user_id is not defined or user.user_id is none %}
                             <li><a href="/login">Login <span class="material-symbols-outlined">login</span></a></li>
                             {% else %}
                             <li><a href="/logout">Logout <span class="material-symbols-outlined">logout</span></a></li>

@@ -137,10 +137,10 @@ def get_user_session():
         user.date_joined = datetime.fromtimestamp(round(user.date_joined))
     else:
         user = {
-            "user_id": "n/a",
-            "username": "Not Logged In.",
-            "password_hash": "n/a",
-            "date_joined": "n/a",
+            "user_id": None,
+            "username": None,
+            "password_hash": None,
+            "date_joined": None,
         }
     return user
 

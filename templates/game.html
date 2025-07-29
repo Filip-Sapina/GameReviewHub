@@ -45,45 +45,49 @@
     </div>
 </article>
 
-
-
-
-
-
-
-
 <!-- Write Your Own Review -->
 <div class="container user-review">
 
 
     <form action="/write_review" method="post" aria-label="Write Review">
         <div class="user-review-top">
-            <h4>Your    Review</h4>
+            <!-- If user is logged in, display text as normal. Otherwise Replace with red warning message.-->
+            {% if user.user_id is not defined or user.user_id is none %}
+            <h4 style="color: var(--negative-color);"> Login In To Write A Review! </h4>
+            {% else %}
+            <h4> Your Review </h4>
+            {% endif %}
             <!-- Accessibility Options -->
-            <div class="form-group user-accessibility">
+            <fieldset class="form-group user-accessibility" 
+                {% if user.user_id is not defined or user.user_id is none %} disabled {% endif %}>
                 <label for="has_subtitles" class="material-symbols-outlined">subtitles</label>
                 <input type="checkbox" name="has_subtitles" id="user-subtitles">
                 <label for="has_colourblind_support" class="material-symbols-outlined">visibility</label>
                 <input type="checkbox" name="has_colourblind_support" id="user-colourblind">
                 <label for="has_difficulty_options" class="material-symbols-outlined">swords</label>
                 <input type="checkbox" name="has_difficulty_options" id="user-difficulty-options">
-            </div>
+            </fieldset>
+
         </div>
         <div class="form-group user-rating-container">
             <!-- Ratings Slider -->
             <span>0</span>
-            <input type="range" name="rating" id="user-rating" min="0" max="10" value="0">
+            <input type="range" name="rating" id="user-rating" min="0" max="10" value="0"
+                {% if user.user_id is not defined or user.user_id is none %} disabled {% endif %}
+                >
             <span>10</span>
         </div>
         <div class="form-group">
             <!-- Place to write Text for Review -->
             <textarea name="review_text" id="review_text" cols="30" rows="5"
-                placeholder="Write Your Review Here!"></textarea>
+                placeholder="Write Your Review Here!"
+                {% if user.user_id is not defined or user.user_id is none %} disabled {% endif %}>
+            </textarea>
         </div>
 
         <div class="user-review-bottom">
             <div class="form-group">
-                <fieldset>
+                <fieldset aria-label="Platforms" {% if user.user_id is not defined or user.user_id is none %} disabled {% endif %}>
                     <legend>Platform</legend>
                     {% for platform in platforms %}
                     <li>
@@ -95,7 +99,7 @@
             </div>
             <div class="form-group user-review-post-button">
                 <!-- Post Review -->
-                <button type="submit">Post</button>
+                <button type="submit" {% if user.user_id is not defined or user.user_id is none %} disabled {% endif %}>Post</button>
             </div>
         </div>
 
