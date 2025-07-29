@@ -25,7 +25,7 @@
 .sticky-nav {
     top: 0;
     position: sticky;
-    background-color: var(--pico-background-color);
+    background-color: var(--pico-card-background-color);
     z-index: 1000;
 }
 
