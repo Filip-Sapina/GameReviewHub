@@ -1,0 +1,7 @@
+-- database: ./database.db
+
+-- Run these in order to clear all users.
+DELETE FROM Reviews;
+DELETE FROM Users;
+DELETE FROM sqlite_sequence WHERE name="Users";
+
