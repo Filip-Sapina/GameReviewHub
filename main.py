@@ -429,7 +429,7 @@ def get_platforms_by_game_name(game_name: str) -> list[Platform]:
         fetch=True,
         one=False,
     )
-
+    
     platforms = []
     for platform_dict in platform_ids:
         tag = get_platform_by_id(platform_dict["platform_id"])
@@ -474,7 +474,7 @@ def get_platform_by_id(platform_id: int) -> Platform:
         "SELECT * FROM Platforms WHERE platform_id = ?",
         (platform_id,),
         fetch=True,
-        one=False,
+        one=True,
     )
     return Platform(data["platform_id"], data["platform_name"])
 
@@ -521,12 +521,8 @@ def get_game_by_id(game_id: int) -> Game:
         TypeError: If game_id is not an integer.
     """
 
-    db, cursor = get_database()
-    query = "SELECT * FROM Games WHERE game_id = ?"
-    cursor.execute(query, (game_id,))
-    data = cursor.fetchone()
+    data = query_db("SELECT * FROM Games WHERE game_id = ?", (game_id, ) , fetch=True, one=True)
     game = Game(**data)
-    db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
 
@@ -546,12 +542,8 @@ def get_game_by_name(game_name: str) -> Game:
         TypeError: If game_name is not a string.
     """
 
-    db, cursor = get_database()
-    query = "SELECT * FROM Games WHERE title = ?"
-    cursor.execute(query, (game_name,))
-    data = cursor.fetchone()
+    data = query_db("SELECT * FROM Games WHERE title = ?", (game_name,), fetch=True, one=True)
     game = Game(**data)
-    db.commit()
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
     return game
@@ -567,11 +559,7 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
         games (List[Game]): a list of games ordered by how closely they match the given text.
     """
 
-    db, cursor = get_database()
-
-    cursor.execute("SELECT * FROM Games")
-    data = cursor.fetchall()
-    db.commit()
+    data = query_db("SELECT * FROM Games", fetch=True, one=False)
 
     if not data:
         raise KeyError("No Games Found in Database?!")
@@ -600,8 +588,6 @@ def get_games_by_platform_ids(platform_ids: list[int]):
 
     if not platform_ids:
         return []
-    db, cursor = get_database()
-
     placeholders = ",".join(["?"] * len(platform_ids))
 
     query = f"""
@@ -615,10 +601,8 @@ def get_games_by_platform_ids(platform_ids: list[int]):
         HAVING tag_match_count > 0
         ORDER BY tag_match_count DESC
     """
+    data = query_db(query, platform_ids, fetch=True, one=False)
 
-    cursor.execute(query, platform_ids)
-    data = cursor.fetchall()
-    db.commit()
     games = []
     for row in data:
         game = Game(**row)
