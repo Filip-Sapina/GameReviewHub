@@ -407,6 +407,17 @@ def update_platform(new_platform: Platform):
     )
 
 
+def get_platforms() -> list[Platform]:
+    """
+    Returns a list of all platforms.
+    """
+    data = query_db("SELECT * FROM Platforms")
+    platforms = []
+    for tag in data:
+        platforms.append(GameTag(tag["platform_id"], tag["platform_name"]))
+    return platforms
+
+
 def get_platforms_by_game_name(game_name: str) -> list[Platform]:
     """
     gets a list of platforms that a game is playable on.
@@ -429,7 +440,7 @@ def get_platforms_by_game_name(game_name: str) -> list[Platform]:
         fetch=True,
         one=False,
     )
-    
+
     platforms = []
     for platform_dict in platform_ids:
         tag = get_platform_by_id(platform_dict["platform_id"])
@@ -508,6 +519,24 @@ class Game(object):
         self.publisher = data.get("publisher", self.developer)
 
 
+def get_games():
+    """
+    Returns All Games in the Database.
+    """
+    data = query_db("SELECT * FROM Games")
+
+    if data is None:
+        raise KeyError("No Games Found in Database?!")
+
+    games = []
+
+    for row in data:
+        game = Game(**row)
+        games.append(game)
+
+    return games
+
+
 def get_game_by_id(game_id: int) -> Game:
     """
     Returns Game object from database using game_id
@@ -521,7 +550,9 @@ def get_game_by_id(game_id: int) -> Game:
         TypeError: If game_id is not an integer.
     """
 
-    data = query_db("SELECT * FROM Games WHERE game_id = ?", (game_id, ) , fetch=True, one=True)
+    data = query_db(
+        "SELECT * FROM Games WHERE game_id = ?", (game_id,), fetch=True, one=True
+    )
     game = Game(**data)
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
@@ -542,7 +573,9 @@ def get_game_by_name(game_name: str) -> Game:
         TypeError: If game_name is not a string.
     """
 
-    data = query_db("SELECT * FROM Games WHERE title = ?", (game_name,), fetch=True, one=True)
+    data = query_db(
+        "SELECT * FROM Games WHERE title = ?", (game_name,), fetch=True, one=True
+    )
     game = Game(**data)
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
@@ -1147,6 +1180,40 @@ def search_page():
         games=games,
         game_tags=get_game_tags(),
     )
+
+
+@app.route("/set_filter", methods=["GET", "POST"])
+def set_filters():
+
+    if request.method == "POST":
+        search_term = request.form.get("search_term", "")
+        tag_ids = []
+
+        filters = []
+        for key, value in request.form.items():
+            if value == "on":
+                filters.append(key)
+
+        if len(filters) > 0:
+
+            for tag_filter in filters:
+                tag = get_game_tag_by_name(tag_filter)
+                if tag:
+                    tag_ids.append(tag.id)
+
+            games = get_games_by_game_tag_ids(tag_ids)
+
+        else:
+            games = get_games()
+
+        return render_template(
+            "search.html",
+            user=get_user_session(),
+            search=search_term,
+            games=games,
+            game_tags=get_game_tags(),
+            filters=filters,
+        )
 
 
 @app.route("/game/<int:game_id>")

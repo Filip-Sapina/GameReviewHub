@@ -9,14 +9,15 @@
     <h1>Showing results for "{{search}}".</h1>
 
     <!-- Game Tag / Platform Filters -->
-    <details name="filters">
+    <details name="filters" open>
         <summary>filters</summary>
         <form action="/set_filter" method="post">
             <div class="container grid">
                 {% for game_tag in game_tags %}
                 <div class="game_tag">
                     <label for="{{game_tag.name}}">{{game_tag.name}}</label>
-                    <input type="checkbox" name="{{game_tag.name}}" id="{{game_tag.name}}_tag">
+                    <input type="checkbox" name="{{game_tag.name}}" id="{{game_tag.name}}_tag"
+                        {% if filters is defined and game_tag.name in filters %} checked {% endif %}>
                 </div>
                 {% endfor %}
             </div>
@@ -30,7 +31,7 @@
 <div class="grid game-container">
     {% for game in games %}
     <!-- Game Template -->
-    <div class="game">
+    <div class="game" id="game-{{game.id}}">
         <div>
             <!-- Title -->
             <div class="game-title"><strong>{{game.title}}</strong></div>
