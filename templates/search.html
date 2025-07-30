@@ -20,6 +20,8 @@
                         {% if filters is defined and game_tag.name in filters %} checked {% endif %}>
                 </div>
                 {% endfor %}
+
+                <input type="hidden" name="search_term" value="{{search}}">
             </div>
 
             <button type="submit">Apply Filters</button>
