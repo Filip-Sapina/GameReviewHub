@@ -811,6 +811,22 @@ def link_platform(game: Game, platform: Platform) -> None:
 
     db.commit()
 
+def get_avg_rating(game_id: int):
+    """
+    returns average rating for a game based on reviews.
+    Args:
+        game_id (int): id of game to find rating
+    Returns:
+        avg_rating (int): number between 1-10 inclusive showing rating
+    """
+    reviews = get_reviews_by_game_id(game_id)
+
+    # adds all ratings up and divides by the amount of reviews.
+    total = sum(review.rating for review in reviews)
+    average = total/len(reviews)
+    
+    return average
+
 
 # Review Logic
 

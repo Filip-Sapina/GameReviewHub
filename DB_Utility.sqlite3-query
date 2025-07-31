@@ -5,3 +5,8 @@ DELETE FROM Reviews;
 DELETE FROM Users;
 DELETE FROM sqlite_sequence WHERE name="Users";
 
+-- Run these to clear all game tags and assigments
+DELETE FROM GameTagAssignment;
+DELETE FROM GameTags;
+DELETE FROM sqlite_sequence WHERE name="GameTags";
+

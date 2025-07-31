@@ -115,10 +115,11 @@
     display: grid;
     grid-template-columns: 2fr 1fr;
     width: fit-content;
-    background: var(--pico-background-color);
+    background: var(--pico-secondary-background);
     border: none;
-    padding: 0.5rem;
-    border-radius: 1rem;
+    padding: 0.25rem;
+    margin: 0.5rem;
+    border-radius: 2rem;
     text-align: center;
 }
 
