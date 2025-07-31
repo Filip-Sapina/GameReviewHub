@@ -603,7 +603,7 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     for row in data:
         game = Game(**row)
         closeness = fuzz.ratio(matching_text, game.title)
-        if closeness > 40:
+        if closeness > 20:
             games.append((closeness, game))
 
     games.sort(key=lambda pair: pair[0], reverse=True)
@@ -1220,6 +1220,8 @@ def search_page():
         
             # Get Average Rating for each Game
             game.rating = get_avg_rating(game.id)
+            # Get Review Count
+            game.review_count = len(get_reviews_by_game_id(game.id))
             
 
     return render_template(
