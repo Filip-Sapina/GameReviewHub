@@ -112,6 +112,22 @@
 
 /* search.html */
 
+.positive-rating {
+    background-color: var(--positive-color);
+}
+
+.negative-rating {
+    background-color: var(--negative-color);
+}
+
+.mixed-rating {
+    background-color: var(--mixed-color);
+}
+
+.no-rating {
+    background-color: var(--pico-card-background-color);
+}
+
 .game-tag-container {
     /* create 5 equal width columns */
     grid-template-columns: repeat(5, 1fr);

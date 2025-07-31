@@ -1218,7 +1218,7 @@ def search_page():
         
             # Get Average Rating for each Game
             game.rating = get_avg_rating(game.id)
-
+            
 
     return render_template(
         "search.html",

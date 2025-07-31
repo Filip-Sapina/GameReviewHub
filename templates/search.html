@@ -16,8 +16,8 @@
                 {% for game_tag in game_tags %}
                 <div class="game_tag">
                     <label for="{{game_tag.name}}">{{game_tag.name}}</label>
-                    <input type="checkbox" name="{{game_tag.name}}" id="{{game_tag.name}}_tag"
-                        {% if filters is defined and game_tag.name in filters %} checked {% endif %}>
+                    <input type="checkbox" name="{{game_tag.name}}" id="{{game_tag.name}}_tag" {% if filters is defined
+                        and game_tag.name in filters %} checked {% endif %}>
                 </div>
                 {% endfor %}
 
@@ -42,7 +42,9 @@
         </div>
         <div>
             <!-- Rating -->
-            <div class="value">{{game.rating}}</div>
+            <div class="value
+            {% if not game.rating is number %} no-rating {% elif game.rating < 4 %} negative-rating {% elif game.rating < 7 %} mixed-rating {% else %} positive-rating {% endif %}
+            ">{{game.rating}}</div>
             <!-- Accessibility -->
             <div class="value"><span class="material-symbols-outlined">subtitles</span></div>
             <div class="value"><span class="material-symbols-outlined">visibility</span></div>
