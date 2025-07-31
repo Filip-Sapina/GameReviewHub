@@ -9,7 +9,7 @@
     <h1>Showing results for "{{search}}".</h1>
 
     <!-- Game Tag / Platform Filters -->
-    <details name="filters">
+    <details name="filters" {%if filters%} open {% endif %}>
         <summary>filters</summary>
         <form action="/search" method="post">
             <div class="container grid game-tag-container">

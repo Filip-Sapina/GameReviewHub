@@ -1,21 +1,40 @@
 /* standard unit rem was used because it can scale better than other units.*/
-:root {
-    /* Border */
-    --nav-border: #cccccc;
-
-    /* Reviews */
-    --positive-color: var(--pico-ins-color, #62af9a);
-    --positive-darker-color: #4e9784;
-    --negative-color: var(--pico-del-color, #CD7E7B);
-    --negative-darker-color: #c05c59;
-    --mixed-color: #d9c35f;
-    --mixed-darker-color: #cfb230;
-}
 
 /* Google Symbols Fix to make icons have correct vertical alignment with text. */
 .material-symbols-outlined {
     vertical-align: middle;
 }
+
+:root {
+    /* Border */
+    --nav-border: #cccccc;
+
+    /* Assuming User is in Dark Mode. */
+    --positive-color: #62af9a;
+    --positive-darker-color: #4e9784;
+
+    --negative-color: #CD7E7B;
+    --negative-darker-color: #c05c59;
+
+    --mixed-color: #d9c35f;
+    --mixed-darker-color: #cfb230;
+}
+
+ /* If User is in Light Mode */
+[data-theme="light"] {
+   
+    --positive-color: #a2d5c3;
+    --positive-darker-color: #7fbfb0;
+
+    --negative-color: #e7a8a5;
+    --negative-darker-color: #db8784;
+
+    --mixed-color: #f3e58f;
+    --mixed-darker-color: #e8d453;
+
+}
+
+
 
 /* Nav Bar Style */
 .navbar {
@@ -53,7 +72,7 @@
     display: grid;
     grid-template-columns: 2fr 1fr;
     width: fit-content;
-    background: var(--pico-background-color);
+    background: var(--pico-card-background-color);
     border: 1px solid var(--pico-color);
     padding: 1rem;
     border-radius: 1rem;
@@ -113,15 +132,15 @@
 /* search.html */
 
 .positive-rating {
-    background-color: var(--positive-color);
+    background-color: var(--positive-darker-color);
 }
 
 .negative-rating {
-    background-color: var(--negative-color);
+    background-color: var(--negative-darker-color);
 }
 
 .mixed-rating {
-    background-color: var(--mixed-color);
+    background-color: var(--mixed-darker-color);
 }
 
 .no-rating {
@@ -145,7 +164,7 @@
     text-align: center;
 }
 
-.game_tag > * {
+.game_tag>* {
     margin: 0.5rem;
 
 }
@@ -210,7 +229,7 @@
 
 /* When Button is focused, outline becomes larger. */
 .review-filter button:focus {
-    outline: 2px solid var(--pico-color);
+    outline: 2px solid var(--pico-contrast-color);
 }
 
 #positive-reviews {

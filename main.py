@@ -824,7 +824,7 @@ def get_avg_rating(game_id: int):
 
     # Check to prevent dividing by zero.
     if len(reviews) == 0:
-        return "No Reviews."
+        return "N/A"
 
     # adds all ratings up and divides by the amount of reviews.
     total = sum(review.rating for review in reviews)
