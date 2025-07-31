@@ -9,10 +9,10 @@
     <h1>Showing results for "{{search}}".</h1>
 
     <!-- Game Tag / Platform Filters -->
-    <details name="filters" open>
+    <details name="filters">
         <summary>filters</summary>
         <form action="/search" method="post">
-            <div class="container grid">
+            <div class="container grid game-tag-container">
                 {% for game_tag in game_tags %}
                 <div class="game_tag">
                     <label for="{{game_tag.name}}">{{game_tag.name}}</label>
@@ -42,7 +42,7 @@
         </div>
         <div>
             <!-- Rating -->
-            <div class="value">10<span class="material-symbols-outlined">star</span></div>
+            <div class="value">{{game.rating}}</div>
             <!-- Accessibility -->
             <div class="value"><span class="material-symbols-outlined">subtitles</span></div>
             <div class="value"><span class="material-symbols-outlined">visibility</span></div>

@@ -136,12 +136,13 @@ def get_user_session():
         user = get_user_by_id(session["user_id"])
         user.date_joined = datetime.fromtimestamp(round(user.date_joined))
     else:
-        user = {
+        default = {
             "user_id": None,
             "username": None,
             "password_hash": None,
             "date_joined": None,
         }
+        user = User(**default)
     return user
 
 
@@ -821,10 +822,14 @@ def get_avg_rating(game_id: int):
     """
     reviews = get_reviews_by_game_id(game_id)
 
+    # Check to prevent dividing by zero.
+    if len(reviews) == 0:
+        return "No Reviews."
+
     # adds all ratings up and divides by the amount of reviews.
     total = sum(review.rating for review in reviews)
     average = total/len(reviews)
-    
+
     return average
 
 
@@ -1202,13 +1207,18 @@ def search_page():
         else:
             games = get_games()
 
-        # Format each game's release date
+        
         for game in games:
+            # Format each game's release date
             release_date = datetime.fromtimestamp(game.release_date)
             date = release_date.date().strftime("%d/%m/%Y")
             time_passed = datetime.now() - release_date
             years_passed = time_passed.days / 365.25
             game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
+        
+            # Get Average Rating for each Game
+            game.rating = get_avg_rating(game.id)
+
 
     return render_template(
         "search.html",
@@ -1223,6 +1233,8 @@ def search_page():
 @app.route("/game/<int:game_id>")
 def game_page(game_id: int):
     game = get_game_by_id(game_id)
+    user = get_user_session()
+    has_posted_review = False
 
     if game is None:
         flash("Game Not Found")
@@ -1232,13 +1244,17 @@ def game_page(game_id: int):
     reviews = get_reviews_by_game_id(game_id)
     for review in reviews:
         review.user = get_user_by_id(review.user_id)
+        
+        if user.user_id == review.user.user_id:
+            has_posted_review = True
 
     return render_template(
         "game.html",
         game=game,
-        user=get_user_session(),
+        user=user,
         platforms=get_platforms_by_game_name(game.title),
         reviews=reviews,
+        has_posted_review = has_posted_review
     )
 
 
