@@ -1160,17 +1160,38 @@ def logout():
 
 @app.route("/search", methods=["GET", "POST"])
 def search_page():
+    search_term = ""
+    filters = []
+    tag_ids = []
+    games = []
 
     if request.method == "POST":
         search_term = request.form.get("search_term", "")
 
-        games = get_games_by_closest_match(search_term)
+        # Get Game Tags that are on.
+        for key, value in request.form.items():
+            if value == "on":
+                filters.append(key)
+
+        # If game tags have been set as filters, manage it.
+        if filters:
+            for tag_filter in filters:
+                tag = get_game_tag_by_name(tag_filter)
+                if tag:
+                    tag_ids.append(tag.id)
+            games = get_games_by_game_tag_ids(tag_ids)
+
+        elif search_term:
+            games = get_games_by_closest_match(search_term)
+        else:
+            games = get_games()
+
+        # Format each game's release date
         for game in games:
             release_date = datetime.fromtimestamp(game.release_date)
             date = release_date.date().strftime("%d/%m/%Y")
             time_passed = datetime.now() - release_date
             years_passed = time_passed.days / 365.25
-
             game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
 
     return render_template(
@@ -1179,41 +1200,8 @@ def search_page():
         search=search_term,
         games=games,
         game_tags=get_game_tags(),
+        filters=filters,
     )
-
-
-@app.route("/set_filter", methods=["GET", "POST"])
-def set_filters():
-
-    if request.method == "POST":
-        search_term = request.form.get("search_term", "")
-        tag_ids = []
-
-        filters = []
-        for key, value in request.form.items():
-            if value == "on":
-                filters.append(key)
-
-        if len(filters) > 0:
-
-            for tag_filter in filters:
-                tag = get_game_tag_by_name(tag_filter)
-                if tag:
-                    tag_ids.append(tag.id)
-
-            games = get_games_by_game_tag_ids(tag_ids)
-
-        else:
-            games = get_games()
-
-        return render_template(
-            "search.html",
-            user=get_user_session(),
-            search=search_term,
-            games=games,
-            game_tags=get_game_tags(),
-            filters=filters,
-        )
 
 
 @app.route("/game/<int:game_id>")
