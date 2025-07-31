@@ -585,7 +585,8 @@ def get_game_by_name(game_name: str) -> Game:
 
 def get_games_by_closest_match(matching_text: str) -> list[Game]:
     """
-    returns a list of all games in database ordered by how closely the match the given string.
+    returns a list of most games in database ordered by how closely the match the given string.
+    Ignores games under specific ratio so that unrelated games are less common.
 
     Args:
         matching_text (str): the text that will be compared to each game
@@ -601,8 +602,9 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
     games = []
     for row in data:
         game = Game(**row)
-        distance = fuzz.ratio(matching_text, game.title)
-        games.append((distance, game))
+        closeness = fuzz.ratio(matching_text, game.title)
+        if closeness > 40:
+            games.append((closeness, game))
 
     games.sort(key=lambda pair: pair[0], reverse=True)
     games = [pair[1] for pair in games]
