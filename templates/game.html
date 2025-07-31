@@ -54,11 +54,13 @@
             <!-- If user is logged in, display text as normal. Otherwise Replace with red warning message.-->
             {% if user.user_id is not defined or user.user_id is none %}
             <h4 style="color: var(--negative-color);"> Login In To Write A Review! </h4>
+            {% elif user_review %}
+            <h4 style="color: var(--positive-color)"> Edit Review </h4>
             {% else %}
             <h4> Your Review </h4>
             {% endif %}
             <!-- Accessibility Options -->
-            <fieldset class="form-group user-accessibility" {% if user.user_id is not defined or user.user_id %}
+            <fieldset class="form-group user-accessibility" {% if user.user_id is not defined or user.user_id is none %}
                 disabled {% endif %}>
                 <label for="has_subtitles" class="material-symbols-outlined">subtitles</label>
                 <input type="checkbox" name="has_subtitles" id="user-subtitles">
@@ -74,18 +76,19 @@
         <div class="form-group user-rating-container">
             <span>0</span>
             <input type="range" name="rating" id="user-rating" min="0" max="10" value="0" {% if user.user_id is not
-                defined or user.user_id %} disabled {% endif %}>
+                defined or user.user_id is none %} disabled {% endif %}>
             <span>10</span>
         </div>
         <div class="form-group">
             <!-- Place to write Text for Review -->
             <textarea name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if
-                user.user_id is not defined or user.user_id %} disabled {% endif %}></textarea>
+                user.user_id is not defined or user.user_id is none %} disabled {% endif %}></textarea>
         </div>
 
         <div class="user-review-bottom">
             <div class="form-group">
-                <fieldset aria-label="Platforms" {% if user.user_id is not defined or user.user_id %} disabled {% endif %}>
+                <fieldset aria-label="Platforms" {% if user.user_id is not defined or user.user_id is none %} disabled
+                    {% endif %}>
                     <legend>Platform</legend>
                     {% for platform in platforms %}
                     <li>
@@ -97,7 +100,7 @@
             </div>
             <div class="form-group user-review-post-button">
                 <!-- Post Review -->
-                <button type="submit" {% if user.user_id is not defined or user.user_id %} disabled {% endif
+                <button type="submit" {% if user.user_id is not defined or user.user_id is none %} disabled {% endif
                     %}>Post</button>
             </div>
         </div>

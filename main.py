@@ -1234,7 +1234,8 @@ def search_page():
 def game_page(game_id: int):
     game = get_game_by_id(game_id)
     user = get_user_session()
-    has_posted_review = False
+
+    user_review = None
 
     if game is None:
         flash("Game Not Found")
@@ -1246,7 +1247,9 @@ def game_page(game_id: int):
         review.user = get_user_by_id(review.user_id)
         
         if user.user_id == review.user.user_id:
-            has_posted_review = True
+            user_review = review
+
+
 
     return render_template(
         "game.html",
@@ -1254,7 +1257,7 @@ def game_page(game_id: int):
         user=user,
         platforms=get_platforms_by_game_name(game.title),
         reviews=reviews,
-        has_posted_review = has_posted_review
+        user_review = user_review
     )
 
 
