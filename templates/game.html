@@ -3,6 +3,8 @@
 {% block title %}{{game.title}} - Games Review Hub{% endblock %}
 
 {% block content %}
+
+{% set user_logged_in = user.user_id is defined and user.user_id is not none %}
 <article class="main-game-container grid">
     <!-- Image -->
     <div>
@@ -49,10 +51,10 @@
 <div class="container user-review">
 
 
-    <form action="/write_review" method="post" aria-label="Write Review">
+    <form action="{{ url_for('game_page', game_id=game.id) }}" method="post" aria-label="Write Review">
         <div class="user-review-top">
             <!-- If user is logged in, display text as normal. Otherwise Replace with red warning message.-->
-            {% if user.user_id is not defined or user.user_id is none %}
+            {% if not user_logged_in %}
             <h4 style="color: var(--negative-color);"> Login In To Write A Review! </h4>
             {% elif user_review %}
             <h4 style="color: var(--positive-color)"> Edit Review </h4>
@@ -74,7 +76,7 @@
         <!-- Ratings Slider -->
         <label for="rating">Rating</label>
         <div class="form-group user-rating-container">
-            <span>0</span>
+            <span>1</span>
             <input type="range" name="rating" id="user-rating" min="0" max="10" value="0" {% if user.user_id is not
                 defined or user.user_id is none %} disabled {% endif %}>
             <span>10</span>
@@ -100,8 +102,14 @@
             </div>
             <div class="form-group user-review-post-button">
                 <!-- Post Review -->
-                <button type="submit" {% if user.user_id is not defined or user.user_id is none %} disabled {% endif
-                    %}>Post</button>
+                <button type="submit" {% if not user_logged_in %} disabled {% endif %}>
+                    {% if not user_review %} 
+                    Post 
+                    {% else %}
+                    Edit
+                    {% endif %}
+                </button>
+                
             </div>
         </div>
 

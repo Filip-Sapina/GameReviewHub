@@ -659,7 +659,6 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
 
     if not game_tag_ids:
         return []
-    db, cursor = get_database()
 
     placeholders = ",".join(["?"] * len(game_tag_ids))
 
@@ -675,9 +674,7 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
         ORDER BY tag_match_count DESC
     """
 
-    cursor.execute(query, game_tag_ids)
-    data = cursor.fetchall()
-    db.commit()
+    data = query_db(query, game_tag_ids, fetch=True, one=False)
     games = []
     for row in data:
         game = Game(**row)
@@ -1234,26 +1231,38 @@ def search_page():
     )
 
 
-@app.route("/game/<int:game_id>")
+@app.route("/game/<int:game_id>", methods=["GET", "POST"])
 def game_page(game_id: int):
-    game = get_game_by_id(game_id)
     user = get_user_session()
+    
+    if request.method == "POST":
+        data = request.form.to_dict(flat=True)
 
-    user_review = None
+        data["user_id"] = user.user_id
+        data["game_id"] = game_id
+        data["platform_id"] = 1
+        data["review_date"] = datetime.now().timestamp()
 
+        for key, value in data.items():
+            print(f"{key}: {value}")
+
+        review = Review(**data)
+        add_review(review)
+        flash("Review Submitted!")
+        return redirect(url_for("game_page", game_id=game_id))
+
+    game = get_game_by_id(game_id)
     if game is None:
         flash("Game Not Found")
         return redirect(url_for("home"))
 
-    # adding users tied to reviews to pass into html page.
     reviews = get_reviews_by_game_id(game_id)
+    user_review = None
+
     for review in reviews:
         review.user = get_user_by_id(review.user_id)
-        
         if user.user_id == review.user.user_id:
             user_review = review
-
-
 
     return render_template(
         "game.html",
@@ -1261,29 +1270,9 @@ def game_page(game_id: int):
         user=user,
         platforms=get_platforms_by_game_name(game.title),
         reviews=reviews,
-        user_review = user_review
+        user_review=user_review
     )
 
-
-@app.route("/write_review", methods=["GET", "POST"])
-def write_review():
-    if request.method == "POST":
-        data = request.form.to_dict(flat=True)
-
-        data["user_id"] = get_user_session().user_id
-
-        data["source_url"] = data["source_url"].split("/")
-        data["source_url"].reverse()
-
-        data["game_id"] = data["source_url"][0]
-        data["platform_id"] = 1
-        data["review_date"] = datetime.now().timestamp()
-        for key, value in data.items():
-            print(f"{key}: {value}")
-        review = Review(**data)
-        add_review(review)
-        flash("Review Submitted!")
-        return redirect(url_for("game_page", game_id=data["game_id"]))
 
 
 @app.route("/")
