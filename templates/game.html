@@ -84,17 +84,18 @@
         <div class="form-group">
             <!-- Place to write Text for Review -->
             <textarea name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if
-                user.user_id is not defined or user.user_id is none %} disabled {% endif %}>{% if user_review %}{{user_review.review_text}}{% endif %}</textarea>
+                user.user_id is not defined or user.user_id is none %} disabled {% endif
+                %}>{% if user_review %}{{user_review.review_text}}{% endif %}</textarea>
         </div>
 
         <div class="user-review-bottom">
             <div class="form-group">
                 <fieldset aria-label="Platforms" {% if user.user_id is not defined or user.user_id is none %} disabled
-                    {% endif %}>
+                    {% endif %}> 
                     <legend>Platform</legend>
                     {% for platform in platforms %}
                     <li>
-                        <input type="radio" name="user_platform" id="user-platform-{{platform.name}}">
+                        <input type="radio" name="user_platform" id="user-platform-{{platform.name}}" value="{{platform.name}}" required>
                         <label for="user-platform-{{platform.name}}">{{platform.name}}</label>
                     </li>
                     {% endfor %}
@@ -103,21 +104,23 @@
             <div class="form-group user-review-post-button">
                 <!-- Post Review -->
                 <button type="submit" {% if not user_logged_in %} disabled {% endif %}>
-                    {% if not user_review %} 
-                    Post 
+                    {% if not user_review %}
+                    Post
                     {% else %}
                     Edit
                     {% endif %}
                 </button>
-                
+
             </div>
         </div>
 
+        <!-- Passing url of page so game id can be gotten later -->
         <input type="hidden" name="source_url" value="{{ request.url }}">
 
-        <!-- if user has written review value = 1, otherwise 0 -->
-        <input type="hidden" name="edit_review" value="{% if user_rating %} 1 {% else %} 0 {% endif %}">
-
+        <!-- Put method to update review instead of creating new review. -->
+        {% if user_review %}
+        <input type="hidden" name="_method" value="PUT">
+        {% endif %}
     </form>
 
 

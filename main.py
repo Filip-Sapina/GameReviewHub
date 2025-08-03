@@ -10,11 +10,10 @@ from hashlib import sha256
 from faker import Faker
 from thefuzz import fuzz
 from werkzeug import security
+
 from flask import Flask, g, redirect, url_for, render_template, request, flash, session
 
-app = Flask(__name__)
 
-app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
 
 # Generic Database Logic
 
@@ -59,6 +58,10 @@ def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
     cursor.close()
     db.commit()
 
+# App Setup
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = secrets.token_urlsafe(32)    
 
 # User Logic
 
@@ -462,12 +465,16 @@ def get_platform_by_name(platform_name: str) -> Platform:
     Raises:
         TypeError: If platform_name is not an string.
     """
+
     data = query_db(
         "SELECT * FROM Platforms WHERE platform_name = ?",
         (platform_name,),
         fetch=True,
         one=True,
     )
+
+
+
     return Platform(data["platform_id"], data["platform_name"])
 
 
@@ -865,9 +872,9 @@ class Review(object):
         self.review_text = data.get("review_text")
         self.review_date = data["review_date"]
         self.accessibility = AccessibilityOptions(
-            "has_colourblind_support" in data,
-            "has_subtitles" in data,
-            "has_difficulty_options" in data,
+             "has_colourblind_support" in data ,
+             "has_subtitles" in data ,
+             "has_difficulty_options" in data ,
         )
         self.platform_id = data["platform_id"]
 
@@ -882,8 +889,6 @@ def add_review(review: Review) -> None:
         None
     """
 
-    db, cursor = get_database()
-
     insert = """INSERT INTO Reviews (
         user_id, 
         game_id, 
@@ -897,7 +902,7 @@ def add_review(review: Review) -> None:
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
-    cursor.execute(
+    query_db(
         insert,
         (
             review.user_id,
@@ -909,9 +914,8 @@ def add_review(review: Review) -> None:
             review.accessibility.has_subtitles,
             review.accessibility.has_difficulty_options,
             review.platform_id,
-        ),
+        ), fetch=False, one=False
     )
-    db.commit()
 
 
 def get_review_by_id(review_id: int):
@@ -964,12 +968,8 @@ def get_review_by_game_and_user(game_id: int, user_id: int):
     Returns:
         review (Review): a review object with relevant data.
     """
-    db, cursor = get_database()
-    query = "SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?"
-    cursor.execute(query, (game_id, user_id))
-    data = cursor.fetchone()
-    db.commit()
-    review = Review(data=data)
+    data = query_db("SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?", (game_id, user_id), fetch=True, one=True)
+    review = Review(**data)
     return review
 
 
@@ -1072,7 +1072,7 @@ def delete_review_by_id(review_id: int) -> None:
     db.commit()
 
 
-def update_review(new_review: Review):
+def update_review(new_review: Review, review_id: int):
     """
     Updates an existing review in the Reviews database table.
 
@@ -1083,28 +1083,26 @@ def update_review(new_review: Review):
         new_review (Review): A Review object containing the updated review data.
                     Must include a valid review_id corresponding to an existing review.
     """
-    db, cursor = get_database()
     update = """
     UPDATE Reviews
     SET rating = ?, 
-    review_text = ?   
+    review_text = ?,   
     has_colourblind_support = ?, 
     has_subtitles = ? ,
     has_difficulty_options = ?
     WHERE review_id = ?
     """
-    cursor.execute(
-        update,
-        (
+    values = (
             new_review.rating,
             new_review.review_text,
             new_review.accessibility.has_colourblind_support,
             new_review.accessibility.has_subtitles,
             new_review.accessibility.has_difficulty_options,
-            new_review.review_id,
-        ),
-    )
-    db.commit()
+            review_id,
+        )
+    
+    print(values)
+    query_db(update, values, fetch=False, one=False)
 
 
 # Web App Logic
@@ -1178,15 +1176,15 @@ def logout():
     return redirect(url_for("login_page"))
 
 
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["GET"])
 def search_page():
     search_term = ""
     filters = []
     tag_ids = []
     games = []
 
-    if request.method == "POST":
-        search_term = request.form.get("search_term", "")
+    if request.method == "GET":
+        search_term = request.args.get("search_term")
 
         # Get Game Tags that are on.
         for key, value in request.form.items():
@@ -1234,22 +1232,40 @@ def search_page():
 @app.route("/game/<int:game_id>", methods=["GET", "POST"])
 def game_page(game_id: int):
     user = get_user_session()
-    
-    if request.method == "POST":
-        data = request.form.to_dict(flat=True)
 
-        data["user_id"] = user.user_id
+    real_method = request.form.get("_method")
+    method = request.method if not real_method else real_method.upper()
+
+    # Logic for add/updating review.
+    if method in ("POST, PUT"):
+        
+        # Shared Logic
+        data = request.form.to_dict(flat=True)
+        data["user_id"] = get_user_session().user_id
         data["game_id"] = game_id
-        data["platform_id"] = 1
+        data["platform_id"] = get_platform_by_name(data["user_platform"]).id
         data["review_date"] = datetime.now().timestamp()
+        review = Review(**data)
 
         for key, value in data.items():
             print(f"{key}: {value}")
+        
+        print(get_user_session().user_id)
 
-        review = Review(**data)
-        add_review(review)
-        flash("Review Submitted!")
+        if method == "POST":
+            # writing review logic
+            add_review(review)
+            flash("Review Submitted!")
+        else: # method must be PUT
+            # editing review logic
+            old_review = get_review_by_game_and_user(data["game_id"], data["user_id"])
+            new_review = Review(**data)
+            update_review(new_review, old_review.review_id)
+            flash("Review Updated!")
+            
         return redirect(url_for("game_page", game_id=game_id))
+
+    # For GET method
 
     game = get_game_by_id(game_id)
     if game is None:
@@ -1275,9 +1291,10 @@ def game_page(game_id: int):
 
 
 
+
 @app.route("/")
 def index():
-    """simple redirect from home, only called when first going to website."""
+    """simple redirect from home, only should be called when first going to website."""
     return redirect(url_for("home"))
 
 
@@ -1290,25 +1307,6 @@ def admin_page():
     """admin page contains debug tools for database.
     currently doesn't check if user is an admin."""
     return render_template("admin.html", user=get_user_session())
-
-
-@app.route("/set_game", methods=["GET", "POST"])
-def set_game():
-    if request.method == "POST":
-        game = Game(**request.form.to_dict(flat=True))
-        add_game(game)
-        flash(f"added game: {game.title}")
-    return redirect(url_for("admin_page"))
-
-
-@app.route("/add_game_tag", methods=["GET", "POST"])
-def add_tag():
-    if request.method == "POST":
-        tag_name = request.form["tag_name"].strip()
-        add_game_tag(tag_name)
-        flash(f"added tag: {tag_name}.")
-    return redirect(url_for("admin_page"))
-
 
 @app.route("/generate_users", methods=["GET", "POST"])
 def generate_user():
@@ -1334,17 +1332,6 @@ def generate_user():
             flash("USER COUNT MUST BE INTERGER ONLY")
     return redirect(url_for("admin_page"))
 
-
-@app.route("/create_user", methods=["GET", "POST"])
-def create_user():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        add_user(username, password)
-        flash(f"added user: {username} with password: {password}")
-    return redirect(url_for("admin_page"))
-
-
 @app.route("/wipe_users", methods=["GET", "POST"])
 def wipe_users():
     if request.method == "POST":
@@ -1354,21 +1341,6 @@ def wipe_users():
         db.commit()
         flash("cleared Users Table")
     return redirect(url_for("admin_page"))
-
-
-@app.route("/link_tag", methods=["GET", "POST"])
-def link_tag():
-    if request.method == "POST":
-        game_name = request.form["game_name"]
-        tag_name = request.form["tag_name"]
-
-        game = get_game_by_name(game_name)
-        tag = get_game_tag_by_name(tag_name)
-
-        link_game_tag(game, tag)
-
-    return redirect(url_for("admin_page"))
-
 
 if __name__ == "__main__":
     app.run(debug=True)
