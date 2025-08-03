@@ -139,9 +139,28 @@
     {% for review in reviews %}
 
     <div class="review">
-        <h3 class="review-username">{{review.user.username}}</h3>
+        <div class="review-top">
+            <h3 class="review-username">{{review.user.username}}</h3>
+            <div class="review-rating">{{review.rating}}</div>
+        </div>
 
-        {{review.review_text}}
+        <div class="review-bottom">
+            <p class="review-text">
+                {{review.review_text}}
+            </p>
+            <div class="accessibility container">
+                <span class="material-symbols-outlined">subtitles</span>
+                <input type="checkbox" name="subtitles" disabled 
+                    {% if review.accessibility.has_difficulty_options %} checked {% endif %}>
+                <span class="material-symbols-outlined">visibility</span>
+                <input type="checkbox" name="colourblind_options" disabled
+                    {% if review.accessibility.has_colourblind_support %} checked {% endif %}>
+                <span class="material-symbols-outlined">swords</span>
+                <input type="checkbox" name="difficulty_options" disabled 
+                    {% if review.accessibility.has_subtitles %} checked {% endif %}>
+            </div>
+
+        </div>
     </div>
 
     {% endfor %}

@@ -872,11 +872,12 @@ class Review(object):
         self.review_text = data.get("review_text")
         self.review_date = data["review_date"]
         self.accessibility = AccessibilityOptions(
-             "has_colourblind_support" in data ,
-             "has_subtitles" in data ,
-             "has_difficulty_options" in data ,
+            data["has_colourblind_support"],
+            data["has_subtitles"],
+            data["has_difficulty_options"],
         )
         self.platform_id = data["platform_id"]
+        print(self.accessibility)
 
 
 def add_review(review: Review) -> None:
