@@ -631,17 +631,15 @@ def get_games_by_platform_ids(platform_ids: list[int]):
 
     if not platform_ids:
         return []
-    placeholders = ",".join(["?"] * len(platform_ids))
 
-    query = f"""
+    query = """
         SELECT 
             Games.*, 
             COUNT(PlatformAssignment.game_tag_id) as tag_match_count
         FROM Games
         JOIN PlatformAssignment ON Games.game_id = PLatformAssignment.game_id
-        WHERE PLatformAssignment.game_tag_id IN ({placeholders})
+        WHERE PLatformAssignment.game_tag_id IN (?)
         GROUP BY Games.game_id
-        HAVING tag_match_count > 0
         ORDER BY tag_match_count DESC
     """
     data = query_db(query, platform_ids, fetch=True, one=False)
@@ -667,17 +665,15 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
     if not game_tag_ids:
         return []
 
-    placeholders = ",".join(["?"] * len(game_tag_ids))
 
-    query = f"""
+    query = """
         SELECT 
             Games.*, 
             COUNT(GameTagAssignment.game_tag_id) as tag_match_count
         FROM Games
         JOIN GameTagAssignment ON Games.game_id = GameTagAssignment.game_id
-        WHERE GameTagAssignment.game_tag_id IN ({placeholders})
+        WHERE GameTagAssignment.game_tag_id IN (?)
         GROUP BY Games.game_id
-        HAVING tag_match_count > 0
         ORDER BY tag_match_count DESC
     """
 
