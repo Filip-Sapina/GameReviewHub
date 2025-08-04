@@ -877,7 +877,6 @@ class Review(object):
             data["has_difficulty_options"],
         )
         self.platform_id = data["platform_id"]
-        print(self.accessibility)
 
 
 def add_review(review: Review) -> None:
@@ -1067,10 +1066,7 @@ def delete_review_by_id(review_id: int) -> None:
     Returns:
         None
     """
-    db, cursor = get_database()
-    delete = "DELETE FROM Reviews WHERE review_id = ?"
-    cursor.execute(delete, review_id)
-    db.commit()
+    query_db("DELETE FROM Reviews WHERE review_id = ?", (review_id, ), fetch=False, one=False)
 
 
 def update_review(new_review: Review, review_id: int):
@@ -1090,7 +1086,8 @@ def update_review(new_review: Review, review_id: int):
     review_text = ?,   
     has_colourblind_support = ?, 
     has_subtitles = ? ,
-    has_difficulty_options = ?
+    has_difficulty_options = ?,
+    platform_id = ?
     WHERE review_id = ?
     """
     values = (
@@ -1099,10 +1096,10 @@ def update_review(new_review: Review, review_id: int):
             new_review.accessibility.has_colourblind_support,
             new_review.accessibility.has_subtitles,
             new_review.accessibility.has_difficulty_options,
+            new_review.platform_id,
             review_id,
         )
     
-    print(values)
     query_db(update, values, fetch=False, one=False)
 
 
@@ -1246,12 +1243,14 @@ def game_page(game_id: int):
         data["game_id"] = game_id
         data["platform_id"] = get_platform_by_name(data["user_platform"]).id
         data["review_date"] = datetime.now().timestamp()
-        review = Review(**data)
 
-        for key, value in data.items():
-            print(f"{key}: {value}")
-        
-        print(get_user_session().user_id)
+
+        data["has_subtitles"] = True if data.get("has_subtitles") else False
+        data["has_difficulty_options"] = True if data.get("has_difficulty_options") else False
+        data["has_colourblind_support"] = True if data.get("has_colourblind_support") else False
+
+        review = Review(**data)
+    
 
         if method == "POST":
             # writing review logic

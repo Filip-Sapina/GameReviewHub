@@ -62,14 +62,13 @@
             <h4> Your Review </h4>
             {% endif %}
             <!-- Accessibility Options -->
-            <fieldset class="form-group user-accessibility" {% if user.user_id is not defined or user.user_id is none %}
-                disabled {% endif %}>
+            <fieldset class="form-group user-accessibility" {% if not user_logged_in %} disabled {% endif %}>
                 <label for="has_subtitles" class="material-symbols-outlined">subtitles</label>
-                <input type="checkbox" name="has_subtitles" id="user-subtitles">
+                <input type="checkbox" name="has_subtitles" id="user-subtitles" {% if user_review.accessibility.has_subtitles %} checked {% endif %}>
                 <label for="has_colourblind_support" class="material-symbols-outlined">visibility</label>
-                <input type="checkbox" name="has_colourblind_support" id="user-colourblind">
+                <input type="checkbox" name="has_colourblind_support" id="user-colourblind" {% if user_review.accessibility.has_colourblind_support %} checked {% endif %}>
                 <label for="has_difficulty_options" class="material-symbols-outlined">swords</label>
-                <input type="checkbox" name="has_difficulty_options" id="user-difficulty-options">
+                <input type="checkbox" name="has_difficulty_options" id="user-difficulty-options" {% if user_review.accessibility.has_difficulty_options %} checked {% endif %}>
             </fieldset>
 
         </div>
@@ -77,25 +76,24 @@
         <label for="rating">Rating</label>
         <div class="form-group user-rating-container">
             <span>1</span>
-            <input type="range" name="rating" id="user-rating" min="0" max="10" value="0" {% if user.user_id is not
-                defined or user.user_id is none %} disabled {% endif %}>
+            <input type="range" name="rating" id="user-rating" min="0" max="10" value="{% if user_review %} {{user_review.rating}} {% else %} 0 {% endif %}" {% if not user_logged_in %}
+                disabled {% endif %}>
             <span>10</span>
         </div>
         <div class="form-group">
             <!-- Place to write Text for Review -->
-            <textarea name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if
-                user.user_id is not defined or user.user_id is none %} disabled {% endif
+            <textarea name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if not user_logged_in %} disabled {% endif
                 %}>{% if user_review %}{{user_review.review_text}}{% endif %}</textarea>
         </div>
-
+        <!-- What Platform user played game on -->
         <div class="user-review-bottom">
             <div class="form-group">
-                <fieldset aria-label="Platforms" {% if user.user_id is not defined or user.user_id is none %} disabled
-                    {% endif %}> 
+                <fieldset aria-label="Platforms" {% if not user_logged_in %} disabled {% endif %}>
                     <legend>Platform</legend>
                     {% for platform in platforms %}
                     <li>
-                        <input type="radio" name="user_platform" id="user-platform-{{platform.name}}" value="{{platform.name}}" required>
+                        <input type="radio" name="user_platform" id="user-platform-{{platform.name}}"
+                            value="{{platform.name}}" required {% if user_review.platform_id == platform.id %} checked {% endif     %}>
                         <label for="user-platform-{{platform.name}}">{{platform.name}}</label>
                     </li>
                     {% endfor %}
@@ -150,15 +148,17 @@
             </p>
             <div class="accessibility container">
                 <span class="material-symbols-outlined">subtitles</span>
-                <input type="checkbox" name="subtitles" disabled 
-                    {% if review.accessibility.has_difficulty_options %} checked {% endif %}>
+                <input type="checkbox" name="subtitles" disabled {% if review.accessibility.has_difficulty_options %}
+                    checked {% endif %}>
                 <span class="material-symbols-outlined">visibility</span>
-                <input type="checkbox" name="colourblind_options" disabled
-                    {% if review.accessibility.has_colourblind_support %} checked {% endif %}>
+                <input type="checkbox" name="colourblind_options" disabled {% if
+                    review.accessibility.has_colourblind_support %} checked {% endif %}>
                 <span class="material-symbols-outlined">swords</span>
-                <input type="checkbox" name="difficulty_options" disabled 
-                    {% if review.accessibility.has_subtitles %} checked {% endif %}>
+                <input type="checkbox" name="difficulty_options" disabled {% if review.accessibility.has_subtitles %}
+                    checked {% endif %}>
             </div>
+
+            {{review.platform_id}}
 
         </div>
     </div>
