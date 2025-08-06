@@ -72,8 +72,8 @@
             </fieldset>
 
         </div>
-        <!-- Ratings Slider -->
-        <label for="rating">Rating</label>
+        <!-- Ratings Slider --> 
+        <label for="rating">Rating (<span id="rating-value-display">0</span>)</label>
         <div class="form-group user-rating-container">
             <span>1</span>
             <input type="range" name="rating" id="user-rating" min="0" max="10" value="{% if user_review %} {{user_review.rating}} {% else %} 0 {% endif %}" {% if not user_logged_in %}
@@ -139,13 +139,10 @@
     <div class="review">
         <div class="review-top">
             <h3 class="review-username">{{review.user.username}}</h3>
-            <div class="review-rating">{{review.rating}}</div>
+            <div class="review-rating">{{review.rating}} / 10</div>
         </div>
 
-        <div class="review-bottom">
-            <p class="review-text">
-                {{review.review_text}}
-            </p>
+        <div class="review-middle">
             <div class="accessibility container">
                 <span class="material-symbols-outlined">subtitles</span>
                 <input type="checkbox" name="subtitles" disabled {% if review.accessibility.has_difficulty_options %}
@@ -158,13 +155,31 @@
                     checked {% endif %}>
             </div>
 
-            {{review.platform_id}}
+            <p class="review-text">
+                {{review.review_text}}
+            </p>
+            
+            
 
+        </div>
+
+        <div class="review-bottom">
+            <span>{{review.platform.name}}</span>
+            <span>{{review.review_date}}</span>
         </div>
     </div>
 
     {% endfor %}
 </div>
+
+<script>
+    const rating_slider = document.getElementById("user-rating");
+    const rating_display = document.getElementById("rating-value-display");
+    rating_display.textContent = rating_slider.value;
+    rating_slider.addEventListener("input", () => {
+        rating_display.textContent = rating_slider.value;
+    })
+</script>
 
 
 {% endblock %}

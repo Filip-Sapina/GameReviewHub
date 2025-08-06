@@ -20,9 +20,9 @@
     --mixed-darker-color: #cfb230;
 }
 
- /* If User is in Light Mode */
+/* If User is in Light Mode */
 [data-theme="light"] {
-   
+
     --positive-color: #a2d5c3;
     --positive-darker-color: #7fbfb0;
 
@@ -267,12 +267,28 @@
     border: 1px solid var(--nav-border);
 }
 
-/* Other People's reviews */
 .review {
     border: 1px solid var(--nav-border);
     margin: 1rem;
     padding: 1rem;
     background-color: var(--pico-card-background-color);
+}
+
+.review-top {
+    display: flex;
+}
+
+.review-rating {
+    margin-left: auto;
+    margin-top: 0;
+}
+
+.review-middle {
+    display: flex;
+}
+
+.review-text {
+    padding: 1rem;
 }
 
 /* User's Reivew */
@@ -296,11 +312,10 @@
 }
 
 .user-accessibility {
-    display: flex;
+    margin-left: auto;
     padding-top: 0.5rem;
     padding-right: 0.25rem;
-    flex-direction: row-reverse;
-    flex: 3;
+    max-width: fit-content;
 }
 
 .user-accessibility input {
@@ -320,6 +335,10 @@
     padding-left: 1rem;
     padding-right: 1rem;
     margin-bottom: 0;
+}
+
+#rating-value-display {
+    text-align: center;
 }
 
 .user-review-post-button {

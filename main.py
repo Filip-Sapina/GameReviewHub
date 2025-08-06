@@ -1272,6 +1272,7 @@ def game_page(game_id: int):
     user_review = None
 
     for review in reviews:
+        review.platform = get_platform_by_id(review.platform_id)
         review.user = get_user_by_id(review.user_id)
         if user.user_id == review.user.user_id:
             user_review = review
