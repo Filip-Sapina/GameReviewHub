@@ -201,10 +201,13 @@
 }
 
 .accessibility {
-    border: 1px solid var(--nav-border);
-    padding: 0.5rem;
     text-align: center;
-    cursor: default;
+    margin: auto;
+    border: 1px solid var(--nav-border);
+    padding-right: 2rem;
+    padding-left: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 .description {
@@ -278,6 +281,10 @@
     display: flex;
 }
 
+.review-bottom {
+    margin-top: 1rem;
+}
+
 .review-rating {
     margin-left: auto;
     margin-top: 0;
@@ -289,6 +296,10 @@
 
 .review-text {
     padding: 1rem;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: scroll;
+    
 }
 
 /* User's Reivew */
@@ -305,6 +316,7 @@
 
 .user-review-bottom {
     display: flex;
+    
 }
 
 .user-review h4 {

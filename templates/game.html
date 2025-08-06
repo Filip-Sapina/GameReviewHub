@@ -82,7 +82,7 @@
         </div>
         <div class="form-group">
             <!-- Place to write Text for Review -->
-            <textarea name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if not user_logged_in %} disabled {% endif
+            <textarea maxlength="1000" name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if not user_logged_in %} disabled {% endif
                 %}>{% if user_review %}{{user_review.review_text}}{% endif %}</textarea>
         </div>
         <!-- What Platform user played game on -->
@@ -143,7 +143,7 @@
         </div>
 
         <div class="review-middle">
-            <div class="accessibility container">
+            <div class="accessibility grid">
                 <span class="material-symbols-outlined">subtitles</span>
                 <input type="checkbox" name="subtitles" disabled {% if review.accessibility.has_difficulty_options %}
                     checked {% endif %}>
