@@ -1,360 +1,334 @@
-/* standard unit rem was used because it can scale better than other units.*/
+/* Standard unit rem is used for better scaling */
 
-/* Google Symbols Fix to make icons have correct vertical alignment with text. */
+/* Google Symbols Fix: Align icons vertically with text */
 .material-symbols-outlined {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 :root {
-    /* Border */
-    --nav-border: #cccccc;
+  /* Border */
+  --nav-border: #cccccc;
 
-    /* Assuming User is in Dark Mode. */
-    --positive-color: #62af9a;
-    --positive-darker-color: #4e9784;
+  /* Dark Mode Colors */
+  --positive-color: #62af9a;
+  --positive-darker-color: #4e9784;
 
-    --negative-color: #CD7E7B;
-    --negative-darker-color: #c05c59;
+  --negative-color: #CD7E7B;
+  --negative-darker-color: #c05c59;
 
-    --mixed-color: #d9c35f;
-    --mixed-darker-color: #cfb230;
+  --mixed-color: #a78c16;
+  --mixed-darker-color: #9e830c;
 }
 
-/* If User is in Light Mode */
+/* Light Mode Colors */
 [data-theme="light"] {
+  --positive-color: #a2d5c3;
+  --positive-darker-color: #7fbfb0;
 
-    --positive-color: #a2d5c3;
-    --positive-darker-color: #7fbfb0;
+  --negative-color: #e7a8a5;
+  --negative-darker-color: #db8784;
 
-    --negative-color: #e7a8a5;
-    --negative-darker-color: #db8784;
-
-    --mixed-color: #f3e58f;
-    --mixed-darker-color: #e8d453;
-
+  --mixed-color: #f3e58f;
+  --mixed-darker-color: #e8d453;
 }
 
-
-
-/* Nav Bar Style */
+/* Navigation Bar */
 .navbar {
-    border-bottom: 1px solid var(--nav-border);
+  border-bottom: 1px solid var(--nav-border);
 }
 
 .sticky-nav {
-    top: 0;
-    position: sticky;
-    background-color: var(--pico-card-background-color);
-    z-index: 1000;
+  position: sticky;
+  top: 0;
+  background-color: var(--pico-card-background-color);
+  z-index: 1000;
 }
 
 .nav-right {
-    padding-left: 6rem;
+  padding-left: 6rem;
 }
 
-/* Flash Message Styling */
-
+/* Flash Messages */
 .notice {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
 }
 
 /* Game Styles */
-
 .game-container {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1rem;
 }
 
-/* Main container for each game, used units fr unit so insides fits in a 2:1 ratio. */
 .game {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    width: fit-content;
-    background: var(--pico-card-background-color);
-    border: 1px solid var(--pico-color);
-    padding: 1rem;
-    border-radius: 1rem;
-
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  width: fit-content;
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-color);
+  padding: 1rem;
+  border-radius: 1rem;
 }
 
 .game-title {
-    text-align: center;
-    max-width: 300px;
-    margin-bottom: 1rem;
-    background: var(--pico-background-color);
-    border: 1px solid var(--pico-color);
-    padding: 0.25rem;
+  max-width: 300px;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  text-align: center;
+  background: var(--pico-background-color);
+  border: 1px solid var(--pico-color);
 }
 
 .game img {
-    border-radius: 2rem;
-    margin: auto;
-    box-shadow: var(--pico-box-shadow);
-    transition: 0.2s ease-in-out;
-    cursor: pointer;
+  margin: auto;
+  border-radius: 2rem;
+  box-shadow: var(--pico-box-shadow);
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 .game img:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
-/* Rating / Acessibility in Game Container */
+/* Rating / Accessibility in Game Container */
 .value {
-    width: 5rem;
-    height: 4rem;
-    padding-top: 1rem;
-    margin: 1rem 1rem 1rem 1rem;
-    background: var(--pico-background-color);
-    border: 1px solid var(--pico-color);
-    cursor: default;
-    text-align: center;
+  width: 5rem;
+  height: 4rem;
+  margin: 1rem;
+  padding-top: 1rem;
+  background: var(--pico-background-color);
+  border: 1px solid var(--pico-color);
+  cursor: default;
+  text-align: center;
 }
 
 .value span {
-    font-size: 1.33rem;
+  font-size: 1.33rem;
 }
 
 .date {
-    margin: 1rem 0rem 0rem 1rem;
-    background: var(--pico-background-color);
-    border: 1px solid var(--pico-color);
-    padding: 0.5rem;
+  margin: 1rem 0 0 1rem;
+  padding: 0.5rem;
+  background: var(--pico-background-color);
+  border: 1px solid var(--pico-color);
 }
 
-/* login.html */
-
+/* Login */
 .login-title {
-    text-align: center;
+  text-align: center;
 }
 
-/* search.html */
-
+/* Search Ratings */
 .positive-rating {
-    background-color: var(--positive-darker-color);
+  background-color: var(--positive-darker-color);
 }
 
 .negative-rating {
-    background-color: var(--negative-darker-color);
+  background-color: var(--negative-darker-color);
 }
 
 .mixed-rating {
-    background-color: var(--mixed-darker-color);
+  background-color: var(--mixed-darker-color);
 }
 
 .no-rating {
-    background-color: var(--pico-card-background-color);
+  background-color: var(--pico-card-background-color);
 }
 
+/* Game Tags */
 .game-tag-container {
-    /* create 5 equal width columns */
-    grid-template-columns: repeat(5, 1fr);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
 }
 
 .game_tag {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    width: fit-content;
-    background: var(--pico-secondary-background);
-    border: none;
-    padding: 0.25rem;
-    margin: 0.5rem;
-    border-radius: 2rem;
-    text-align: center;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  width: fit-content;
+  background: var(--pico-secondary-background);
+  border: none;
+  padding: 0.25rem;
+  margin: 0.5rem;
+  border-radius: 2rem;
+  text-align: center;
 }
 
-.game_tag>* {
-    margin: 0.5rem;
-
+.game_tag > * {
+  margin: 0.5rem;
 }
 
-/* game.html */
-
+/* Game Details */
 .rating-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1rem;
-    cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+  cursor: default;
 }
 
 #rating {
-    flex-grow: 1;
-    margin-bottom: 0;
+  flex-grow: 1;
+  margin-bottom: 0;
 }
 
 .platforms {
-    border: 1px solid var(--nav-border);
-    padding: 0.5rem;
-    cursor: default;
+  border: 1px solid var(--nav-border);
+  padding: 0.5rem;
+  cursor: default;
 }
 
 .platform {
-    display: block;
-    border-radius: 1rem;
-    background-color: var(--pico-background-color);
-    color: var(--pico-color);
-    padding: 0.5rem;
-    margin-top: 0.1rem;
-    white-space: nowrap;
+  display: block;
+  border-radius: 1rem;
+  background-color: var(--pico-background-color);
+  color: var(--pico-color);
+  padding: 0.5rem;
+  margin-top: 0.1rem;
+  white-space: nowrap;
 }
 
 .accessibility {
-    text-align: center;
-    margin: auto;
-    border: 1px solid var(--nav-border);
-    padding-right: 2rem;
-    padding-left: 1rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+  margin: auto;
+  text-align: center;
+  border: 1px solid var(--nav-border);
+  padding: 1rem 2rem 1rem 1rem;
 }
 
 .description {
-    border: 1px solid var(--nav-border);
-    padding: 1rem;
+  border: 1px solid var(--nav-border);
+  padding: 1rem;
 }
 
-/* Review filter */
-
+/* Review Filter */
 .review-filter {
-    width: 50%;
-    display: flex;
+  width: 50%;
+  display: flex;
 }
 
 .review-filter button {
-    flex: 1;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    margin-right: 0.25rem;
-    padding: 0.5rem 0rem 0.5rem 0rem;
+  flex: 1;
+  margin: 1rem 0 1rem 0;
+  margin-right: 0.25rem;
+  padding: 0.5rem 0;
 }
 
-/* When Button is focused, outline becomes larger. */
 .review-filter button:focus {
-    outline: 2px solid var(--pico-contrast-color);
+  outline: 2px solid var(--pico-contrast-color);
 }
 
+/* Review Filter Buttons */
 #positive-reviews {
-    background-color: var(--positive-color);
-    border-color: var(--pico-contrast-color);
+  background-color: var(--positive-color);
+  border-color: var(--pico-contrast-color);
 }
 
 #mixed-reviews {
-    background-color: var(--mixed-color);
-    border-color: var(--pico-contrast-color);
+  background-color: var(--mixed-color);
+  border-color: var(--pico-contrast-color);
 }
-
 
 #negative-reviews {
-    background-color: var(--negative-color);
-    border-color: var(--pico-contrast-color);
+  background-color: var(--negative-color);
+  border-color: var(--pico-contrast-color);
 }
 
-/* Make Review Filter Buttons darker on hover. */
-
 #positive-reviews:hover {
-    background-color: var(--positive-darker-color);
+  background-color: var(--positive-darker-color);
 }
 
 #mixed-reviews:hover {
-    background-color: var(--mixed-darker-color);
+  background-color: var(--mixed-darker-color);
 }
 
 #negative-reviews:hover {
-    background-color: var(--negative-darker-color);
+  background-color: var(--negative-darker-color);
 }
 
 /* Reviews */
 .reviews {
-    border: 1px solid var(--nav-border);
+  border: 1px solid var(--nav-border);
 }
 
 .review {
-    border: 1px solid var(--nav-border);
-    margin: 1rem;
-    padding: 1rem;
-    background-color: var(--pico-card-background-color);
+  margin: 1rem;
+  padding: 1rem;
+  background-color: var(--pico-card-background-color);
+  border: 1px solid var(--nav-border);
 }
 
 .review-top {
-    display: flex;
-}
-
-.review-bottom {
-    margin-top: 1rem;
-}
-
-.review-rating {
-    margin-left: auto;
-    margin-top: 0;
+  display: flex;
 }
 
 .review-middle {
-    display: flex;
+  display: flex;
 }
 
 .review-text {
-    padding: 1rem;
-    word-break: break-all;
-    max-height: 200px;
-    overflow-y: scroll;
-    
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: scroll;
+  word-break: break-word;
 }
 
-/* User's Reivew */
+.review-bottom {
+  margin-top: 1rem;
+}
+
+.review-rating {
+  margin-left: auto;
+  margin-top: 0;
+}
+
+/* User's Review */
 .user-review {
-    border: 1px solid var(--nav-border);
-    flex: 0.5;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem 0rem 1rem;
+  flex: 0.5;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem 0 1rem;
+  border: 1px solid var(--nav-border);
 }
 
-.user-review-top {
-    display: flex;
-}
-
+.user-review-top,
 .user-review-bottom {
-    display: flex;
-    
+  display: flex;
 }
 
 .user-review h4 {
-    padding-right: 1rem;
+  padding-right: 1rem;
 }
 
 .user-accessibility {
-    margin-left: auto;
-    padding-top: 0.5rem;
-    padding-right: 0.25rem;
-    max-width: fit-content;
+  max-width: fit-content;
+  margin-left: auto;
+  padding: 0.5rem 0.25rem 0 0;
 }
 
 .user-accessibility input {
-    margin: 0;
+  margin: 0;
 }
 
 .user-accessibility .material-symbols-outlined {
-    margin-inline-end: 1rem;
-    margin-inline-start: 1rem;
+  margin: 0 1rem;
 }
 
 .user-rating-container {
-    display: flex;
+  display: flex;
 }
 
 #user-rating {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    margin-bottom: 0;
+  padding: 0 1rem;
+  margin-bottom: 0;
 }
 
 #rating-value-display {
-    text-align: center;
+  text-align: center;
 }
 
 .user-review-post-button {
-    width: 4rem;
-    margin-left: auto;
-    margin-top: auto;
+  width: 4rem;
+  margin-left: auto;
+  margin-top: auto;
 }

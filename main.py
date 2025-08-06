@@ -1148,7 +1148,7 @@ def search_page():
     games = []
 
     if request.method == "GET":
-        search_term = request.args.get("search_term")
+        search_term = request.args.get("search_term", "")
 
         # Get Game Tags that are on.
         for key, value in request.form.items():
@@ -1178,8 +1178,33 @@ def search_page():
 
             # Get Average Rating for each Game
             game.rating = get_avg_rating(game.id)
+            
+            # Review managing
+            reviews = get_reviews_by_game_id(game.id)
+
             # Get Review Count
-            game.review_count = len(get_reviews_by_game_id(game.id))
+            game.review_count = len(reviews)
+            
+            
+
+            # get amount of reviews with each accessibilty setting.
+            if game.review_count > 0:
+                MAJORITY_RATIO = 0.6
+                game.has_colourblind_support = 0
+                game.has_difficulty_options = 0
+                game.has_subtitles = 0
+                for review in reviews:
+                    if review.accessibility.has_colourblind_support:
+                        game.has_colourblind_support += 1
+                    if review.accessibility.has_difficulty_options:
+                        game.has_difficulty_options += 1
+                    if review.accessibility.has_subtitles:
+                        game.has_subtitles += 1
+                game.has_colourblind_support = (game.has_colourblind_support / game.review_count) > MAJORITY_RATIO
+                game.has_colourblind_support = (game.has_difficulty_options / game.review_count) > MAJORITY_RATIO
+                game.has_colourblind_support = (game.has_subtitles / game.review_count) > MAJORITY_RATIO
+
+
 
     return render_template(
         "search.html",
