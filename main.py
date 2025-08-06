@@ -6,13 +6,10 @@ import sqlite3
 import secrets
 from collections import namedtuple
 from datetime import datetime
-from hashlib import sha256
-from faker import Faker
 from thefuzz import fuzz
 from werkzeug import security
 
 from flask import Flask, g, redirect, url_for, render_template, request, flash, session
-
 
 
 # Generic Database Logic
@@ -58,10 +55,11 @@ def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
     cursor.close()
     db.commit()
 
+
 # App Setup
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = secrets.token_urlsafe(32)    
+app.config["SECRET_KEY"] = secrets.token_urlsafe(32)
 
 # User Logic
 
@@ -473,8 +471,6 @@ def get_platform_by_name(platform_name: str) -> Platform:
         one=True,
     )
 
-
-
     return Platform(data["platform_id"], data["platform_name"])
 
 
@@ -665,7 +661,6 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
     if not game_tag_ids:
         return []
 
-
     query = """
         SELECT 
             Games.*, 
@@ -695,14 +690,12 @@ def add_game(game: Game) -> None:
     Returns:
         None
     """
-    db, cursor = get_database()
-
     game_insert = """
     INSERT INTO Games 
     (title, description, release_date, developer, publisher, image_link)
     VALUES (?,?,?,?,?,?)
     """
-    cursor.execute(
+    args = (
         game_insert,
         (
             game.title,
@@ -714,7 +707,8 @@ def add_game(game: Game) -> None:
         ),
     )
 
-    db.commit()
+    query_db(game_insert, args, fetch=False, one=False)
+    
 
 
 def update_game(new_game: Game = None):
@@ -727,24 +721,21 @@ def update_game(new_game: Game = None):
     Returns:
         None
     """
-    db, cursor = get_database()
+    
     update = """
     UPDATE Games 
     SET title = ?, description = ?, release_date = ?, 
     developer = ?, publisher = ?, image_link = ?
     """
-    cursor.execute(
-        update,
-        (
+    args =  (
             new_game.title,
             new_game.description,
             new_game.release_date,
             new_game.developer,
             new_game.publisher,
             new_game.image_link,
-        ),
-    )
-    db.commit()
+        )
+    query_db(update, args, fetch=False, one=False)
 
 
 def delete_game_by_id(game_id: int) -> None:
@@ -758,61 +749,41 @@ def delete_game_by_id(game_id: int) -> None:
         None
 
     """
-    db, cursor = get_database()
-
-    delete = "DELETE FROM Games WHERE game_id = ?"
-    cursor.execute(delete, (game_id,))
-
-    db.commit()
+    query_db("DELETE FROM Games WHERE game_id = ?", (game_id, ), fetch=False, one=False)
 
 
-def link_game_tag(game: Game, game_tag: GameTag) -> None:
+def link_game_tag(game_id: int, game_tag_id: int) -> None:
     """
     Adds a new row in the GameTagAssingnment table.
 
     Args:
-        game (Game): game that should be linked to a game tag
-        game_tag (GameTag): game tag tuple whose id will be used to link to game.
+        game_id (int): game that should be linked to a game tag
+        game_tag_id (int): game tag tuple whose id will be used to link to game.
     Returns:
         None
     """
-    db, cursor = get_database()
-
-    insert = "SELECT * FROM GameTags WHERE game_tag_id = ?"
-    cursor.execute(insert, (game_tag.id,))
-    if not cursor.fetchone():
-        raise KeyError("game_tag.id doesn't exist in the database.")
-
-    insert = "INSERT INTO GameTagAssignment (game_id, game_tag_id) VALUES (?,?)"
-    cursor.execute(insert, (game.id, game_tag.id))
-
-    db.commit()
+    query_db("INSERT INTO GameTagAssignment (game_id, game_tag_id) VALUES (?,?)", (game_id, game_tag_id), fetch=False, one=False)
 
 
-def link_platform(game: Game, platform: Platform) -> None:
+
+
+def link_platform(game_id: int, platform_id: int) -> None:
     """
     Adds new row into PlatformAssingment table based on input ids.
 
     Args:
-        game (Game): game that is playable on platform
-        platform (platform): platform the game is playable on.
+        game_id (int): game that is playable on platform
+        platform_id (platform_id): platform the game is playable on.
     Returns:
         None
-    Raises:
-        KeyError: if platform_id is not in database.
     """
+    query_db(
+        "INSERT INTO PlatformAssignment (game_id, platform_id) VALUES (?,?)",
+        (game_id, platform_id),
+        fetch=False,
+        one=False,
+    )
 
-    db, cursor = get_database()
-
-    insert = "SELECT * FROM Platforms WHERE platform_id = ?"
-    cursor.execute(insert, (platform.id,))
-    if not cursor.fetchone():
-        raise KeyError("platform.id doesn't exist in the database.")
-
-    insert = "INSERT INTO PlatformAssignment (game_id, platform_id) VALUES (?,?)"
-    cursor.execute(insert, (game.id, platform.id))
-
-    db.commit()
 
 def get_avg_rating(game_id: int):
     """
@@ -830,7 +801,7 @@ def get_avg_rating(game_id: int):
 
     # adds all ratings up and divides by the amount of reviews.
     total = sum(review.rating for review in reviews)
-    average = total/len(reviews)
+    average = total / len(reviews)
 
     return average
 
@@ -910,7 +881,9 @@ def add_review(review: Review) -> None:
             review.accessibility.has_subtitles,
             review.accessibility.has_difficulty_options,
             review.platform_id,
-        ), fetch=False, one=False
+        ),
+        fetch=False,
+        one=False,
     )
 
 
@@ -924,12 +897,9 @@ def get_review_by_id(review_id: int):
         review (Review): a review object with relevant data.
     """
 
-    db, cursor = get_database()
-
-    query = "SELECT * FROM Reviews WHERE review_id = ?"
-    cursor.execute(query, (review_id,))
-    data = cursor.fetchone()
-    db.commit()
+    data = query_db(
+        "SELECT * FROM Reviews WHERE review_id = ?", (review_id,), fetch=True, one=True
+    )
     review = Review(data=data)
     return review
 
@@ -964,7 +934,12 @@ def get_review_by_game_and_user(game_id: int, user_id: int):
     Returns:
         review (Review): a review object with relevant data.
     """
-    data = query_db("SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?", (game_id, user_id), fetch=True, one=True)
+    data = query_db(
+        "SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?",
+        (game_id, user_id),
+        fetch=True,
+        one=True,
+    )
     review = Review(**data)
     return review
 
@@ -979,8 +954,6 @@ def get_reviews_by_game_name(game_name: str):
         reviews (list[Review]): list of review objects with all data.
     """
 
-    db, cursor = get_database()
-
     query = """
     SELECT 
     r.review_id, r.user_id, r.game_id,
@@ -992,9 +965,7 @@ def get_reviews_by_game_name(game_name: str):
     ON r.game_id = g.game_id
     WHERE g.title = ?
     """
-    cursor.execute(query, (game_name,))
-    data = cursor.fetchall()
-    db.commit()
+    data = query_db(query, (game_name,), fetch=True, one=False)
     reviews = []
     for review_data in data:
         reviews.append(Review(data=review_data))
@@ -1011,8 +982,6 @@ def get_reviews_by_username(user_name: str):
         reviews (list[Review]): list of review objects with all data.
     """
 
-    db, cursor = get_database()
-
     query = """
     SELECT 
     r.review_id, r.user_id, r.user_id,
@@ -1024,9 +993,7 @@ def get_reviews_by_username(user_name: str):
     ON r.game_id = u.game_id
     WHERE u.username = ?
     """
-    cursor.execute(query, (user_name,))
-    data = cursor.fetchall()
-    db.commit()
+    data = query_db(query, (user_name,), fetch=True, one=False)
     reviews = []
     for review_data in data:
         reviews.append(Review(data=review_data))
@@ -1042,11 +1009,12 @@ def get_reviews_by_game_and_platform(game_id: int, platform_id: int):
     Returns:
         reviews (List[Review]): list of reviews with relevant metadata.
     """
-    db, cursor = get_database()
-    query = "SELECT * FROM Reviews WHERE game_id = ? and platform_id = ?"
-    cursor.execute(query, game_id, platform_id)
-    data = cursor.fetchall()
-    db.commit()
+    data = query_db(
+        "SELECT * FROM Reviews WHERE game_id = ? and platform_id = ?",
+        (game_id, platform_id),
+        fetch=True,
+        one=False,
+    )
     reviews = []
     for row in data:
         review = Review(**row)
@@ -1062,7 +1030,9 @@ def delete_review_by_id(review_id: int) -> None:
     Returns:
         None
     """
-    query_db("DELETE FROM Reviews WHERE review_id = ?", (review_id, ), fetch=False, one=False)
+    query_db(
+        "DELETE FROM Reviews WHERE review_id = ?", (review_id,), fetch=False, one=False
+    )
 
 
 def update_review(new_review: Review, review_id: int):
@@ -1087,15 +1057,15 @@ def update_review(new_review: Review, review_id: int):
     WHERE review_id = ?
     """
     values = (
-            new_review.rating,
-            new_review.review_text,
-            new_review.accessibility.has_colourblind_support,
-            new_review.accessibility.has_subtitles,
-            new_review.accessibility.has_difficulty_options,
-            new_review.platform_id,
-            review_id,
-        )
-    
+        new_review.rating,
+        new_review.review_text,
+        new_review.accessibility.has_colourblind_support,
+        new_review.accessibility.has_subtitles,
+        new_review.accessibility.has_difficulty_options,
+        new_review.platform_id,
+        review_id,
+    )
+
     query_db(update, values, fetch=False, one=False)
 
 
@@ -1198,7 +1168,6 @@ def search_page():
         else:
             games = get_games()
 
-        
         for game in games:
             # Format each game's release date
             release_date = datetime.fromtimestamp(game.release_date)
@@ -1206,12 +1175,11 @@ def search_page():
             time_passed = datetime.now() - release_date
             years_passed = time_passed.days / 365.25
             game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
-        
+
             # Get Average Rating for each Game
             game.rating = get_avg_rating(game.id)
             # Get Review Count
             game.review_count = len(get_reviews_by_game_id(game.id))
-            
 
     return render_template(
         "search.html",
@@ -1232,7 +1200,7 @@ def game_page(game_id: int):
 
     # Logic for add/updating review.
     if method in ("POST, PUT"):
-        
+
         # Shared Logic
         data = request.form.to_dict(flat=True)
         data["user_id"] = get_user_session().user_id
@@ -1240,25 +1208,27 @@ def game_page(game_id: int):
         data["platform_id"] = get_platform_by_name(data["user_platform"]).id
         data["review_date"] = datetime.now().timestamp()
 
-
         data["has_subtitles"] = True if data.get("has_subtitles") else False
-        data["has_difficulty_options"] = True if data.get("has_difficulty_options") else False
-        data["has_colourblind_support"] = True if data.get("has_colourblind_support") else False
+        data["has_difficulty_options"] = (
+            True if data.get("has_difficulty_options") else False
+        )
+        data["has_colourblind_support"] = (
+            True if data.get("has_colourblind_support") else False
+        )
 
         review = Review(**data)
-    
 
         if method == "POST":
             # writing review logic
             add_review(review)
             flash("Review Submitted!")
-        else: # method must be PUT
+        else:  # method must be PUT
             # editing review logic
             old_review = get_review_by_game_and_user(data["game_id"], data["user_id"])
             new_review = Review(**data)
             update_review(new_review, old_review.review_id)
             flash("Review Updated!")
-            
+
         return redirect(url_for("game_page", game_id=game_id))
 
     # For GET method
@@ -1283,10 +1253,8 @@ def game_page(game_id: int):
         user=user,
         platforms=get_platforms_by_game_name(game.title),
         reviews=reviews,
-        user_review=user_review
+        user_review=user_review,
     )
-
-
 
 
 @app.route("/")
@@ -1295,49 +1263,6 @@ def index():
     return redirect(url_for("home"))
 
 
-# Admin Tools
-fake = Faker()
-
-
-@app.route("/admin")
-def admin_page():
-    """admin page contains debug tools for database.
-    currently doesn't check if user is an admin."""
-    return render_template("admin.html", user=get_user_session())
-
-@app.route("/generate_users", methods=["GET", "POST"])
-def generate_user():
-    if request.method == "POST":
-        if request.form["user_count"].strip().isdigit():
-            user_count = int(request.form["user_count"])
-
-            db, cursor = get_database()
-
-            for _ in range(user_count):
-                username = fake.pystr(min_chars=5, max_chars=20)
-                password = fake.password()
-                date_joined = int(datetime.now().timestamp())
-
-                password_hash = sha256(password.encode()).hexdigest()
-                cursor.execute(
-                    "INSERT INTO Users (username, password_hash, date_joined) VALUES (?, ?, ?)",
-                    (username, password_hash, date_joined),
-                )
-            db.commit()
-            flash(f"Successfully added {user_count} users.")
-        else:
-            flash("USER COUNT MUST BE INTERGER ONLY")
-    return redirect(url_for("admin_page"))
-
-@app.route("/wipe_users", methods=["GET", "POST"])
-def wipe_users():
-    if request.method == "POST":
-        db, cursor = get_database()
-        cursor.execute("DELETE FROM Users")
-        cursor.execute("UPDATE sqlite_sequence SET seq=0 WHERE name='Users'")
-        db.commit()
-        flash("cleared Users Table")
-    return redirect(url_for("admin_page"))
 
 if __name__ == "__main__":
     app.run(debug=True)
