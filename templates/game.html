@@ -64,25 +64,30 @@
             <!-- Accessibility Options -->
             <fieldset class="form-group user-accessibility" {% if not user_logged_in %} disabled {% endif %}>
                 <label for="has_subtitles" class="material-symbols-outlined">subtitles</label>
-                <input type="checkbox" name="has_subtitles" id="user-subtitles" {% if user_review and user_review.accessibility.has_subtitles %} checked {% endif %}>
+                <input type="checkbox" name="has_subtitles" id="user-subtitles" {% if user_review and
+                    user_review.accessibility.has_subtitles %} checked {% endif %}>
                 <label for="has_colourblind_support" class="material-symbols-outlined">visibility</label>
-                <input type="checkbox" name="has_colourblind_support" id="user-colourblind" {% if user_review and user_review.accessibility.has_colourblind_support %} checked {% endif %}>
+                <input type="checkbox" name="has_colourblind_support" id="user-colourblind" {% if user_review and
+                    user_review.accessibility.has_colourblind_support %} checked {% endif %}>
                 <label for="has_difficulty_options" class="material-symbols-outlined">swords</label>
-                <input type="checkbox" name="has_difficulty_options" id="user-difficulty-options" {% if user_review and user_review.accessibility.has_difficulty_options %} checked {% endif %}>
+                <input type="checkbox" name="has_difficulty_options" id="user-difficulty-options" {% if user_review and
+                    user_review.accessibility.has_difficulty_options %} checked {% endif %}>
             </fieldset>
 
         </div>
-        <!-- Ratings Slider --> 
+        <!-- Ratings Slider -->
         <label for="rating">Rating (<span id="rating-value-display">0</span>)</label>
         <div class="form-group user-rating-container">
             <span>1</span>
-            <input type="range" name="rating" id="user-rating" min="0" max="10" value="{% if user_review %} {{user_review.rating}} {% else %} 0 {% endif %}" {% if not user_logged_in %}
+            <input type="range" name="rating" id="user-rating" min="0" max="10"
+                value="{% if user_review %} {{user_review.rating}} {% else %} 0 {% endif %}" {% if not user_logged_in %}
                 disabled {% endif %}>
             <span>10</span>
         </div>
         <div class="form-group">
             <!-- Place to write Text for Review -->
-            <textarea maxlength="1000" name="review_text" id="review_text" cols="30" rows="5" placeholder="Write Your Review Here!" {% if not user_logged_in %} disabled {% endif
+            <textarea maxlength="1000" name="review_text" id="review_text" cols="30" rows="5"
+                placeholder="Write Your Review Here!" {% if not user_logged_in %} disabled {% endif
                 %}>{% if user_review %}{{user_review.review_text}}{% endif %}</textarea>
         </div>
         <!-- What Platform user played game on -->
@@ -93,7 +98,8 @@
                     {% for platform in platforms %}
                     <li>
                         <input type="radio" name="user_platform" id="user-platform-{{platform.name}}"
-                            value="{{platform.name}}" required {% if user_review and user_review.platform_id == platform.id %} checked {% endif     %}>
+                            value="{{platform.name}}" required {% if user_review and
+                            user_review.platform_id==platform.id %} checked {% endif %}>
                         <label for="user-platform-{{platform.name}}">{{platform.name}}</label>
                     </li>
                     {% endfor %}
@@ -112,8 +118,7 @@
             </div>
         </div>
 
-        <!-- Passing url of page so game id can be gotten later -->
-        <input type="hidden" name="source_url" value="{{ request.url }}">
+
 
         <!-- Put method to update review instead of creating new review. -->
         {% if user_review %}
@@ -133,15 +138,12 @@
 </div>
 <div class="reviews grid">
     <!-- Other Peoples Reviews -->
-
     {% for review in reviews %}
-
     <div class="review">
         <div class="review-top">
             <h3 class="review-username">{{review.user.username}}</h3>
             <div class="review-rating">{{review.rating}} / 10</div>
         </div>
-
         <div class="review-middle">
             <div class="accessibility grid">
                 <span class="material-symbols-outlined">subtitles</span>
@@ -154,15 +156,10 @@
                 <input type="checkbox" name="difficulty_options" disabled {% if review.accessibility.has_subtitles %}
                     checked {% endif %}>
             </div>
-
             <p class="review-text">
                 {{review.review_text}}
             </p>
-            
-            
-
         </div>
-
         <div class="review-bottom">
             <span>{{review.platform.name}}</span>
             <span>{{review.review_date}}</span>
@@ -173,12 +170,45 @@
 </div>
 
 <script>
-    const rating_slider = document.getElementById("user-rating");
-    const rating_display = document.getElementById("rating-value-display");
-    rating_display.textContent = rating_slider.value;
-    rating_slider.addEventListener("input", () => {
-        rating_display.textContent = rating_slider.value;
-    })
+    function fetchReviews(filter) {
+        fetch(`/filter_reviews?filter=${filter}&game_id={{game.id}}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+
+                const reviewsContainer = document.querySelector('.reviews.grid');
+                reviewsContainer.innerHTML = data.map(review => `
+        <div class="review">
+          <div class="review-top">
+            <h3 class="review-username">${review.user.username}</h3>
+            <div class="review-rating">${review.rating} / 10</div>
+          </div>
+          <div class="review-middle">
+            <div class="accessibility grid">
+              <span class="material-symbols-outlined">subtitles</span>
+              <input type="checkbox" name="subtitles" disabled ${review.accessibility.has_subtitles ? 'checked' : ''}>
+              <span class="material-symbols-outlined">visibility</span>
+              <input type="checkbox" name="colourblind_options" disabled ${review.accessibility.has_colourblind_support ? 'checked' : ''}>
+              <span class="material-symbols-outlined">swords</span>
+              <input type="checkbox" name="difficulty_options" disabled ${review.accessibility.has_difficulty_options ? 'checked' : ''}>
+            </div>
+            <p class="review-text">${review.review_text}</p>
+          </div>
+          <div class="review-bottom">
+            <span>${review.platform.name}</span>
+            <span>${review.review_date}</span>
+          </div>
+        </div>
+      `).join('');
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+    }
+    ['positive', 'mixed', 'negative'].forEach(filter => {
+        document.getElementById(`${filter}-reviews`).addEventListener('click', () => fetchReviews(filter));
+    });
+
 </script>
 
 

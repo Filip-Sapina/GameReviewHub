@@ -6,7 +6,7 @@ import secrets
 from datetime import datetime
 from werkzeug import security
 
-from flask import Flask, g, redirect, url_for, render_template, request, flash, session
+from flask import Flask, g, redirect, url_for, render_template, request, flash, session, jsonify
 
 from database_connection.user_connection import (
     add_user,
@@ -264,6 +264,29 @@ def game_page(game_id: int):
         user_review=user_review,
     )
 
+@app.route("/filter_reviews", methods=["GET"])
+def filter_reviews():
+    filter_type = request.args.get("filter", "mixed")
+    game_id = request.args.get("game_id")
+
+    reviews = get_reviews_by_game_id(game_id)
+
+    for review in reviews:
+        review.user = get_user_by_id(review.user_id).__dict__
+        review.platform = get_platform_by_id(review.platform_id)
+
+
+    if filter_type == "positive":
+        filtered = [r.__dict__ for r in reviews if r.rating > 7]
+    elif filter_type == "negative":
+        filtered = [r.__dict__ for r in reviews if r.rating < 5]
+    else:
+        filtered = [r.__dict__ for r in reviews]
+
+    return jsonify(filtered)
+
+        
+    
 
 @app.route("/")
 def index():
