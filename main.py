@@ -1173,8 +1173,13 @@ def search_page():
             release_date = datetime.fromtimestamp(game.release_date)
             date = release_date.date().strftime("%d/%m/%Y")
             time_passed = datetime.now() - release_date
+
             years_passed = time_passed.days / 365.25
-            game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
+            if years_passed < 1:
+                months_passed = time_passed.days // 30  # approximate months
+                game.date_str = f"{date} ({months_passed} month(s) ago)"
+            else:
+                game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
 
             # Get Average Rating for each Game
             game.rating = get_avg_rating(game.id)
