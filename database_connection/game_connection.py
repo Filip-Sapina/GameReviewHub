@@ -308,6 +308,6 @@ def get_avg_rating(game_id: int):
 
     # adds all ratings up and divides by the amount of reviews.
     total = sum(review.rating for review in reviews)
-    average = total / len(reviews)
+    average = round(total / len(reviews), 2)
 
     return average
