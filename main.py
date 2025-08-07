@@ -3,6 +3,7 @@ Main Application Program, starts flask site.
 """
 
 import secrets
+import re
 from datetime import datetime
 from werkzeug import security
 
@@ -64,6 +65,11 @@ def home():
 
     return render_template("home.html", user=get_user_session())
 
+# used for both login and register. only allows letters, numbers and some special characters
+PATTERN_USERNAME = r'[a-zA-Z0-9_\/\-]{3, 20}' # min 3 characters max 20
+PATTERN_PASSWORD = r'[a-zA-Z0-9_@?/\\-]{5, 30}' # min 5 characters max 30
+regex_username = re.compile(PATTERN_USERNAME)
+regex_password = re.compile(PATTERN_PASSWORD)
 
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
@@ -76,6 +82,14 @@ def login_page():
 
         username = request.form["username"]
         password = request.form["password"]
+
+        if not regex_username.fullmatch(username):
+            flash("Invalid username format")
+            return render_template("login.html", user=get_user_session())
+        if not regex_password.fullmatch(password):
+            flash("Invalid password format")
+            return render_template("login.html", user=get_user_session())
+
 
         user = get_user_by_username(username)
 
@@ -98,11 +112,18 @@ def register_page():
     if request.method == "POST":
 
         username = request.form["username"]
+        password = request.form["password"]
+        if not regex_username.fullmatch(username):
+            flash("Invalid username format")
+            return render_template("register.html", user=get_user_session())
+        if not regex_password.fullmatch(password):
+            flash("Invalid password format")
+            return render_template("register.html", user=get_user_session())
 
         if get_user_by_username(username):
             flash("Username is Already Taken!")
             return render_template("register.html", user=get_user_session())
-        password = request.form["password"]
+        
         add_user(username, password)
         session["user_id"] = get_user_by_username(username).user_id
         return redirect(url_for("home"))

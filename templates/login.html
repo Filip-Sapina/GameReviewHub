@@ -12,22 +12,41 @@
 			<div class="form-group">
 				<label for="username">Username</label>
 				<input type="text" name="username" id="username" placeholder="Enter Your Username" required
-					autocomplete="username" aria-required="true">
+					autocomplete="username" aria-required="true" pattern="[a-zA-Z0-9_\/\-]+" minlength="3" maxlength="20">
 			</div>
 			<!-- Password -->
 			<div class="form-group">
 				<label for="password">Password</label>
 				<input type="password" name="password" id="password" placeholder="Enter Your Password" required
-					autocomplete="new-password" aria-required="true">
+					autocomplete="current-password" aria-required="true" pattern="[a-zA-Z0-9_@?/\\-]+" minlength="5" maxlength="50">
 			</div>
 			<!-- Register Link -->
 			<p class="register-text">
 				Don't have an account? <a href="/register">Register here</a>
 			</p>
 			<!-- Submit Button -->
-			<button class="btn btn-primary material-symbols-outlined" type="submit" aria-label="Submit login form">Login</button>
+			<button class="btn btn-primary material-symbols-outlined" type="submit"
+				aria-label="Submit login form">Login</button>
 		</form>
 	</div>
 </article>
 
+<script>
+	const fields = [
+		{ element: document.getElementById("username"), msg: 'Please enter letters, numbers or _- only. (min 3)' },
+		{ element: document.getElementById("password"), msg: 'invalid characters (min 5)' }
+	];
+
+	fields.forEach(({ element, msg }) => {
+		element.addEventListener('invalid', () => {
+			if (element.validity.patternMismatch) {
+				element.setCustomValidity(msg);
+			}
+		});
+		element.addEventListener('input', () => {
+			element.setCustomValidity('');
+		});
+	});
+
+</script>
 {% endblock %}
