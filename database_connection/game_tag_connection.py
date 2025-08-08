@@ -1,13 +1,8 @@
-from collections import namedtuple
-from database_connection.base_db_connections import query_db
+"""functions that allow connection between database and web app specifically for game tags (adventure, fighting, etc)."""
+
+from database_connection.base_db_connections import query_db, GameTag
 
 # Game Tag Logic
-
-GameTag = namedtuple("GameTag", ["id", "name"])
-"""
-Representation of a row of GameTags table in database.
-"""
-
 
 def add_game_tag(name: str) -> None:
     """

@@ -51,7 +51,7 @@
 <div class="container user-review">
 
 
-    <form action="{{ url_for('game_page', game_id=game.id) }}" method="post" aria-label="Write Review">
+    <form action="{{ url_for('game_page', game_id=game.game_id) }}" method="post" aria-label="Write Review">
         <div class="user-review-top">
             <!-- If user is logged in, display text as normal. Otherwise Replace with red warning message.-->
             {% if not user_logged_in %}
@@ -99,7 +99,7 @@
                     <li>
                         <input type="radio" name="user_platform" id="user-platform-{{platform.name}}"
                             value="{{platform.name}}" required {% if user_review and
-                            user_review.platform_id==platform.id %} checked {% endif %}>
+                            user_review.platform_id==platform.platform_id %} checked {% endif %}>
                         <label for="user-platform-{{platform.name}}">{{platform.name}}</label>
                     </li>
                     {% endfor %}
@@ -171,7 +171,7 @@
 
 <script>
     function fetchReviews(filter) {
-        fetch(`/filter_reviews?filter=${filter}&game_id={{game.id}}`)
+        fetch(`/filter_reviews?filter=${filter}&game_id={{game.game_id}}`)
             .then(response => response.json())
             .then(data => {
                 console.log(data)

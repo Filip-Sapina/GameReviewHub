@@ -1,42 +1,6 @@
-from collections import namedtuple
-from database_connection.base_db_connections import query_db
+"""functions that allow connection between database and web app specifically for user reviews."""
 
-AccessibilityOptions = namedtuple(
-    "AccessibilityOptions",
-    ["has_colourblind_support", "has_subtitles", "has_difficulty_options"],
-)
-"""NamedTuple representing accessibilty options that a game can have."""
-
-
-class Review(object):
-    """
-    Represents a review with relevant metadata, same as columns in Reviews table.
-
-    Attributes:
-        review_id (int): id for the review (same as game_id + user_id)
-        user_id (int): id of the user that wrote the review.
-        game_id (int): id of the game the review is for.
-        rating (int): rating of the review that the user left.
-        review_text (text): text that the user has written, optional.
-        review_date (int): date the review was uploaded in unix timestamp format.
-        accessibility (AccessibilityOptions): Tuple representing accessibilty options for game.
-        platform_id (int): the id of the platform the user played the game on.
-        data (Dict): Required dict with review values.
-    """
-
-    def __init__(self, **data) -> None:
-        self.review_id = data.get("review_id")
-        self.user_id = data["user_id"]
-        self.game_id = data["game_id"]
-        self.rating = data["rating"]
-        self.review_text = data.get("review_text")
-        self.review_date = data["review_date"]
-        self.accessibility = AccessibilityOptions(
-            data["has_colourblind_support"],
-            data["has_subtitles"],
-            data["has_difficulty_options"],
-        )
-        self.platform_id = data["platform_id"]
+from database_connection.base_db_connections import query_db, Review
 
 
 def add_review(review: Review) -> None:
@@ -48,7 +12,7 @@ def add_review(review: Review) -> None:
     Returns:
         None
     """
-
+    # Insert query.
     insert = """INSERT INTO Reviews (
         user_id, 
         game_id, 
@@ -62,6 +26,7 @@ def add_review(review: Review) -> None:
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
+    # query with specified args.
     query_db(
         insert,
         (
@@ -89,11 +54,12 @@ def get_review_by_id(review_id: int):
     Returns:
         review (Review): a review object with relevant data.
     """
-
+    # Query
     data = query_db(
         "SELECT * FROM Reviews WHERE review_id = ?", (review_id,), fetch=True, one=True
     )
-    review = Review(data=data)
+    # Turn data into review object and return data.
+    review = Review.from_dict(data)
     return review
 
 
@@ -106,14 +72,12 @@ def get_reviews_by_game_id(game_id: int):
     Returns:
         review (Review): a review object with relevant data.
     """
+    # Query and get Data.
     query = "SELECT * FROM Reviews WHERE game_id = ?"
     data = query_db(query, (game_id,), fetch=True, one=False)
 
-    reviews = []
-    for row in data:
-        review = Review(**row)
-        reviews.append(review)
-
+    # create a list of reviews with data and return.
+    reviews = [Review.from_dict(row) for row in data]
     return reviews
 
 
@@ -127,12 +91,15 @@ def get_review_by_game_and_user(game_id: int, user_id: int):
     Returns:
         review (Review): a review object with relevant data.
     """
+
+    # Get Review.
     data = query_db(
         "SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?",
         (game_id, user_id),
         fetch=True,
         one=True,
     )
+    # Return review as class.
     review = Review(**data)
     return review
 
@@ -161,7 +128,7 @@ def get_reviews_by_game_name(game_name: str):
     data = query_db(query, (game_name,), fetch=True, one=False)
     reviews = []
     for review_data in data:
-        reviews.append(Review(data=review_data))
+        reviews.append(Review.from_dict(review_data))
     return reviews
 
 
@@ -189,7 +156,7 @@ def get_reviews_by_username(user_name: str):
     data = query_db(query, (user_name,), fetch=True, one=False)
     reviews = []
     for review_data in data:
-        reviews.append(Review(data=review_data))
+        reviews.append(Review.from_dict(review_data))
     return reviews
 
 
@@ -210,7 +177,7 @@ def get_reviews_by_game_and_platform(game_id: int, platform_id: int):
     )
     reviews = []
     for row in data:
-        review = Review(**row)
+        review = Review.from_dict(row)
         reviews.append(review)
     return reviews
 

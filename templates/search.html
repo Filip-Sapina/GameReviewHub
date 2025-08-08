@@ -33,12 +33,12 @@
 <div class="grid game-container">
     {% for game in games %}
     <!-- Game Template -->
-    <div class="game" id="game-{{game.id}}">
+    <div class="game" id="game-{{game.game_id}}">
         <div>
             <!-- Title -->
             <div class="game-title"><strong>{{game.title}}</strong></div>
             <!-- Image -->
-            <a href="{{url_for('game_page', game_id=game.id)}}"><img src="{{ game.image_link }}" alt="game"></a>
+            <a href="{{url_for('game_page', game_id=game.game_id)}}"><img src="{{ game.image_link }}" alt="game"></a>
         </div>
         <div>
             <!-- Rating -->

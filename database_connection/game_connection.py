@@ -1,31 +1,9 @@
+"""functions that allow connection between database and web app specifically for games."""
+
 from datetime import datetime
 from thefuzz import fuzz
-from database_connection.base_db_connections import query_db
+from database_connection.base_db_connections import query_db, Game
 from database_connection.review_connection import get_reviews_by_game_id
-class Game(object):
-    """
-    Represents a video game with relevant metadata,
-    same as columns in Game table
-
-    Attributes:
-        title (str): title of the game
-        description (str): short description of the game
-        release_date (int): unix timestamp of when game was released.
-        developer (str): developers of the game
-        publisher (str): optional publisher of game, defaults to developer.
-        game_id (int): id of game
-        image_link (str): link to media image of game from igdb.com
-        data (Dict): dict of required values.
-    """
-
-    def __init__(self, **data):
-        self.title = data.get("title")
-        self.description = data.get("description")
-        self.release_date = data.get("release_date")
-        self.developer = data.get("developer")
-        self.image_link = data.get("image_link")
-        self.id = data.get("game_id")
-        self.publisher = data.get("publisher", self.developer)
 
 
 def get_games():
@@ -40,7 +18,7 @@ def get_games():
     games = []
 
     for row in data:
-        game = Game(**row)
+        game = Game.from_dict(row)
         games.append(game)
 
     return games
@@ -62,7 +40,7 @@ def get_game_by_id(game_id: int) -> Game:
     data = query_db(
         "SELECT * FROM Games WHERE game_id = ?", (game_id,), fetch=True, one=True
     )
-    game = Game(**data)
+    game = Game.from_dict(data)
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
 
@@ -85,7 +63,7 @@ def get_game_by_name(game_name: str) -> Game:
     data = query_db(
         "SELECT * FROM Games WHERE title = ?", (game_name,), fetch=True, one=True
     )
-    game = Game(**data)
+    game = Game.from_dict(data)
     if game:
         game.release_date = datetime.fromtimestamp(game.release_date)
     return game
@@ -109,7 +87,7 @@ def get_games_by_closest_match(matching_text: str) -> list[Game]:
 
     games = []
     for row in data:
-        game = Game(**row)
+        game = Game.from_dict(row)
         closeness = fuzz.ratio(matching_text, game.title)
         if closeness > 20:
             games.append((closeness, game))
@@ -147,7 +125,7 @@ def get_games_by_platform_ids(platform_ids: list[int]):
 
     games = []
     for row in data:
-        game = Game(**row)
+        game = Game.from_dict(row)
         games.append(game)
     return games
 
@@ -180,7 +158,7 @@ def get_games_by_game_tag_ids(game_tag_ids: list[int]):
     data = query_db(query, game_tag_ids, fetch=True, one=False)
     games = []
     for row in data:
-        game = Game(**row)
+        game = Game.from_dict(row)
         games.append(game)
     return games
 

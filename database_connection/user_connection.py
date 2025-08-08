@@ -1,28 +1,19 @@
+"""functions that allow connection between database and web app specifically for users."""
+
 from datetime import datetime
 from flask import session
 from werkzeug import security
-from database_connection.base_db_connections import query_db
+from database_connection.base_db_connections import query_db, User
 
 # User Logic
 
 
-class User(object):
-    """
-    Represents a user with relevant metadata, same as columns in Users table.
-
-    Attributes:
-        username (str): name of the user.
-        user_id (int): id of the user in Users table.
-        pasword_hash (str): hashed version of user's password
-        date_joined (int): unix timestamp format of when user made account.
-        data (dict): dict containing all variables.
-    """
-
-    def __init__(self, **data):
-        self.username = data.get("username")
-        self.password_hash = data.get("password_hash")
-        self.date_joined = data.get("date_joined")
-        self.user_id = data.get("user_id")
+DEFAULT_USER = {
+    "user_id": None,
+    "username": None,
+    "password_hash": None,
+    "date_joined": None,
+}
 
 
 def get_user_by_id(user_id: int) -> User:
@@ -40,7 +31,7 @@ def get_user_by_id(user_id: int) -> User:
     data = query_db(
         "SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True
     )
-    user = User(**data)
+    user = User.from_dict(data)
     return user
 
 
@@ -65,7 +56,7 @@ def get_user_by_username(username: str) -> User:
     if data is None:
         return None
 
-    user = User(**data)
+    user = User.from_dict(data)
     return user
 
 
@@ -79,13 +70,7 @@ def get_user_session():
         user = get_user_by_id(session["user_id"])
         user.date_joined = datetime.fromtimestamp(round(user.date_joined))
     else:
-        default = {
-            "user_id": None,
-            "username": None,
-            "password_hash": None,
-            "date_joined": None,
-        }
-        user = User(**default)
+        user = User.from_dict(DEFAULT_USER)
     return user
 
 

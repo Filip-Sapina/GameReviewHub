@@ -1,12 +1,6 @@
-from collections import namedtuple
+"""functions that allow connection between database and web app specifically for platforms (playstation 5, xbox one, etc)."""
 from database_connection.base_db_connections import query_db
-from database_connection.game_tag_connection import GameTag
-
-Platform = namedtuple("Platform", ["id", "name"])
-"""
-Representation of a row of Platforms table in database.
-"""
-
+from database_connection.base_db_connections import Platform, GameTag
 
 def add_platform(platform_name: str) -> None:
     """

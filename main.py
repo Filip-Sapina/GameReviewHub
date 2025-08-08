@@ -7,7 +7,17 @@ import re
 from datetime import datetime
 from werkzeug import security
 
-from flask import Flask, g, redirect, url_for, render_template, request, flash, session, jsonify
+from flask import (
+    Flask,
+    g,
+    redirect,
+    url_for,
+    render_template,
+    request,
+    flash,
+    session,
+    jsonify,
+)
 
 from database_connection.user_connection import (
     add_user,
@@ -65,11 +75,13 @@ def home():
 
     return render_template("home.html", user=get_user_session())
 
+
 # used for both login and register. only allows letters, numbers and some special characters
-PATTERN_USERNAME = r'[a-zA-Z0-9_\/\-]{3, 20}' # min 3 characters max 20
-PATTERN_PASSWORD = r'[a-zA-Z0-9_@?/\\-]{5, 30}' # min 5 characters max 30
+PATTERN_USERNAME = r"[a-zA-Z0-9_\/\-]{3, 20}"  # min 3 characters max 20
+PATTERN_PASSWORD = r"[a-zA-Z0-9_@?/\\-]{5, 30}"  # min 5 characters max 30
 regex_username = re.compile(PATTERN_USERNAME)
 regex_password = re.compile(PATTERN_PASSWORD)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login_page():
@@ -89,7 +101,6 @@ def login_page():
         if not regex_password.fullmatch(password):
             flash("Invalid password format")
             return render_template("login.html", user=get_user_session())
-
 
         user = get_user_by_username(username)
 
@@ -123,7 +134,7 @@ def register_page():
         if get_user_by_username(username):
             flash("Username is Already Taken!")
             return render_template("register.html", user=get_user_session())
-        
+
         add_user(username, password)
         session["user_id"] = get_user_by_username(username).user_id
         return redirect(url_for("home"))
@@ -157,7 +168,7 @@ def search_page():
             for tag_filter in filters:
                 tag = get_game_tag_by_name(tag_filter)
                 if tag:
-                    tag_ids.append(tag.id)
+                    tag_ids.append(tag.tag_id)
             games = get_games_by_game_tag_ids(tag_ids)
 
         elif search_term:
@@ -179,10 +190,10 @@ def search_page():
                 game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
 
             # Get Average Rating for each Game
-            game.rating = get_avg_rating(game.id)
+            game.rating = get_avg_rating(game.game_id)
 
             # Review managing
-            reviews = get_reviews_by_game_id(game.id)
+            reviews = get_reviews_by_game_id(game.game_id)
 
             # Get Review Count
             game.review_count = len(reviews)
@@ -285,6 +296,7 @@ def game_page(game_id: int):
         user_review=user_review,
     )
 
+
 @app.route("/filter_reviews", methods=["GET"])
 def filter_reviews():
     filter_type = request.args.get("filter", "mixed")
@@ -296,7 +308,6 @@ def filter_reviews():
         review.user = get_user_by_id(review.user_id).__dict__
         review.platform = get_platform_by_id(review.platform_id)
 
-
     if filter_type == "positive":
         filtered = [r.__dict__ for r in reviews if r.rating > 7]
     elif filter_type == "negative":
@@ -306,8 +317,6 @@ def filter_reviews():
 
     return jsonify(filtered)
 
-        
-    
 
 @app.route("/")
 def index():
