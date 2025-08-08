@@ -141,7 +141,7 @@
     {% for review in reviews %}
     <div class="review">
         <div class="review-top">
-            <h3 class="review-username">{{review.user.username}}</h3>
+            <h4 class="review-username">{{review.user.username}}</h4>
             <div class="review-rating">{{review.rating}} / 10</div>
         </div>
         <div class="review-middle">
@@ -177,29 +177,30 @@
                 console.log(data)
 
                 const reviewsContainer = document.querySelector('.reviews.grid');
-                reviewsContainer.innerHTML = data.map(review => `
-        <div class="review">
-          <div class="review-top">
-            <h3 class="review-username">${review.user.username}</h3>
-            <div class="review-rating">${review.rating} / 10</div>
-          </div>
-          <div class="review-middle">
-            <div class="accessibility grid">
-              <span class="material-symbols-outlined">subtitles</span>
-              <input type="checkbox" name="subtitles" disabled ${review.accessibility.has_subtitles ? 'checked' : ''}>
-              <span class="material-symbols-outlined">visibility</span>
-              <input type="checkbox" name="colourblind_options" disabled ${review.accessibility.has_colourblind_support ? 'checked' : ''}>
-              <span class="material-symbols-outlined">swords</span>
-              <input type="checkbox" name="difficulty_options" disabled ${review.accessibility.has_difficulty_options ? 'checked' : ''}>
-            </div>
-            <p class="review-text">${review.review_text}</p>
-          </div>
-          <div class="review-bottom">
-            <span>${review.platform.name}</span>
-            <span>${review.review_date}</span>
-          </div>
-        </div>
-      `).join('');
+                reviewsContainer.innerHTML = data.map(([review, user, platform]) => `
+                <div class="review">
+                    <div class="review-top">
+                    <h4 class="review-username">${user.username}</h4>
+                    <div class="review-rating">${review.rating} / 10</div>
+                    </div>
+                    <div class="review-middle">
+                    <div class="accessibility grid">
+                        <span class="material-symbols-outlined">subtitles</span>
+                        <input type="checkbox" name="subtitles" disabled ${review.accessibility.has_subtitles ? 'checked' : ''}>
+                        <span class="material-symbols-outlined">visibility</span>
+                        <input type="checkbox" name="colourblind_options" disabled ${review.accessibility.has_colourblind_support ? 'checked' : ''}>
+                        <span class="material-symbols-outlined">swords</span>
+                        <input type="checkbox" name="difficulty_options" disabled ${review.accessibility.has_difficulty_options ? 'checked' : ''}>
+                    </div>
+                    <p class="review-text">${review.review_text}</p>
+                    </div>
+                    <div class="review-bottom">
+                    <span>${platform.name}</span> <br>
+                    <span>${new Date(review.review_date * 1000).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                `).join('');
+
             })
             .catch(error => {
                 console.error('Fetch error:', error);

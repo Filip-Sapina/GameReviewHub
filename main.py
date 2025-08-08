@@ -245,7 +245,7 @@ def game_page(game_id: int):
         data = request.form.to_dict(flat=True)
         data["user_id"] = get_user_session().user_id
         data["game_id"] = game_id
-        data["platform_id"] = get_platform_by_name(data["user_platform"]).id
+        data["platform_id"] = get_platform_by_name(data["user_platform"]).platform_id
         data["review_date"] = datetime.now().timestamp()
 
         data["has_subtitles"] = True if data.get("has_subtitles") else False
@@ -304,16 +304,12 @@ def filter_reviews():
 
     reviews = get_reviews_by_game_id(game_id)
 
-    for review in reviews:
-        review.user = get_user_by_id(review.user_id).__dict__
-        review.platform = get_platform_by_id(review.platform_id)
-
     if filter_type == "positive":
-        filtered = [r.__dict__ for r in reviews if r.rating > 7]
+        filtered = [(r, get_user_by_id(r.user_id), get_platform_by_id(r.platform_id)) for r in reviews if r.rating > 7]
     elif filter_type == "negative":
-        filtered = [r.__dict__ for r in reviews if r.rating < 5]
+        filtered = [(r, get_user_by_id(r.user_id), get_platform_by_id(r.platform_id)) for r in reviews if r.rating < 5]
     else:
-        filtered = [r.__dict__ for r in reviews]
+        filtered = [(r, get_user_by_id(r.user_id), get_platform_by_id(r.platform_id)) for r in reviews]
 
     return jsonify(filtered)
 
