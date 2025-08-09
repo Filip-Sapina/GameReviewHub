@@ -200,7 +200,6 @@ def search_page():
 
             # get amount of reviews with each accessibilty setting.
             if game.review_count > 0:
-                MAJORITY_RATIO = 0.6
                 game.has_colourblind_support = 0
                 game.has_difficulty_options = 0
                 game.has_subtitles = 0
@@ -211,16 +210,11 @@ def search_page():
                         game.has_difficulty_options += 1
                     if review.accessibility.has_subtitles:
                         game.has_subtitles += 1
-                game.has_colourblind_support = (
-                    game.has_colourblind_support / game.review_count
-                ) > MAJORITY_RATIO
-                game.has_colourblind_support = (
-                    game.has_difficulty_options / game.review_count
-                ) > MAJORITY_RATIO
-                game.has_colourblind_support = (
-                    game.has_subtitles / game.review_count
-                ) > MAJORITY_RATIO
-
+                game.has_colourblind_support = int(game.has_colourblind_support / game.review_count * 100)
+                game.has_difficulty_options = int(game.has_difficulty_options / game.review_count * 100)
+                game.has_subtitles = int(game.has_subtitles / game.review_count * 100)
+        
+                
     return render_template(
         "search.html",
         user=get_user_session(),

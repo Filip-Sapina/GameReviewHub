@@ -46,10 +46,16 @@
             {% if not game.rating is number %} no-rating {% elif game.rating < 4 %} negative-rating {% elif game.rating < 7 %} mixed-rating {% else %} positive-rating {% endif %}
             ">{{game.rating}}</div>
             <!-- Accessibility -->
-            <div class="value"><span class="material-symbols-outlined">subtitles</span></div>
-            <div class="value"><span class="material-symbols-outlined">visibility</span></div>
-            <div class="value"><span class="material-symbols-outlined">swords</span></div>
-
+            <div class="value"
+                style="background: linear-gradient(to right, var(--positive-color) {{game.has_subtitles}}%, var(--negative-color) {{game.has_subtitles}}%)" "><span class="
+                material-symbols-outlined">subtitles</span></div>
+            <div class="value"
+                style="background: linear-gradient(to right, var(--positive-color) {{game.has_colourblind_support}}%, var(--negative-color) {{game.has_colourblind_support}}%)">
+                <span class="material-symbols-outlined">visibility</span></div>
+            <div class="value"
+                style="background: linear-gradient(to right, var(--positive-color) {{game.has_difficulty_options}}%, var(--negative-color) {{game.has_difficulty_options}}%)">
+                <span class="material-symbols-outlined">swords</span></div>
+            <!-- Inline styling used so that data from reviews can be passed into gradient percents. style.css is static. -->
         </div>
 
         <!-- Release Date -->
