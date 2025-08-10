@@ -170,6 +170,16 @@
 </div>
 
 <script>
+    rating_display = document.getElementById("rating-value-display");
+    rating_slider = document.getElementById("user-rating");
+    value = rating_slider.value;
+    rating_display.textContent = value;
+
+    rating_slider.addEventListener("input", () => {
+        value = rating_slider.value;
+        rating_display.textContent = value;
+    })
+
     function fetchReviews(filter) {
         fetch(`/filter_reviews?filter=${filter}&game_id={{game.game_id}}`)
             .then(response => response.json())

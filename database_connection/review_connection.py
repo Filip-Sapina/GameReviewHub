@@ -100,7 +100,7 @@ def get_review_by_game_and_user(game_id: int, user_id: int):
         one=True,
     )
     # Return review as class.
-    review = Review(**data)
+    review = Review.from_dict(data)
     return review
 
 

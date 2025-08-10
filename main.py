@@ -77,8 +77,8 @@ def home():
 
 
 # used for both login and register. only allows letters, numbers and some special characters
-PATTERN_USERNAME = r"[a-zA-Z0-9_\/\-]{3, 20}"  # min 3 characters max 20
-PATTERN_PASSWORD = r"[a-zA-Z0-9_@?/\\-]{5, 30}"  # min 5 characters max 30
+PATTERN_USERNAME = r"[a-zA-Z0-9_/\-]{3,20}" # min 3 characters max 20
+PATTERN_PASSWORD = r"[a-zA-Z0-9_@?\-]{5,30}"  # min 5 characters max 30
 regex_username = re.compile(PATTERN_USERNAME)
 regex_password = re.compile(PATTERN_PASSWORD)
 
@@ -96,6 +96,7 @@ def login_page():
         password = request.form["password"]
 
         if not regex_username.fullmatch(username):
+            
             flash("Invalid username format")
             return render_template("login.html", user=get_user_session())
         if not regex_password.fullmatch(password):
@@ -125,6 +126,7 @@ def register_page():
         username = request.form["username"]
         password = request.form["password"]
         if not regex_username.fullmatch(username):
+            
             flash("Invalid username format")
             return render_template("register.html", user=get_user_session())
         if not regex_password.fullmatch(password):
@@ -250,7 +252,7 @@ def game_page(game_id: int):
             True if data.get("has_colourblind_support") else False
         )
 
-        review = Review(**data)
+        review = Review.from_dict(data)
 
         if method == "POST":
             # writing review logic
@@ -259,7 +261,7 @@ def game_page(game_id: int):
         else:  # method must be PUT
             # editing review logic
             old_review = get_review_by_game_and_user(data["game_id"], data["user_id"])
-            new_review = Review(**data)
+            new_review = Review.from_dict(data)
             update_review(new_review, old_review.review_id)
             flash("Review Updated!")
 
