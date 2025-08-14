@@ -17,6 +17,7 @@ from flask import (
     flash,
     session,
     jsonify,
+    abort
 )
 
 from database_connection.user_connection import UserConnector
@@ -324,6 +325,15 @@ def index():
 def page_not_found(error):
     flash(error)
     return render_template('404.html', user = UserConnection.get_user_session())
+
+@app.errorhandler(505)
+def page_not_found(error):
+    flash(error)
+    return render_template('505.html', user = UserConnection.get_user_session())
+
+@app.route("/trigger505")
+def trigger_505():
+    abort(505)
 
 if __name__ == "__main__":
     app.run(debug=True)
