@@ -320,6 +320,10 @@ def index():
     """simple redirect from home, only should be called when first going to website."""
     return redirect(url_for("home"))
 
+@app.errorhandler(404)
+def page_not_found(error):
+    flash(error)
+    return render_template('404.html', user = UserConnection.get_user_session())
 
 if __name__ == "__main__":
     app.run(debug=True)
