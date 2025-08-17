@@ -4,6 +4,7 @@ Main Application Program, starts flask site.
 
 import secrets
 import re
+import time
 from datetime import datetime
 from werkzeug import security
 
@@ -17,7 +18,7 @@ from flask import (
     flash,
     session,
     jsonify,
-    abort
+    abort,
 )
 
 from database_connection.user_connection import UserConnector
@@ -53,10 +54,52 @@ def close_database_connection(exception):
 @app.route("/home")
 def home():
     """
-    returns a webpage from template "home.html", called when user goes to /home.
+    returns a webpage from template "home.html", called when user goes to /home. Base page for the website.
     """
+    games = GameConnection.get_games()
+    for game in games:
+        game.rating = GameConnection.get_avg_rating(game.game_id)
+                    
+        game.review_count = len(ReviewConnection.get_reviews_by_game_id(game.game_id))
 
-    return render_template("home.html", user=UserConnection.get_user_session())
+        accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
+        game.has_colourblind_support = accessibilty_ratios[0]
+        game.has_subtitles = accessibilty_ratios[1]
+        game.has_difficulty_options = accessibilty_ratios[2]
+
+        game.date_str = GameConnection.get_date_str(game.game_id)
+    # sort games by when they released.
+    recent_games = sorted(games, key=lambda g: g.release_date, reverse=True)
+    # sort by game rating.
+    best_games = sorted(games, key=lambda g: g.rating, reverse=True)
+
+    current_year = datetime.now().year
+    # Jan 1st of current year.
+    start_current_year = datetime(current_year, 1, 1)
+    # Jan 1st as timestamp for comparing to current year.
+    timestamp_current_year = int(time.mktime(start_current_year.timetuple()))
+
+    # five most recent games.
+    most_recent = recent_games[:5]
+    # five best rated games.
+    best_all_time = best_games[:5]
+
+    # gets the five best rated games from current year.
+    best_recent = []
+    for game in best_games:
+        if game.release_date > timestamp_current_year:
+            best_recent.append(game)
+        if len(best_recent) > 5:
+            break
+
+    return render_template(
+        "home.html",
+        user=UserConnection.get_user_session(),
+        current_year=current_year,
+        most_recent=most_recent,
+        best_recent=best_recent,
+        best_all_time = best_all_time,
+    )
 
 
 # used for both login and register. only allows letters, numbers and some special characters
@@ -162,46 +205,19 @@ def search_page():
 
         for game in games:
             # Format each game's release date
-            release_date = datetime.fromtimestamp(game.release_date)
-            date = release_date.date().strftime("%d/%m/%Y")
-            time_passed = datetime.now() - release_date
-
-            years_passed = time_passed.days / 365.25
-            if years_passed < 1:
-                months_passed = time_passed.days // 30  # approximate months
-                game.date_str = f"{date} ({months_passed} month(s) ago)"
-            else:
-                game.date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
+            game.date_str = GameConnection.get_date_str(game.game_id)
 
             # Get Average Rating for each Game
             game.rating = GameConnection.get_avg_rating(game.game_id)
 
-            # Review managing
-            reviews = ReviewConnection.get_reviews_by_game_id(game.game_id)
+            game.review_count = len(ReviewConnection.get_reviews_by_game_id(game.game_id))
 
-            # Get Review Count
-            game.review_count = len(reviews)
+            accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
+            game.has_colourblind_support = accessibilty_ratios[0]
+            game.has_subtitles = accessibilty_ratios[1]
+            game.has_difficulty_options = accessibilty_ratios[2]
 
-            # get amount of reviews with each accessibilty setting.
-            if game.review_count > 0:
-                game.has_colourblind_support = 0
-                game.has_difficulty_options = 0
-                game.has_subtitles = 0
-                for review in reviews:
-                    if review.accessibility.has_colourblind_support:
-                        game.has_colourblind_support += 1
-                    if review.accessibility.has_difficulty_options:
-                        game.has_difficulty_options += 1
-                    if review.accessibility.has_subtitles:
-                        game.has_subtitles += 1
-                game.has_colourblind_support = int(
-                    game.has_colourblind_support / game.review_count * 100
-                )
-                game.has_difficulty_options = int(
-                    game.has_difficulty_options / game.review_count * 100
-                )
-                game.has_subtitles = int(game.has_subtitles / game.review_count * 100)
-
+           
     return render_template(
         "search.html",
         user=UserConnection.get_user_session(),
@@ -226,7 +242,9 @@ def game_page(game_id: int):
         data = request.form.to_dict(flat=True)
         data["user_id"] = UserConnection.get_user_session().user_id
         data["game_id"] = game_id
-        data["platform_id"] = PlatformConnection.get_platform_by_name(data["user_platform"]).platform_id
+        data["platform_id"] = PlatformConnection.get_platform_by_name(
+            data["user_platform"]
+        ).platform_id
         data["review_date"] = datetime.now().timestamp()
 
         data["has_subtitles"] = bool(data.get("has_subtitles"))
@@ -321,19 +339,23 @@ def index():
     """simple redirect from home, only should be called when first going to website."""
     return redirect(url_for("home"))
 
+
 @app.errorhandler(404)
 def page_not_found(error):
     flash(error)
-    return render_template('404.html', user = UserConnection.get_user_session())
+    return render_template("404.html", user=UserConnection.get_user_session())
+
 
 @app.errorhandler(505)
 def page_not_found(error):
     flash(error)
-    return render_template('505.html', user = UserConnection.get_user_session())
+    return render_template("505.html", user=UserConnection.get_user_session())
+
 
 @app.route("/trigger505")
 def trigger_505():
     abort(505)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

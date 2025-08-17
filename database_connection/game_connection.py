@@ -287,10 +287,26 @@ class GameConnector:
 
         # Check to prevent dividing by zero.
         if len(reviews) == 0:
-            return "N/A"
+            return 0
 
         # adds all ratings up and divides by the amount of reviews.
         total = sum(review.rating for review in reviews)
         average = round(total / len(reviews), 2)
 
         return average
+
+    def get_date_str(self, game_id: int):
+        
+        game = self.get_game_by_id(game_id)
+        release_date = game.release_date
+        date = release_date.date().strftime("%d/%m/%Y")
+        time_passed = datetime.now() - release_date
+
+        years_passed = time_passed.days / 365.25
+        date_str = 0
+        if years_passed < 1:
+            months_passed = time_passed.days // 30  # approximate months
+            date_str = f"{date} ({months_passed} month(s) ago)"
+        else:
+            date_str = f"{date} ({round(years_passed, 1)} year(s) ago)"
+        return date_str

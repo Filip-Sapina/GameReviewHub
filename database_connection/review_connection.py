@@ -1,6 +1,6 @@
 """functions that allow connection between database and web app specifically for user reviews."""
 
-from database_connection.base_db_connections import query_db, Review
+from database_connection.base_db_connections import query_db, Review, AccessibilityOptions
 
 class ReviewConnector:
     def __init__(self) -> None:
@@ -230,3 +230,39 @@ class ReviewConnector:
         )
 
         query_db(update, values, fetch=False, one=False)
+
+    def get_accessibilty_ratios(self, game_id: int):
+        """
+        Returns the ratio between how many reviews think a game has a acessibilty option vs how mnay don't.
+        Args:
+            game_id (int): id of the game that should be checked.
+        Returns:
+            has_colourblind_support (float): 
+            has_subtitles (float):
+            has_difficulty_options (float):
+        """
+        reviews = self.get_reviews_by_game_id(game_id)
+        # Get Review Count
+        review_count = len(reviews)
+        # get amount of reviews with each accessibilty setting.
+        if review_count > 0:
+            has_colourblind_support = 0
+            has_difficulty_options = 0
+            has_subtitles = 0
+            for review in reviews:
+                if review.accessibility.has_colourblind_support:
+                    has_colourblind_support += 1
+                if review.accessibility.has_difficulty_options:
+                    has_difficulty_options += 1
+                if review.accessibility.has_subtitles:
+                    has_subtitles += 1
+            has_colourblind_support = int(
+                has_colourblind_support / review_count * 100
+            )
+            has_difficulty_options = int(
+                has_difficulty_options / review_count * 100
+            )
+            has_subtitles = int(has_subtitles / review_count * 100)
+            return (has_colourblind_support, has_subtitles, has_difficulty_options)
+        else:
+            return (0, 0, 0)
