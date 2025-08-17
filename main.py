@@ -79,17 +79,17 @@ def home():
     # Jan 1st as timestamp for comparing to current year.
     timestamp_current_year = int(time.mktime(start_current_year.timetuple()))
 
-    # five most recent games.
-    most_recent = recent_games[:5]
-    # five best rated games.
-    best_all_time = best_games[:5]
+    # 3 most recent games.
+    most_recent = recent_games[:3]
+    # 3 rated games.
+    best_all_time = best_games[:3]
 
-    # gets the five best rated games from current year.
+    # gets the 3 rated games from current year.
     best_recent = []
     for game in best_games:
         if game.release_date > timestamp_current_year:
             best_recent.append(game)
-        if len(best_recent) > 5:
+        if len(best_recent) > 3:
             break
 
     return render_template(

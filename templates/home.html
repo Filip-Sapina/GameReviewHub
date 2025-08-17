@@ -49,12 +49,86 @@
       {% endfor %}
     </div>
 
-    <div>
-      <h2>Best Rated of All Time</h2>
+    <h2>Best Rated of all time</h2>
+    <div class="grid game-container">
+      {% for game in best_all_time %}
+      <!-- Game Template -->
+      <div class="game" id="game-{{game.game_id}}">
+        <div>
+          <!-- Title -->
+          <div class="game-title"><strong>{{game.title}}</strong></div>
+          <!-- Image -->
+          <a href="{{url_for('game_page', game_id=game.game_id)}}"><img src="{{ game.image_link }}" alt="game"></a>
+        </div>
+        <div>
+          <!-- Rating -->
+          <div class="value
+          {% if not game.rating is number %} no-rating {% elif game.rating < 4 %} negative-rating {% elif game.rating < 7 %} mixed-rating {% else %} positive-rating {% endif %}
+          ">{{game.rating}}</div>
+          <!-- Accessibility -->
+          <div class="value"
+            style="background: linear-gradient(to right, var(--positive-color) {{game.has_subtitles}}%, var(--negative-color) {{game.has_subtitles}}%)" "><span class="
+            material-symbols-outlined">subtitles</span></div>
+          <div class="value"
+            style="background: linear-gradient(to right, var(--positive-color) {{game.has_colourblind_support}}%, var(--negative-color) {{game.has_colourblind_support}}%)">
+            <span class="material-symbols-outlined">visibility</span>
+          </div>
+          <div class="value"
+            style="background: linear-gradient(to right, var(--positive-color) {{game.has_difficulty_options}}%, var(--negative-color) {{game.has_difficulty_options}}%)">
+            <span class="material-symbols-outlined">swords</span>
+          </div>
+          <!-- Inline styling used so that data from reviews can be passed into gradient percents. style.css is static. -->
+        </div>
+
+        <!-- Release Date -->
+        <div class="date">
+          <p>{{game.date_str}}</p>
+        </div>
+
+        <div class="value review-counter">{{game.review_count}} reviews</div>
+      </div>
+      {% endfor %}
     </div>
 
-    <div>
-      <h2>Newest Additions</h2>
+    <h2>Newest Additions</h2>
+    <div class="grid game-container">
+      {% for game in most_recent %}
+      <!-- Game Template -->
+      <div class="game" id="game-{{game.game_id}}">
+        <div>
+          <!-- Title -->
+          <div class="game-title"><strong>{{game.title}}</strong></div>
+          <!-- Image -->
+          <a href="{{url_for('game_page', game_id=game.game_id)}}"><img src="{{ game.image_link }}" alt="game"></a>
+        </div>
+        <div>
+          <!-- Rating -->
+          <div class="value
+          {% if not game.rating is number %} no-rating {% elif game.rating < 4 %} negative-rating {% elif game.rating < 7 %} mixed-rating {% else %} positive-rating {% endif %}
+          ">{{game.rating}}</div>
+          <!-- Accessibility -->
+          <div class="value"
+            style="background: linear-gradient(to right, var(--positive-color) {{game.has_subtitles}}%, var(--negative-color) {{game.has_subtitles}}%)" "><span class="
+            material-symbols-outlined">subtitles</span></div>
+          <div class="value"
+            style="background: linear-gradient(to right, var(--positive-color) {{game.has_colourblind_support}}%, var(--negative-color) {{game.has_colourblind_support}}%)">
+            <span class="material-symbols-outlined">visibility</span>
+          </div>
+          <div class="value"
+            style="background: linear-gradient(to right, var(--positive-color) {{game.has_difficulty_options}}%, var(--negative-color) {{game.has_difficulty_options}}%)">
+            <span class="material-symbols-outlined">swords</span>
+          </div>
+          <!-- Inline styling used so that data from reviews can be passed into gradient percents. style.css is static. -->
+        </div>
+
+        <!-- Release Date -->
+        <div class="date">
+          <p>{{game.date_str}}</p>
+        </div>
+
+        <div class="value review-counter">{{game.review_count}} reviews</div>
+      </div>
+      {% endfor %}
     </div>
 
   </div>
