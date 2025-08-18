@@ -59,7 +59,7 @@ def home():
     games = GameConnection.get_games()
     for game in games:
         game.rating = GameConnection.get_avg_rating(game.game_id)
-                    
+
         game.review_count = len(ReviewConnection.get_reviews_by_game_id(game.game_id))
 
         accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
@@ -98,7 +98,7 @@ def home():
         current_year=current_year,
         most_recent=most_recent,
         best_recent=best_recent,
-        best_all_time = best_all_time,
+        best_all_time=best_all_time,
     )
 
 
@@ -210,14 +210,15 @@ def search_page():
             # Get Average Rating for each Game
             game.rating = GameConnection.get_avg_rating(game.game_id)
 
-            game.review_count = len(ReviewConnection.get_reviews_by_game_id(game.game_id))
+            game.review_count = len(
+                ReviewConnection.get_reviews_by_game_id(game.game_id)
+            )
 
             accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
             game.has_colourblind_support = accessibilty_ratios[0]
             game.has_subtitles = accessibilty_ratios[1]
             game.has_difficulty_options = accessibilty_ratios[2]
 
-           
     return render_template(
         "search.html",
         user=UserConnection.get_user_session(),
@@ -254,9 +255,15 @@ def game_page(game_id: int):
         review = Review.from_dict(data)
 
         if method == "POST":
-            # writing review logic
-            ReviewConnection.add_review(review)
-            flash("Review Submitted!")
+            # writing review logic + security checks
+
+            if len(review.review_text) > 1000 or PlatformConnection.get_platform_by_id(
+                review.platform_id
+            ):
+                flash("Invalid Review!")
+            else:
+                ReviewConnection.add_review(review)
+                flash("Review Submitted!")
         else:  # method must be PUT
             # editing review logic
             old_review = ReviewConnection.get_review_by_game_and_user(
