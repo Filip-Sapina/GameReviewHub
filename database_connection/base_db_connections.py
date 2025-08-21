@@ -16,12 +16,12 @@ def make_dicts(cursor, row) -> dict:
     return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
 
 
-def get_database():
+def get_database(database=DATABASE):
     """returns a database connection and cursor object of connection"""
 
     # If db is not found in global.
     if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
+        g.db = sqlite3.connect(database)
         g.db.row_factory = make_dicts
 
     # Return database connection and cursor.
@@ -29,7 +29,7 @@ def get_database():
     return g.db, cursor
 
 
-def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
+def query_db(query: str, args=(), fetch: bool = True, one: bool = False, other_database=None):
     """
     Completes a database SQL query on Database.db
     Args:
@@ -41,7 +41,10 @@ def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
         does nothing if fetch = false.
     """
     # Get connection
-    db, cursor = get_database()
+    if other_database:
+        db, cursor = get_database(other_database)
+    else:
+        db, cursor = get_database()
 
     # Complete Query
     cursor.execute(query, args)
