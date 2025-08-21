@@ -56,7 +56,10 @@ def home():
     """
     returns a webpage from template "home.html", called when user goes to /home. Base page for the website.
     """
+    # gets all games to filter.
     games = GameConnection.get_games()
+
+    # get accessibilty ratings for the games.
     for game in games:
         game.rating = GameConnection.get_avg_rating(game.game_id)
 
@@ -68,6 +71,7 @@ def home():
         game.has_difficulty_options = accessibilty_ratios[2]
 
         game.date_str = GameConnection.get_date_str(game.game_id)
+
     # sort games by when they released.
     recent_games = sorted(games, key=lambda g: g.release_date, reverse=True)
     # sort by game rating.
@@ -102,7 +106,7 @@ def home():
     )
 
 
-# used for both login and register. only allows letters, numbers and some special characters
+# Used for both login and register. only allows letters, numbers and some special characters.
 PATTERN_USERNAME = r"[a-zA-Z0-9_/\-]{3,20}"  # min 3 characters max 20
 PATTERN_PASSWORD = r"[a-zA-Z0-9_@?\-]{5,30}"  # min 5 characters max 30
 regex_username = re.compile(PATTERN_USERNAME)
@@ -116,14 +120,19 @@ def login_page():
     sets session's user id to user's user id if they login successfuly.
     """
     if request.method == "POST":
+        # get username / password from form.
         username = request.form["username"]
         password = request.form["password"]
+
+        # sanatize user inputs
         if not regex_username.fullmatch(username):
             flash("Invalid username format")
             return render_template("login.html", user=UserConnection.get_user_session())
         if not regex_password.fullmatch(password):
             flash("Invalid password format")
             return render_template("login.html", user=UserConnection.get_user_session())
+
+        # check if username and password are correct.
         user = UserConnection.get_user_by_username(username)
         if user:
             if security.check_password_hash(user.password_hash, password):
@@ -138,13 +147,14 @@ def login_page():
 
 @app.route("/register", methods=["GET", "POST"])
 def register_page():
-    """Regisar Page for new users to create account."""
+    """Register Page for new users to create account."""
     if request.method == "POST":
-
+        # Get form data.
         username = request.form["username"]
         password = request.form["password"]
-        if not regex_username.fullmatch(username):
 
+        # Sanatize user inputs.
+        if not regex_username.fullmatch(username):
             flash("Invalid username format")
             return render_template(
                 "register.html", user=UserConnection.get_user_session()
@@ -155,12 +165,14 @@ def register_page():
                 "register.html", user=UserConnection.get_user_session()
             )
 
+        # Make user user doesn't already exist
         if UserConnection.get_user_by_username(username):
             flash("Username is Already Taken!")
             return render_template(
                 "register.html", user=UserConnection.get_user_session()
             )
 
+        # Add user and log current session into user.
         UserConnection.add_user(username, password)
         session["user_id"] = UserConnection.get_user_by_username(username).user_id
         return redirect(url_for("home"))
@@ -169,7 +181,7 @@ def register_page():
 
 @app.route("/logout")
 def logout():
-    """removes user's user_id in the session and sends to home"""
+    """removes user's user_id in the session and sends to home page"""
     session["user_id"] = None
     return redirect(url_for("login_page"))
 
@@ -186,9 +198,11 @@ def search_page():
         search_term = request.args.get("search_term", "")
 
         # Get Game Tags that are on.
-        for key, value in request.form.items():
+        for key, value in request.args.items():
+            print(key, value)
             if value == "on":
                 filters.append(key)
+        
 
         # If game tags have been set as filters, manage it.
         if filters:
@@ -196,12 +210,15 @@ def search_page():
                 tag = GameTagConnection.get_game_tag_by_name(tag_filter)
                 if tag:
                     tag_ids.append(tag.tag_id)
-            games = GameConnection.get_games_by_game_tag_ids(tag_ids)
+            tag_games = GameConnection.get_games_by_game_tag_ids(tag_ids)
+            searched_games = GameConnection.get_games_by_closest_match(search_term)
 
-        elif search_term:
-            games = GameConnection.get_games_by_closest_match(search_term)
+            for game in searched_games:
+                if game in tag_games:
+                    games.append(game)
         else:
-            games = GameConnection.get_games()
+            games = GameConnection.get_games_by_closest_match(search_term)
+
 
         for game in games:
             # Format each game's release date
@@ -289,7 +306,6 @@ def game_page(game_id: int):
     game.has_colourblind_support = accessibilty_ratios[0]
     game.has_subtitles = accessibilty_ratios[1]
     game.has_difficulty_options = accessibilty_ratios[2]
-
 
     for review in reviews:
         review.platform = PlatformConnection.get_platform_by_id(review.platform_id)

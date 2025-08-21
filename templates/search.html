@@ -11,7 +11,7 @@
     <!-- Game Tag / Platform Filters -->
     <details name="filters" {%if filters%} open {% endif %}>
         <summary>filters</summary>
-        <form action="/search" method="post">
+        <form action="/search" method="get">
             <div class="container grid game-tag-container">
                 {% for game_tag in game_tags %}
                 <div class="game_tag">
