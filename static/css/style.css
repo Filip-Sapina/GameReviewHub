@@ -81,6 +81,14 @@
   border: 1px solid var(--pico-color);
 }
 
+.game a:focus {
+  outline: 4px solid var(--nav-border) !important;
+}
+
+.game a {
+  border-radius: 2rem;
+}
+
 .game img {
   margin: auto;
   border-radius: 2rem;
@@ -216,8 +224,9 @@
 }
 
 .review-filter button:focus {
-  outline: 2px solid var(--pico-contrast-color);
+  outline: 4px solid var(--nav-border) !important;
 }
+
 
 /* Review Filter Buttons */
 #positive-reviews {
