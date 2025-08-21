@@ -1,6 +1,11 @@
 """functions that allow connection between database and web app specifically for user reviews."""
 
-from database_connection.base_db_connections import query_db, Review, AccessibilityOptions
+from database_connection.base_db_connections import (
+    query_db,
+    Review,
+    AccessibilityOptions,
+)
+
 
 class ReviewConnector:
     def __init__(self) -> None:
@@ -47,7 +52,6 @@ class ReviewConnector:
             one=False,
         )
 
-
     def get_review_by_id(self, review_id: int):
         """
         Returns review with all data using review id to find.
@@ -59,12 +63,14 @@ class ReviewConnector:
         """
         # Query
         data = query_db(
-            "SELECT * FROM Reviews WHERE review_id = ?", (review_id,), fetch=True, one=True
+            "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE review_id = ?",
+            (review_id,),
+            fetch=True,
+            one=True,
         )
         # Turn data into review object and return data.
         review = Review.from_dict(data)
         return review
-
 
     def get_reviews_by_game_id(self, game_id: int):
         """
@@ -76,13 +82,12 @@ class ReviewConnector:
             review (Review): a review object with relevant data.
         """
         # Query and get Data.
-        query = "SELECT * FROM Reviews WHERE game_id = ?"
+        query = "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE game_id = ?"
         data = query_db(query, (game_id,), fetch=True, one=False)
 
         # create a list of reviews with data and return.
         reviews = [Review.from_dict(row) for row in data]
         return reviews
-
 
     def get_review_by_game_and_user(self, game_id: int, user_id: int):
         """
@@ -97,7 +102,7 @@ class ReviewConnector:
 
         # Get Review.
         data = query_db(
-            "SELECT * FROM Reviews WHERE game_id = ? AND user_id = ?",
+            "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE game_id = ? AND user_id = ?",
             (game_id, user_id),
             fetch=True,
             one=True,
@@ -105,7 +110,6 @@ class ReviewConnector:
         # Return review as class.
         review = Review.from_dict(data)
         return review
-
 
     def get_reviews_by_game_name(self, game_name: str):
         """
@@ -134,7 +138,6 @@ class ReviewConnector:
             reviews.append(Review.from_dict(review_data))
         return reviews
 
-
     def get_reviews_by_username(self, user_name: str):
         """
         Returns a list of review objects whose user_id is linked to provided user_name.
@@ -162,7 +165,6 @@ class ReviewConnector:
             reviews.append(Review.from_dict(review_data))
         return reviews
 
-
     def get_reviews_by_game_and_platform(self, game_id: int, platform_id: int):
         """
         Returns list of all reviews for a game played on a certain platform.
@@ -173,7 +175,7 @@ class ReviewConnector:
             reviews (List[Review]): list of reviews with relevant metadata.
         """
         data = query_db(
-            "SELECT * FROM Reviews WHERE game_id = ? and platform_id = ?",
+            "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE game_id = ? and platform_id = ?",
             (game_id, platform_id),
             fetch=True,
             one=False,
@@ -184,7 +186,6 @@ class ReviewConnector:
             reviews.append(review)
         return reviews
 
-
     def delete_review_by_id(self, review_id: int) -> None:
         """
         Removes a review by using it's id.
@@ -194,9 +195,11 @@ class ReviewConnector:
             None
         """
         query_db(
-            "DELETE FROM Reviews WHERE review_id = ?", (review_id,), fetch=False, one=False
+            "DELETE FROM Reviews WHERE review_id = ?",
+            (review_id,),
+            fetch=False,
+            one=False,
         )
-
 
     def update_review(self, new_review: Review, review_id: int):
         """
@@ -237,7 +240,7 @@ class ReviewConnector:
         Args:
             game_id (int): id of the game that should be checked.
         Returns:
-            has_colourblind_support (float): 
+            has_colourblind_support (float):
             has_subtitles (float):
             has_difficulty_options (float):
         """
@@ -256,12 +259,8 @@ class ReviewConnector:
                     has_difficulty_options += 1
                 if review.accessibility.has_subtitles:
                     has_subtitles += 1
-            has_colourblind_support = int(
-                has_colourblind_support / review_count * 100
-            )
-            has_difficulty_options = int(
-                has_difficulty_options / review_count * 100
-            )
+            has_colourblind_support = int(has_colourblind_support / review_count * 100)
+            has_difficulty_options = int(has_difficulty_options / review_count * 100)
             has_subtitles = int(has_subtitles / review_count * 100)
             return (has_colourblind_support, has_subtitles, has_difficulty_options)
         else:

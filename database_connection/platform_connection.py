@@ -1,6 +1,8 @@
 """functions that allow connection between database and web app specifically for platforms (playstation 5, xbox one, etc)."""
+
 from database_connection.base_db_connections import query_db
 from database_connection.base_db_connections import Platform, GameTag
+
 
 class PlatformConnector:
     def __init__(self) -> None:
@@ -21,7 +23,6 @@ class PlatformConnector:
             one=False,
         )
 
-
     def delete_platform_by_id(self, platform_id: int):
         """
         Deletes a platform row in database using id.
@@ -36,7 +37,6 @@ class PlatformConnector:
             fetch=False,
             one=False,
         )
-
 
     def update_platform(self, new_platform: Platform):
         """
@@ -54,17 +54,15 @@ class PlatformConnector:
             one=False,
         )
 
-
     def get_platforms(self) -> list[Platform]:
         """
         Returns a list of all platforms.
         """
-        data = query_db("SELECT * FROM Platforms")
+        data = query_db("SELECT p.platform_id, p.platform_name FROM Platforms p")
         platforms = []
         for tag in data:
             platforms.append(GameTag(tag["platform_id"], tag["platform_name"]))
         return platforms
-
 
     def get_platforms_by_game_name(self, game_name: str) -> list[Platform]:
         """
@@ -95,7 +93,6 @@ class PlatformConnector:
             platforms.append(tag)
         return platforms
 
-
     def get_platform_by_name(self, platform_name: str) -> Platform:
         """
         Returns platform row from database using name.
@@ -111,14 +108,13 @@ class PlatformConnector:
         """
 
         data = query_db(
-            "SELECT * FROM Platforms WHERE platform_name = ?",
+            "SELECT p.platform_id, p.platform_name FROM Platforms p WHERE platform_name = ?",
             (platform_name,),
             fetch=True,
             one=True,
         )
 
         return Platform(data["platform_id"], data["platform_name"])
-
 
     def get_platform_by_id(self, platform_id: int) -> Platform:
         """
@@ -132,7 +128,7 @@ class PlatformConnector:
 
         """
         data = query_db(
-            "SELECT * FROM Platforms WHERE platform_id = ?",
+            "SELECT p.platform_id, p.platform_name FROM Platforms p WHERE platform_id = ?",
             (platform_id,),
             fetch=True,
             one=True,

@@ -156,21 +156,15 @@ def register_page():
         # Sanatize user inputs.
         if not regex_username.fullmatch(username):
             flash("Invalid username format")
-            return render_template(
-                "register.html", user=UserConnection.get_user_session()
-            )
+            return render_template("register.html", user=UserConnection.get_user_session())
         if not regex_password.fullmatch(password):
             flash("Invalid password format")
-            return render_template(
-                "register.html", user=UserConnection.get_user_session()
-            )
+            return render_template("register.html", user=UserConnection.get_user_session())
 
         # Make user user doesn't already exist
         if UserConnection.get_user_by_username(username):
             flash("Username is Already Taken!")
-            return render_template(
-                "register.html", user=UserConnection.get_user_session()
-            )
+            return render_template("register.html", user=UserConnection.get_user_session())
 
         # Add user and log current session into user.
         UserConnection.add_user(username, password)
@@ -202,7 +196,6 @@ def search_page():
             print(key, value)
             if value == "on":
                 filters.append(key)
-        
 
         # If game tags have been set as filters, manage it.
         if filters:
@@ -219,7 +212,6 @@ def search_page():
         else:
             games = GameConnection.get_games_by_closest_match(search_term)
 
-
         for game in games:
             # Format each game's release date
             game.date_str = GameConnection.get_date_str(game.game_id)
@@ -227,9 +219,7 @@ def search_page():
             # Get Average Rating for each Game
             game.rating = GameConnection.get_avg_rating(game.game_id)
 
-            game.review_count = len(
-                ReviewConnection.get_reviews_by_game_id(game.game_id)
-            )
+            game.review_count = len(ReviewConnection.get_reviews_by_game_id(game.game_id))
 
             accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
             game.has_colourblind_support = accessibilty_ratios[0]
@@ -248,6 +238,8 @@ def search_page():
 
 @app.route("/game/<int:game_id>", methods=["GET", "POST"])
 def game_page(game_id: int):
+    """ Page for a game that contains:
+    reviews, rating and ability to write own review."""
     user = UserConnection.get_user_session()
 
     real_method = request.form.get("_method")

@@ -35,8 +35,10 @@ def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
     Args:
         query (str): the SQL query that the should be used on database.
         args (tuple): tuple of any arguments the query needs in order as they appear in the query.
-        fetch (bool): if true function will return value from query, should be false for something like INSERT.
-        one (bool): if true function will only fetch first value of query, does nothing if fetch = false.
+        fetch (bool): if true function will return value from query,
+        should be false for something like INSERT.
+        one (bool): if true function will only fetch first value of query,
+        does nothing if fetch = false.
     """
     # Get connection
     db, cursor = get_database()
@@ -90,21 +92,26 @@ class User:
             date_joined=data["date_joined"],
         )
 
+
 @dataclass
 class GameTag:
     """
     Represents a Game Tag with relevant metadata, same as columns in GameTags table.
     """
-    tag_id : int
-    name : str
+
+    tag_id: int
+    name: str
+
 
 @dataclass
 class Platform:
     """
     Represents a platform with relevant metadata, same as columns in Platforms table.
     """
-    platform_id : int
-    name : str
+
+    platform_id: int
+    name: str
+
 
 @dataclass
 class Game:

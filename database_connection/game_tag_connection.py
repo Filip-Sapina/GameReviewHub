@@ -4,6 +4,7 @@ from database_connection.base_db_connections import query_db, GameTag
 
 # Game Tag Logic
 
+
 class GameTagConnector:
     def __init__(self) -> None:
         pass
@@ -20,17 +21,15 @@ class GameTagConnector:
         """
         query_db("INSERT INTO GameTags (game_tag_name) VALUES (?)", (name,), fetch=False)
 
-
     def get_game_tags(self) -> list[GameTag]:
         """
         Returns a list of all game tags.
         """
-        data = query_db("SELECT * FROM GameTags")
+        data = query_db("SELECT gt.game_tag_id, gt.game_tag_name FROM GameTags gt")
         game_tags = []
         for tag in data:
             game_tags.append(GameTag(tag["game_tag_id"], tag["game_tag_name"]))
         return game_tags
-
 
     def get_tags_by_game_name(self, game_name: str) -> list[GameTag]:
         """
@@ -55,7 +54,6 @@ class GameTagConnector:
             tags.append(tag)
         return tags
 
-
     def get_game_tag_by_name(self, tag_name: str) -> GameTag:
         """
         Returns game tag row from database using name.
@@ -70,13 +68,12 @@ class GameTagConnector:
             TypeError: If tag_name is not an string.
         """
         data = query_db(
-            "SELECT * FROM GameTags WHERE game_tag_name = ?",
+            "SELECT gt.game_tag_id, gt.game_tag_name FROM GameTags gt WHERE game_tag_name = ?",
             (tag_name,),
             fetch=True,
             one=True,
         )
         return GameTag(data["game_tag_id"], data["game_tag_name"])
-
 
     def get_game_tag_by_id(self, tag_id: int) -> GameTag:
         """
@@ -92,10 +89,12 @@ class GameTagConnector:
             TypeError: If tag_id is not an integer.
         """
         data = query_db(
-            "SELECT * FROM GameTags WHERE game_tag_id = ?", (tag_id,), fetch=True, one=True
+            "SELECT gt.game_tag_id, gt.game_tag_name FROM GameTags gt WHERE game_tag_id = ?",
+            (tag_id,),
+            fetch=True,
+            one=True,
         )
         return GameTag(data["game_tag_id"], data["game_tag_name"])
-
 
     def update_game_tag(self, new_tag: GameTag):
         """
@@ -112,7 +111,6 @@ class GameTagConnector:
             fetch=False,
         )
 
-
     def delete_game_tag_by_id(self, tag_id: int):
         """
         Deletes game tag in the GameTags table and removes all connections
@@ -124,7 +122,10 @@ class GameTagConnector:
             None
         """
         query_db(
-            "DELETE FROM GameTags WHERE game_tag_id = ?", (tag_id,), fetch=False, one=False
+            "DELETE FROM GameTags WHERE game_tag_id = ?",
+            (tag_id,),
+            fetch=False,
+            one=False,
         )
 
         # Removes any links to now removed game tag to avoid ghost game tags.

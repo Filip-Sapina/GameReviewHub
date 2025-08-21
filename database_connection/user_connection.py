@@ -15,6 +15,7 @@ DEFAULT_USER = {
     "date_joined": None,
 }
 
+
 class UserConnector:
     def __init__(self) -> None:
         pass
@@ -32,11 +33,13 @@ class UserConnector:
             TypeError: If user_id is not an integer.
         """
         data = query_db(
-            "SELECT * FROM Users WHERE user_id = ?", (user_id,), fetch=True, one=True
+            "SELECT u.user_id, u.username, u.password_hash, u.date_joined FROM Users u WHERE user_id = ?",
+            (user_id,),
+            fetch=True,
+            one=True,
         )
         user = User.from_dict(data)
         return user
-
 
     def get_user_by_username(self, username: str) -> User:
         """
@@ -52,7 +55,10 @@ class UserConnector:
             TypeError: If username is not an string.
         """
         data = query_db(
-            "SELECT * FROM Users WHERE username = ?", (username,), fetch=True, one=True
+            "SELECT u.user_id, u.username, u.password_hash, u.date_joined FROM Users u  WHERE username = ?",
+            (username,),
+            fetch=True,
+            one=True,
         )
 
         # Check to prevent making a User with None data which causes an error.
@@ -61,7 +67,6 @@ class UserConnector:
 
         user = User.from_dict(data)
         return user
-
 
     def get_user_session(self):
         """
@@ -75,7 +80,6 @@ class UserConnector:
         else:
             user = User.from_dict(DEFAULT_USER)
         return user
-
 
     def add_user(self, username: str, password: str) -> None:
         """
@@ -96,7 +100,6 @@ class UserConnector:
             fetch=False,
         )
 
-
     def delete_user_by_id(self, user_id: int) -> None:
         """
         Removes a user from Users Table by user_id
@@ -109,7 +112,6 @@ class UserConnector:
 
         """
         query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
-
 
     def update_user(user_id: int, username: str = None, password: str = None) -> None:
         """

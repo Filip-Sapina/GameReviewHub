@@ -7,6 +7,7 @@ from database_connection.review_connection import ReviewConnector
 
 ReviewConnection = ReviewConnector()
 
+
 class GameConnector:
     def __init__(self) -> None:
         pass
@@ -15,7 +16,9 @@ class GameConnector:
         """
         Returns All Games in the Database.
         """
-        data = query_db("SELECT * FROM Games")
+        data = query_db(
+            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link FROM Games g"
+        )
 
         if data is None:
             raise KeyError("No Games Found in Database?!")
@@ -27,7 +30,6 @@ class GameConnector:
             games.append(game)
 
         return games
-
 
     def get_game_by_id(self, game_id: int) -> Game:
         """
@@ -43,7 +45,10 @@ class GameConnector:
         """
 
         data = query_db(
-            "SELECT * FROM Games WHERE game_id = ?", (game_id,), fetch=True, one=True
+            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link FROM Games g WHERE game_id = ?",
+            (game_id,),
+            fetch=True,
+            one=True,
         )
         game = Game.from_dict(data)
         if game:
@@ -51,8 +56,7 @@ class GameConnector:
 
         return game
 
-
-    def get_game_by_name(self,game_name: str) -> Game:
+    def get_game_by_name(self, game_name: str) -> Game:
         """
         Returns Game object from database using game_name
 
@@ -66,15 +70,17 @@ class GameConnector:
         """
 
         data = query_db(
-            "SELECT * FROM Games WHERE title = ?", (game_name,), fetch=True, one=True
+            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link  FROM Games g WHERE title = ?",
+            (game_name,),
+            fetch=True,
+            one=True,
         )
         game = Game.from_dict(data)
         if game:
             game.release_date = datetime.fromtimestamp(game.release_date)
         return game
 
-
-    def get_games_by_closest_match(self,matching_text: str) -> list[Game]:
+    def get_games_by_closest_match(self, matching_text: str) -> list[Game]:
         """
         returns a list of most games in database ordered by how closely the match the given string.
         Ignores games under specific ratio so that unrelated games are less common.
@@ -85,7 +91,11 @@ class GameConnector:
             games (List[Game]): a list of games ordered by how closely they match the given text.
         """
 
-        data = query_db("SELECT * FROM Games", fetch=True, one=False)
+        data = query_db(
+            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link FROM Games g",
+            fetch=True,
+            one=False,
+        )
 
         if not data:
             raise KeyError("No Games Found in Database?!")
@@ -101,8 +111,7 @@ class GameConnector:
         games = [pair[1] for pair in games]
         return games
 
-
-    def get_games_by_platform_ids(self,platform_ids: list[int]):
+    def get_games_by_platform_ids(self, platform_ids: list[int]):
         """
         Returns a list of Game objects ordered by how many of the input platform_ids they are assigned.
 
@@ -118,12 +127,12 @@ class GameConnector:
 
         query = """
             SELECT 
-                Games.*, 
+                g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link, 
                 COUNT(PlatformAssignment.game_tag_id) as tag_match_count
-            FROM Games
-            JOIN PlatformAssignment ON Games.game_id = PLatformAssignment.game_id
+            FROM Games g
+            JOIN PlatformAssignment ON g.game_id = PLatformAssignment.game_id
             WHERE PLatformAssignment.game_tag_id IN (?)
-            GROUP BY Games.game_id
+            GROUP BY g.game_id
             ORDER BY tag_match_count DESC
         """
         data = query_db(query, platform_ids, fetch=True, one=False)
@@ -133,7 +142,6 @@ class GameConnector:
             game = Game.from_dict(row)
             games.append(game)
         return games
-
 
     def get_games_by_game_tag_ids(self, game_tag_ids: list[int]):
         """
@@ -151,12 +159,12 @@ class GameConnector:
 
         query = """
             SELECT 
-                Games.*, 
+                 g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link,, 
                 COUNT(GameTagAssignment.game_tag_id) as tag_match_count
-            FROM Games
-            JOIN GameTagAssignment ON Games.game_id = GameTagAssignment.game_id
+            FROM Games g
+            JOIN GameTagAssignment ON g.game_id = GameTagAssignment.game_id
             WHERE GameTagAssignment.game_tag_id IN (?)
-            GROUP BY Games.game_id
+            GROUP BY g.game_id
             ORDER BY tag_match_count DESC
         """
 
@@ -166,7 +174,6 @@ class GameConnector:
             game = Game.from_dict(row)
             games.append(game)
         return games
-
 
     def add_game(self, game: Game) -> None:
         """
@@ -197,7 +204,6 @@ class GameConnector:
 
         query_db(game_insert, args, fetch=False, one=False)
 
-
     def update_game(self, new_game: Game = None):
         """
         Updates Game in database with new values from object.
@@ -224,7 +230,6 @@ class GameConnector:
         )
         query_db(update, args, fetch=False, one=False)
 
-
     def delete_game_by_id(self, game_id: int) -> None:
         """
         Removes a game from Games Table by game_id
@@ -237,7 +242,6 @@ class GameConnector:
 
         """
         query_db("DELETE FROM Games WHERE game_id = ?", (game_id,), fetch=False, one=False)
-
 
     def link_game_tag(self, game_id: int, game_tag_id: int) -> None:
         """
@@ -256,7 +260,6 @@ class GameConnector:
             one=False,
         )
 
-
     def link_platform(self, game_id: int, platform_id: int) -> None:
         """
         Adds new row into PlatformAssingment table based on input ids.
@@ -273,7 +276,6 @@ class GameConnector:
             fetch=False,
             one=False,
         )
-
 
     def get_avg_rating(self, game_id: int):
         """
@@ -296,7 +298,7 @@ class GameConnector:
         return average
 
     def get_date_str(self, game_id: int):
-        
+
         game = self.get_game_by_id(game_id)
         release_date = game.release_date
         date = release_date.date().strftime("%d/%m/%Y")
