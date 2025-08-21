@@ -285,6 +285,12 @@ def game_page(game_id: int):
     reviews = ReviewConnection.get_reviews_by_game_id(game_id)
     user_review = None
 
+    accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
+    game.has_colourblind_support = accessibilty_ratios[0]
+    game.has_subtitles = accessibilty_ratios[1]
+    game.has_difficulty_options = accessibilty_ratios[2]
+
+
     for review in reviews:
         review.platform = PlatformConnection.get_platform_by_id(review.platform_id)
         review.user = UserConnection.get_user_by_id(review.user_id)

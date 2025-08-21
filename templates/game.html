@@ -29,12 +29,15 @@
                 {% endfor %}
             </div>
             <div class="accessibility container">
-                <span class="material-symbols-outlined">subtitles</span>
-                <input type="checkbox" name="subtitles" disabled>
-                <span class="material-symbols-outlined">visibility</span>
-                <input type="checkbox" name="colourblind_options" disabled checked>
-                <span class="material-symbols-outlined">swords</span>
-                <input type="checkbox" name="difficulty_options" disabled>
+                <div class="value"
+                style="background: linear-gradient(to right, var(--positive-color) {{game.has_subtitles}}%, var(--negative-color) {{game.has_subtitles}}%)" "><span class="
+                material-symbols-outlined">subtitles</span>subtitles</div>
+            <div class="value"
+                style="background: linear-gradient(to right, var(--positive-color) {{game.has_colourblind_support}}%, var(--negative-color) {{game.has_colourblind_support}}%)">
+                <span class="material-symbols-outlined">visibility</span><br>colour</div>
+            <div class="value"
+                style="background: linear-gradient(to right, var(--positive-color) {{game.has_difficulty_options}}%, var(--negative-color) {{game.has_difficulty_options}}%)">
+                <span class="material-symbols-outlined">swords</span>difficulty</div>
             </div>
         </div>
         <!-- Description -->
