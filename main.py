@@ -54,7 +54,8 @@ def close_database_connection(exception):
 @app.route("/home")
 def home():
     """
-    returns a webpage from template "home.html", called when user goes to /home. Base page for the website.
+    returns a webpage from template "home.html", called when user goes to /home. 
+    Base page for the website.
     """
     # gets all games to filter.
     games = GameConnection.get_games()
@@ -317,6 +318,9 @@ def game_page(game_id: int):
 
 @app.route("/filter_reviews", methods=["GET"])
 def filter_reviews():
+    """
+    returns filtered reviews based on if they are positive, negative or mixed / all reviews.
+    """
     filter_type = request.args.get("filter", "mixed")
     game_id = request.args.get("game_id")
 
@@ -363,18 +367,21 @@ def index():
 
 @app.errorhandler(404)
 def page_not_found(error):
+    """error 404 handler, basic page with info on what went wrong"""
     flash(error)
     return render_template("404.html", user=UserConnection.get_user_session())
 
 
 @app.errorhandler(505)
-def page_not_found(error):
+def html_error(error):
+    """error 505 handler, basic page with info on what went wrong"""
     flash(error)
     return render_template("505.html", user=UserConnection.get_user_session())
 
 
 @app.route("/trigger505")
 def trigger_505():
+    """instantly triggers an error 505 for debugging"""
     abort(505)
 
 
