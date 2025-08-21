@@ -173,6 +173,7 @@
 </div>
 
 <script>
+    // set up rating slider and display
     rating_display = document.getElementById("rating-value-display");
     rating_slider = document.getElementById("user-rating");
     value = rating_slider.value;
@@ -183,6 +184,7 @@
         rating_display.textContent = value;
     })
 
+    // get request to filter reviews.
     function fetchReviews(filter) {
         fetch(`/filter_reviews?filter=${filter}&game_id={{game.game_id}}`)
             .then(response => response.json())
@@ -219,6 +221,8 @@
                 console.error('Fetch error:', error);
             });
     }
+
+    // assign function to each button
     ['positive', 'mixed', 'negative'].forEach(filter => {
         document.getElementById(`${filter}-reviews`).addEventListener('click', () => fetchReviews(filter));
     });
