@@ -1,10 +1,12 @@
-"""functions that allow connection between database and web app specifically for platforms (playstation 5, xbox one, etc)."""
+"""functions that allow connection between database and web app specifically for platforms 
+(playstation 5, xbox one, etc)."""
 
 from database_connection.base_db_connections import query_db
 from database_connection.base_db_connections import Platform, GameTag
 
 
 class PlatformConnector:
+    """class that contains platform related functions for the database"""
     def __init__(self) -> None:
         pass
 

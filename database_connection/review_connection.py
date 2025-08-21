@@ -3,11 +3,11 @@
 from database_connection.base_db_connections import (
     query_db,
     Review,
-    AccessibilityOptions,
 )
 
 
 class ReviewConnector:
+    """class that contains review related functions for the database"""
     def __init__(self) -> None:
         pass
 
@@ -63,7 +63,19 @@ class ReviewConnector:
         """
         # Query
         data = query_db(
-            "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE review_id = ?",
+            """
+            SELECT 
+            r.review_id, 
+            r.user_id, 
+            r.game_id, 
+            r.rating, 
+            r.review_text, 
+            r.review_date, 
+            r.has_colourblind_support, 
+            r.has_subtitles, 
+            r.has_difficulty_options, 
+            platform_id 
+            FROM Reviews r WHERE review_id = ?""",
             (review_id,),
             fetch=True,
             one=True,
@@ -82,7 +94,19 @@ class ReviewConnector:
             review (Review): a review object with relevant data.
         """
         # Query and get Data.
-        query = "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE game_id = ?"
+        query = """
+        SELECT 
+        r.review_id, 
+        r.user_id, 
+        r.game_id, 
+        r.rating, 
+        r.review_text, 
+        r.review_date, 
+        r.has_colourblind_support, 
+        r.has_subtitles, 
+        r.has_difficulty_options, 
+        platform_id FROM Reviews 
+        r WHERE game_id = ?"""
         data = query_db(query, (game_id,), fetch=True, one=False)
 
         # create a list of reviews with data and return.
@@ -102,7 +126,20 @@ class ReviewConnector:
 
         # Get Review.
         data = query_db(
-            "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE game_id = ? AND user_id = ?",
+            """
+            SELECT 
+            r.review_id, 
+            r.user_id, 
+            r.game_id, 
+            r.rating, 
+            r.review_text, 
+            r.review_date, 
+            r.has_colourblind_support, 
+            r.has_subtitles, 
+            r.has_difficulty_options, 
+            platform_id 
+            FROM Reviews r 
+            WHERE game_id = ? AND user_id = ?""",
             (game_id, user_id),
             fetch=True,
             one=True,
@@ -175,7 +212,19 @@ class ReviewConnector:
             reviews (List[Review]): list of reviews with relevant metadata.
         """
         data = query_db(
-            "SELECT r.review_id, r.user_id, r.game_id, r.rating, r.review_text, r.review_date, r.has_colourblind_support, r.has_subtitles, r.has_difficulty_options, platform_id FROM Reviews r WHERE game_id = ? and platform_id = ?",
+            """
+            SELECT 
+            r.review_id, 
+            r.user_id, 
+            r.game_id, 
+            r.rating, 
+            r.review_text, 
+            r.review_date, 
+            r.has_colourblind_support, 
+            r.has_subtitles, 
+            r.has_difficulty_options, 
+            platform_id FROM Reviews 
+            r WHERE game_id = ? and platform_id = ?""",
             (game_id, platform_id),
             fetch=True,
             one=False,
@@ -236,7 +285,8 @@ class ReviewConnector:
 
     def get_accessibilty_ratios(self, game_id: int):
         """
-        Returns the ratio between how many reviews think a game has a acessibilty option vs how mnay don't.
+        Returns the ratio between how many reviews think a 
+        game has a acessibilty option vs how many don't.
         Args:
             game_id (int): id of the game that should be checked.
         Returns:
@@ -263,5 +313,4 @@ class ReviewConnector:
             has_difficulty_options = int(has_difficulty_options / review_count * 100)
             has_subtitles = int(has_subtitles / review_count * 100)
             return (has_colourblind_support, has_subtitles, has_difficulty_options)
-        else:
-            return (0, 0, 0)
+        return (0, 0, 0)

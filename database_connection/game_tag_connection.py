@@ -1,4 +1,5 @@
-"""functions that allow connection between database and web app specifically for game tags (adventure, fighting, etc)."""
+"""functions that allow connection between database and web app.
+specifically for game tags (adventure, fighting, etc)."""
 
 from database_connection.base_db_connections import query_db, GameTag
 
@@ -6,6 +7,7 @@ from database_connection.base_db_connections import query_db, GameTag
 
 
 class GameTagConnector:
+    """class that contains game tag related functions for the database"""
     def __init__(self) -> None:
         pass
 

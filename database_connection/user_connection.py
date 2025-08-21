@@ -17,6 +17,7 @@ DEFAULT_USER = {
 
 
 class UserConnector:
+    """class that contains user related functions for the database"""
     def __init__(self) -> None:
         pass
 
@@ -33,7 +34,15 @@ class UserConnector:
             TypeError: If user_id is not an integer.
         """
         data = query_db(
-            "SELECT u.user_id, u.username, u.password_hash, u.date_joined FROM Users u WHERE user_id = ?",
+            """
+            SELECT 
+            u.user_id, 
+            u.username, 
+            u.password_hash, 
+            u.date_joined 
+            FROM Users u 
+            WHERE user_id = ?
+            """,
             (user_id,),
             fetch=True,
             one=True,
@@ -55,7 +64,14 @@ class UserConnector:
             TypeError: If username is not an string.
         """
         data = query_db(
-            "SELECT u.user_id, u.username, u.password_hash, u.date_joined FROM Users u  WHERE username = ?",
+            """SELECT 
+            u.user_id, 
+            u.username, 
+            u.password_hash, 
+            u.date_joined 
+            FROM Users u  
+            WHERE username = ?
+            """,
             (username,),
             fetch=True,
             one=True,
@@ -113,7 +129,7 @@ class UserConnector:
         """
         query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
 
-    def update_user(user_id: int, username: str = None, password: str = None) -> None:
+    def update_user(self, user_id: int, username: str = None, password: str = None) -> None:
         """
         Updates an existing user's username and/or password in the database
 

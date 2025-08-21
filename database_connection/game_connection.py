@@ -9,6 +9,7 @@ ReviewConnection = ReviewConnector()
 
 
 class GameConnector:
+    """class that contains game related functions for the database"""
     def __init__(self) -> None:
         pass
 
@@ -17,7 +18,17 @@ class GameConnector:
         Returns All Games in the Database.
         """
         data = query_db(
-            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link FROM Games g"
+            """
+            SELECT 
+            g.game_id, 
+            g.title, 
+            g.description,
+            g.release_date, 
+            g.publisher, 
+            g.developer, 
+            g.image_link 
+            FROM Games g
+            """
         )
 
         if data is None:
@@ -45,7 +56,18 @@ class GameConnector:
         """
 
         data = query_db(
-            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link FROM Games g WHERE game_id = ?",
+            """
+            SELECT 
+            g.game_id, 
+            g.title, 
+            g.description,
+            g.release_date, 
+            g.publisher, 
+            g.developer, 
+            g.image_link 
+            FROM Games g 
+            WHERE game_id = ?
+            """,
             (game_id,),
             fetch=True,
             one=True,
@@ -70,7 +92,17 @@ class GameConnector:
         """
 
         data = query_db(
-            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link  FROM Games g WHERE title = ?",
+            """
+            SELECT 
+            g.game_id, 
+            g.title, 
+            g.description, 
+            g.release_date, 
+            g.publisher, 
+            g.developer, 
+            g.image_link 
+            FROM Games g WHERE title = ?
+            """,
             (game_name,),
             fetch=True,
             one=True,
@@ -92,7 +124,16 @@ class GameConnector:
         """
 
         data = query_db(
-            "SELECT g.game_id, g.title, g.description, g.release_date, g.publisher, g.developer, g.image_link FROM Games g",
+            """
+            SELECT 
+            g.game_id, 
+            g.title, 
+            g.description, 
+            g.release_date,
+            g.publisher, 
+            g.developer, 
+            g.image_link 
+            FROM Games g""",
             fetch=True,
             one=False,
         )
@@ -113,7 +154,8 @@ class GameConnector:
 
     def get_games_by_platform_ids(self, platform_ids: list[int]):
         """
-        Returns a list of Game objects ordered by how many of the input platform_ids they are assigned.
+        Returns a list of Game objects
+        ordered by how many of the input platform_ids they are assigned.
 
         Args:
             platform_ids (List[int]): List of platform IDs to match.
@@ -298,6 +340,14 @@ class GameConnector:
         return average
 
     def get_date_str(self, game_id: int):
+        """Returns the formatted date of when the game was released.
+         timestamp -> dd/mm/yyyy + how long ago it was
+         
+        Args:
+            game_id (int): game id of game to get release date of.
+        Returns:
+            date_str (str): formatted date.  
+        """
 
         game = self.get_game_by_id(game_id)
         release_date = game.release_date
