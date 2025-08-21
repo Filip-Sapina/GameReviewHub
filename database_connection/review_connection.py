@@ -8,6 +8,7 @@ from database_connection.base_db_connections import (
 
 class ReviewConnector:
     """class that contains review related functions for the database"""
+
     def __init__(self) -> None:
         pass
 
@@ -170,6 +171,8 @@ class ReviewConnector:
         WHERE g.title = ?
         """
         data = query_db(query, (game_name,), fetch=True, one=False)
+
+        # Turn data into review object and return data.
         reviews = []
         for review_data in data:
             reviews.append(Review.from_dict(review_data))
@@ -197,6 +200,8 @@ class ReviewConnector:
         WHERE u.username = ?
         """
         data = query_db(query, (user_name,), fetch=True, one=False)
+
+        # Turn data into review object and return data.
         reviews = []
         for review_data in data:
             reviews.append(Review.from_dict(review_data))
@@ -229,6 +234,8 @@ class ReviewConnector:
             fetch=True,
             one=False,
         )
+
+        # Turn data into review object and return data.
         reviews = []
         for row in data:
             review = Review.from_dict(row)
@@ -285,7 +292,7 @@ class ReviewConnector:
 
     def get_accessibilty_ratios(self, game_id: int):
         """
-        Returns the ratio between how many reviews think a 
+        Returns the ratio between how many reviews think a
         game has a acessibilty option vs how many don't.
         Args:
             game_id (int): id of the game that should be checked.

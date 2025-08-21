@@ -10,6 +10,7 @@ ReviewConnection = ReviewConnector()
 
 class GameConnector:
     """class that contains game related functions for the database"""
+
     def __init__(self) -> None:
         pass
 
@@ -36,6 +37,7 @@ class GameConnector:
 
         games = []
 
+        # convert data to game class objects.
         for row in data:
             game = Game.from_dict(row)
             games.append(game)
@@ -73,8 +75,6 @@ class GameConnector:
             one=True,
         )
         game = Game.from_dict(data)
-        if game:
-            game.release_date = datetime.fromtimestamp(game.release_date)
 
         return game
 
@@ -108,14 +108,12 @@ class GameConnector:
             one=True,
         )
         game = Game.from_dict(data)
-        if game:
-            game.release_date = datetime.fromtimestamp(game.release_date)
         return game
 
     def get_games_by_closest_match(self, matching_text: str) -> list[Game]:
         """
         returns a list of most games in database ordered by how closely the match the given string.
-        Ignores games under specific ratio so that unrelated games are less common.
+        Ignores games under specific ratio of 20 : 100 so that unrelated games are less common.
 
         Args:
             matching_text (str): the text that will be compared to each game
@@ -123,32 +121,18 @@ class GameConnector:
             games (List[Game]): a list of games ordered by how closely they match the given text.
         """
 
-        data = query_db(
-            """
-            SELECT 
-            g.game_id, 
-            g.title, 
-            g.description, 
-            g.release_date,
-            g.publisher, 
-            g.developer, 
-            g.image_link 
-            FROM Games g""",
-            fetch=True,
-            one=False,
-        )
-
-        if not data:
-            raise KeyError("No Games Found in Database?!")
-
+        data = self.get_games()
         games = []
-        for row in data:
-            game = Game.from_dict(row)
+
+        # test how much they match the provided
+        for game in data:
             closeness = fuzz.ratio(matching_text, game.title)
             if closeness > 20:
                 games.append((closeness, game))
 
+        # sort games by how close they are
         games.sort(key=lambda pair: pair[0], reverse=True)
+        # remove closeness from list
         games = [pair[1] for pair in games]
         return games
 
@@ -163,7 +147,7 @@ class GameConnector:
         Returns:
             List[Game]: List of Game objects, ordered by match count descending.
         """
-
+        # check to skip code if no platform ids are provided
         if not platform_ids:
             return []
 
@@ -179,6 +163,7 @@ class GameConnector:
         """
         data = query_db(query, platform_ids, fetch=True, one=False)
 
+        # convert data into games.
         games = []
         for row in data:
             game = Game.from_dict(row)
@@ -196,6 +181,7 @@ class GameConnector:
             List[Game]: List of Game objects, ordered by match count descending.
         """
 
+        # check to skip code if no game tag ids are provided
         if not game_tag_ids:
             return []
 
@@ -209,8 +195,9 @@ class GameConnector:
             GROUP BY g.game_id
             ORDER BY tag_match_count DESC
         """
-
         data = query_db(query, game_tag_ids, fetch=True, one=False)
+
+        # Convert data into games list.
         games = []
         for row in data:
             game = Game.from_dict(row)
@@ -283,7 +270,9 @@ class GameConnector:
             None
 
         """
-        query_db("DELETE FROM Games WHERE game_id = ?", (game_id,), fetch=False, one=False)
+        query_db(
+            "DELETE FROM Games WHERE game_id = ?", (game_id,), fetch=False, one=False
+        )
 
     def link_game_tag(self, game_id: int, game_tag_id: int) -> None:
         """
@@ -342,15 +331,17 @@ class GameConnector:
     def get_date_str(self, game_id: int):
         """Returns the formatted date of when the game was released.
          timestamp -> dd/mm/yyyy + how long ago it was
-         
+
         Args:
             game_id (int): game id of game to get release date of.
         Returns:
-            date_str (str): formatted date.  
+            date_str (str): formatted date.
         """
 
         game = self.get_game_by_id(game_id)
-        release_date = game.release_date
+
+        # set up date
+        release_date = datetime.fromtimestamp(game.release_date)
         date = release_date.date().strftime("%d/%m/%Y")
         time_passed = datetime.now() - release_date
 

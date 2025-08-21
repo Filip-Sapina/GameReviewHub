@@ -5,9 +5,7 @@ from flask import session
 from werkzeug import security
 from database_connection.base_db_connections import query_db, User
 
-# User Logic
-
-
+# if not logged in, use default user, sort of like guest.
 DEFAULT_USER = {
     "user_id": None,
     "username": None,
@@ -18,6 +16,7 @@ DEFAULT_USER = {
 
 class UserConnector:
     """class that contains user related functions for the database"""
+
     def __init__(self) -> None:
         pass
 
@@ -88,12 +87,16 @@ class UserConnector:
         """
         returns the user if logged into user session, other returns default n/a user.
         """
+        # if user_id is not in session keys, user is not logged in.
         if not "user_id" in session.keys():
             session["user_id"] = None
+
         if not session["user_id"] is None:
+            # user is logged in, therefore can get user object
             user = self.get_user_by_id(session["user_id"])
             user.date_joined = datetime.fromtimestamp(round(user.date_joined))
         else:
+            # not logged in so default user
             user = User.from_dict(DEFAULT_USER)
         return user
 
@@ -129,7 +132,9 @@ class UserConnector:
         """
         query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
 
-    def update_user(self, user_id: int, username: str = None, password: str = None) -> None:
+    def update_user(
+        self, user_id: int, username: str = None, password: str = None
+    ) -> None:
         """
         Updates an existing user's username and/or password in the database
 

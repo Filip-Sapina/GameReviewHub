@@ -3,11 +3,9 @@ specifically for game tags (adventure, fighting, etc)."""
 
 from database_connection.base_db_connections import query_db, GameTag
 
-# Game Tag Logic
-
-
 class GameTagConnector:
     """class that contains game tag related functions for the database"""
+
     def __init__(self) -> None:
         pass
 
@@ -21,13 +19,17 @@ class GameTagConnector:
         Returns:
             None
         """
-        query_db("INSERT INTO GameTags (game_tag_name) VALUES (?)", (name,), fetch=False)
+        query_db(
+            "INSERT INTO GameTags (game_tag_name) VALUES (?)", (name,), fetch=False
+        )
 
     def get_game_tags(self) -> list[GameTag]:
         """
         Returns a list of all game tags.
         """
         data = query_db("SELECT gt.game_tag_id, gt.game_tag_name FROM GameTags gt")
+
+        # Convert data to game tags
         game_tags = []
         for tag in data:
             game_tags.append(GameTag(tag["game_tag_id"], tag["game_tag_name"]))
@@ -50,6 +52,8 @@ class GameTagConnector:
                 ON g.game_id = gt.game_id WHERE g.title = ?
                 """
         data = query_db(query, (game_name,))
+
+        # convert data into game tags
         tags = []
         for tag_dict in data:
             tag = self.get_game_tag_by_id(tag_dict["game_tag_id"])

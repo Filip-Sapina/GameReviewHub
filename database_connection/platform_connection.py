@@ -1,4 +1,4 @@
-"""functions that allow connection between database and web app specifically for platforms 
+"""functions that allow connection between database and web app specifically for platforms
 (playstation 5, xbox one, etc)."""
 
 from database_connection.base_db_connections import query_db
@@ -7,6 +7,7 @@ from database_connection.base_db_connections import Platform, GameTag
 
 class PlatformConnector:
     """class that contains platform related functions for the database"""
+
     def __init__(self) -> None:
         pass
 
@@ -61,6 +62,8 @@ class PlatformConnector:
         Returns a list of all platforms.
         """
         data = query_db("SELECT p.platform_id, p.platform_name FROM Platforms p")
+
+        # convert data to platforms
         platforms = []
         for tag in data:
             platforms.append(GameTag(tag["platform_id"], tag["platform_name"]))
@@ -89,6 +92,7 @@ class PlatformConnector:
             one=False,
         )
 
+        # convert data to platforms
         platforms = []
         for platform_dict in platform_ids:
             tag = self.get_platform_by_id(platform_dict["platform_id"])

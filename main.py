@@ -54,7 +54,7 @@ def close_database_connection(exception):
 @app.route("/home")
 def home():
     """
-    returns a webpage from template "home.html", called when user goes to /home. 
+    returns a webpage from template "home.html", called when user goes to /home.
     Base page for the website.
     """
     # gets all games to filter.
@@ -157,15 +157,21 @@ def register_page():
         # Sanatize user inputs.
         if not regex_username.fullmatch(username):
             flash("Invalid username format")
-            return render_template("register.html", user=UserConnection.get_user_session())
+            return render_template(
+                "register.html", user=UserConnection.get_user_session()
+            )
         if not regex_password.fullmatch(password):
             flash("Invalid password format")
-            return render_template("register.html", user=UserConnection.get_user_session())
+            return render_template(
+                "register.html", user=UserConnection.get_user_session()
+            )
 
         # Make user user doesn't already exist
         if UserConnection.get_user_by_username(username):
             flash("Username is Already Taken!")
-            return render_template("register.html", user=UserConnection.get_user_session())
+            return render_template(
+                "register.html", user=UserConnection.get_user_session()
+            )
 
         # Add user and log current session into user.
         UserConnection.add_user(username, password)
@@ -220,7 +226,9 @@ def search_page():
             # Get Average Rating for each Game
             game.rating = GameConnection.get_avg_rating(game.game_id)
 
-            game.review_count = len(ReviewConnection.get_reviews_by_game_id(game.game_id))
+            game.review_count = len(
+                ReviewConnection.get_reviews_by_game_id(game.game_id)
+            )
 
             accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
             game.has_colourblind_support = accessibilty_ratios[0]
@@ -239,7 +247,7 @@ def search_page():
 
 @app.route("/game/<int:game_id>", methods=["GET", "POST"])
 def game_page(game_id: int):
-    """ Page for a game that contains:
+    """Page for a game that contains:
     reviews, rating and ability to write own review."""
     user = UserConnection.get_user_session()
 
@@ -292,14 +300,19 @@ def game_page(game_id: int):
         flash("Game Not Found")
         return redirect(url_for("home"))
 
+    # get reviews
+
     reviews = ReviewConnection.get_reviews_by_game_id(game_id)
     user_review = None
+
+    # get accessibility ratings
 
     accessibilty_ratios = ReviewConnection.get_accessibilty_ratios(game.game_id)
     game.has_colourblind_support = accessibilty_ratios[0]
     game.has_subtitles = accessibilty_ratios[1]
     game.has_difficulty_options = accessibilty_ratios[2]
 
+    # gett additional information pertaining to each review.
     for review in reviews:
         review.platform = PlatformConnection.get_platform_by_id(review.platform_id)
         review.user = UserConnection.get_user_by_id(review.user_id)
@@ -326,6 +339,7 @@ def filter_reviews():
 
     reviews = ReviewConnection.get_reviews_by_game_id(game_id)
 
+    # create a list of reviews based on filter type.
     if filter_type == "positive":
         filtered = [
             (
@@ -356,7 +370,7 @@ def filter_reviews():
             for r in reviews
         ]
 
-    return jsonify(filtered)
+    return jsonify(filtered)  # send back to js code for processing.
 
 
 @app.route("/")
