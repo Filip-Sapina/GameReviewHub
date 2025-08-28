@@ -123,7 +123,7 @@ class UserConnector:
 
     def delete_user_by_id(self, user_id: int) -> None:
         """
-        Removes a user from Users Table by user_id
+        Removes a user (and their reviews) from Users Table by user_id
 
         Args:
             user_id (int): The ID of the user to delete.
@@ -132,6 +132,7 @@ class UserConnector:
             None
 
         """
+        query_db("DELETE FROM Reviews WHERE user_id = ?", (user_id,))
         query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
 
     def update_user(
