@@ -29,7 +29,7 @@ def get_database(database=DATABASE):
     return g.db, cursor
 
 
-def query_db(query: str, args=(), fetch: bool = True, one: bool = False, other_database=None):
+def query_db(query: str, args=(), fetch: bool = True, one: bool = False):
     """
     Completes a database SQL query on Database.db
     Args:
@@ -41,10 +41,8 @@ def query_db(query: str, args=(), fetch: bool = True, one: bool = False, other_d
         does nothing if fetch = false.
     """
     # Get connection
-    if other_database:
-        db, cursor = get_database(other_database)
-    else:
-        db, cursor = get_database()
+
+    db, cursor = get_database()
 
     # Complete Query
     cursor.execute(query, args)
