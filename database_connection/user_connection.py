@@ -20,7 +20,7 @@ class UserConnector:
     def __init__(self) -> None:
         pass
 
-    def get_user_by_id(self, user_id: int) -> User:
+    def get_user_by_id(self, user_id: int, other_database=None) -> User:
         """
         Returns user data from database using user_id
 
@@ -45,11 +45,12 @@ class UserConnector:
             (user_id,),
             fetch=True,
             one=True,
+            other_database=other_database
         )
         user = User.from_dict(data)
         return user
 
-    def get_user_by_username(self, username: str) -> User:
+    def get_user_by_username(self, username: str, other_database=None) -> User:
         """
         Returns user data from database using username
 
@@ -74,6 +75,7 @@ class UserConnector:
             (username,),
             fetch=True,
             one=True,
+            other_database=other_database
         )
 
         # Check to prevent making a User with None data which causes an error.
@@ -100,7 +102,7 @@ class UserConnector:
             user = User.from_dict(DEFAULT_USER)
         return user
 
-    def add_user(self, username: str, password: str) -> None:
+    def add_user(self, username: str, password: str, other_database=None) -> None:
         """
         Add a new user to the database with hashed password and current time as join date.
 
@@ -116,10 +118,10 @@ class UserConnector:
         query_db(
             "INSERT INTO Users (username, password_hash, date_joined) VALUES (?,?,?)",
             (username, password_hash, date_joined),
-            fetch=False,
+            fetch=False, other_database=other_database
         )
 
-    def delete_user_by_id(self, user_id: int) -> None:
+    def delete_user_by_id(self, user_id: int, other_database=None) -> None:
         """
         Removes a user from Users Table by user_id
 
@@ -130,10 +132,10 @@ class UserConnector:
             None
 
         """
-        query_db("DELETE FROM Users WHERE user_id = ?", (user_id,))
+        query_db("DELETE FROM Users WHERE user_id = ?", (user_id,), other_database=other_database)
 
     def update_user(
-        self, user_id: int, username: str = None, password: str = None
+        self, user_id: int, username: str = None, password: str = None, other_database=None
     ) -> None:
         """
         Updates an existing user's username and/or password in the database
@@ -166,4 +168,4 @@ class UserConnector:
             values = (*values, password_hash)
         query = query + "WHERE user_id = ?"
         values = (*values, user_id)
-        query_db(query, values, fetch=False)
+        query_db(query, values, fetch=False, other_database=other_database)
